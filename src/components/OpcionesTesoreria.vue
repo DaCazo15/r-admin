@@ -122,7 +122,7 @@ const actualizarMensualidad = async () => {
       </button>
       <button
         @click="emitirMetricas"
-        class="cursor-pointer flex-1 sm:flex-initial hover:bg-blue-600 hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
+        class="cursor-pointer flex-1 sm:flex-initial hover:bg-blue-600 focus:bg-blue-600 focus:text-white hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
         :class="{
           'bg-blue-600 text-white': metricasOn,
           'bg-blue-600/40 text-blue-700': !metricasOn,
