@@ -4,7 +4,7 @@ import { useSesionStore } from '../stores/useSesionStore'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 
-import DesplegableComponent from './deplegable/desplegableComponent.vue'
+import DesplegableComponent from './deplegable/DesplegableComponent.vue'
 
 const sesionStore = useSesionStore()
 const desplegable = ref(false)
