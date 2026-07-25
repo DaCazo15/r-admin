@@ -10,7 +10,7 @@ const emit = defineEmits(['cerrarSesion'])
 
 <template>
   <div
-    class="w-72 bg-linear-to-b from-primary-600 to-primary-800 text-white p-5 shadow-2xl flex flex-col gap-5 rounded-r-2xl rounded-b-2xl border-r border-b border-white/10 backdrop-blur-md"
+    class="w-full max-w-[18rem] md:w-72 h-full bg-linear-to-b from-primary-600 to-primary-800 text-white p-5 shadow-2xl flex flex-col gap-5 rounded-none md:rounded-r-2xl md:rounded-b-2xl border-r border-white/10 backdrop-blur-md overflow-y-auto"
   >
     <!-- Sección de Perfil (Avatar + Nombre + Rol/Email) -->
     <div class="flex items-center gap-3.5 pb-4 border-b border-white/15">

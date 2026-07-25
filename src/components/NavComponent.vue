@@ -33,7 +33,7 @@ const toggleDesplegable = () => {
   </div>
   <div class="relative flex items-end">
     <DesplegableComponent
-      class="absolute top-0 left-0 z-40 shadow-2xl transition-all duration-300 ease-in-out transform origin-left"
+      class="fixed inset-y-0 left-0 z-40 shadow-2xl transition-all duration-300 ease-in-out transform origin-left"
       :class="[
         desplegable
           ? 'translate-x-0 opacity-100 pointer-events-auto'
@@ -47,7 +47,9 @@ const toggleDesplegable = () => {
       @click="toggleDesplegable"
       aria-label="Abrir menú"
       class="cursor-pointer h-12 w-10 flex items-center justify-center mt-3 bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white rounded-r-xl shadow-lg border-y border-r border-white/20 relative z-50 transition-all duration-300 ease-in-out active:scale-95 group"
-      :class="[desplegable ? 'translate-x-72 shadow-primary-900/30' : 'translate-x-0']"
+      :class="[
+        desplegable ? 'md:translate-x-72 translate-x-0 shadow-primary-900/30' : 'translate-x-0',
+      ]"
     >
       <i
         class="bi bi-chevron-right text-lg transition-transform duration-300 group-hover:scale-110"

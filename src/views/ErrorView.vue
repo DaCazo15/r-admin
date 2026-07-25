@@ -3,8 +3,9 @@
     class="min-h-screen w-full flex flex-col items-center justify-center px-6 py-12 text-center"
   >
     <!-- Contenedor de la imagen con tamaño controlado -->
-    <div class="image-container-404">
+    <div class="image-container-404 w-full max-w-3xl mx-auto">
       <img
+        class="w-full h-auto rounded-3xl"
         src="https://i.postimg.cc/DZCNJgYX/404.avif"
         alt="Ilustración Error 404 - Página no encontrada"
       />
