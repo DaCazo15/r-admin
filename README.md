@@ -1,5 +1,7 @@
 # R-Admin 🚀
 
+<img src="https://rotaract4370.org/wp-content/uploads/2025/03/cropped-isotipo-270x270.png" aligne="center" alt="R-Admin" width="120"/>
+
 Panel de administración y gestión desarrollado con **Vue 3**, **Vite**, **Tailwind CSS v4**, **Pinia** y **Firebase**.
 
 ---
@@ -50,16 +52,19 @@ Panel de administración y gestión desarrollado con **Vue 3**, **Vite**, **Tail
 ## 📜 Scripts Disponibles
 
 - **Desarrollo:** Inicia el servidor de desarrollo local de Vite.
+
   ```bash
   npm run dev
   ```
 
 - **Compilación para Producción:** Construye y optimiza los archivos para producción en la carpeta `dist`.
+
   ```bash
   npm run build
   ```
 
 - **Vista Previa de Producción:** Sirve la build localmente para probar el comportamiento de producción.
+
   ```bash
   npm run preview
   ```

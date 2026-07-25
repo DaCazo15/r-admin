@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
-@import 'colors/colors.css';
+@import './Colors/colors.css';
 
-@import 'img/img.css';
+@import './img/img.css';
+
