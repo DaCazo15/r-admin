@@ -1,26 +1,29 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useCollection } from 'vuefire'
-import { query, where } from 'firebase/firestore'
+import { query, where, collection } from 'firebase/firestore'
 import { db } from '@/config/firebase'
 import { meses, form } from '@/helpers/list'
 import { guardarMovimiento } from '@/services/firebaseService'
+import { useEdicion } from '@/composable/useEdicion'
+import { useTesoreriaStore } from '@/stores/useTesoreriaStore'
+
+const props = defineProps({
+  transaccion: Object,
+})
 
 const emit = defineEmits(['close'])
 
 const isSaving = ref(false)
-
 const tipoMovimiento = ref('mensualidad')
+const { modoEdicion, cancelarEdicion } = useEdicion()
+const tesoreriaStore = useTesoreriaStore()
 
 const querySocios = computed(() => {
   if (!db) return null
   return query(collection(db, 'persona'), where('estatus', 'in', ['Socios']))
 })
 const socios = useCollection(querySocios)
-
-const modal = () => {
-  emit('close')
-}
 
 const resetForm = () => {
   form.value.nombre = ''
@@ -33,8 +36,60 @@ const resetForm = () => {
   form.value.mes = ''
 }
 
+const cargarDatosSiEdicion = () => {
+  if (props.transaccion && props.transaccion.id) {
+    const item = props.transaccion
+    tipoMovimiento.value = item.tipoMovimiento || 'mensualidad'
+    form.value.nombre = item.nombre || ''
+    form.value.descripcion = item.descripcion || ''
+    form.value.monto = item.monto || ''
+    form.value.referencia = item.referencia || ''
+    form.value.fechaPago = item.fechaPago || new Date().toISOString().split('T')[0]
+    form.value.tipoPago = item.metodoPago || item.tipoPago || ''
+    form.value.tipoMovimiento = item.tipoMovimiento || ''
+    form.value.mes = item.mes || ''
+  } else {
+    resetForm()
+  }
+}
+
+onMounted(() => {
+  cargarDatosSiEdicion()
+})
+
+watch(
+  () => props.transaccion,
+  () => {
+    cargarDatosSiEdicion()
+  },
+)
+
+const modal = () => {
+  emit('close')
+  cancelarEdicion()
+  resetForm()
+}
+
 const guardarDatos = async () => {
-  await guardarMovimiento(tipoMovimiento.value, form.value, isSaving)
+  if (modoEdicion.value && props.transaccion?.id) {
+    const datosActualizados = {
+      tipoMovimiento: tipoMovimiento.value,
+      monto: Number(form.value.monto),
+      referencia: form.value.referencia || 'N/A',
+      fechaPago: form.value.fechaPago,
+      metodoPago: form.value.tipoPago,
+      estatus: 'revisado',
+    }
+    if (tipoMovimiento.value === 'mensualidad') {
+      datosActualizados.nombre = form.value.nombre
+      datosActualizados.mes = form.value.mes
+    } else {
+      datosActualizados.descripcion = form.value.descripcion
+    }
+    await tesoreriaStore.editarTransaccion(props.transaccion.id, datosActualizados)
+  } else {
+    await guardarMovimiento(tipoMovimiento.value, form.value, isSaving)
+  }
   resetForm()
   modal()
 }
@@ -53,14 +108,16 @@ const guardarDatos = async () => {
       <div
         class="bg-primary-600 px-6 py-4 flex justify-between items-center border-b border-gray-100"
       >
-        <h3 class="text-lg font-bold text-gray-50">Registrar Transacción</h3>
+        <h3 class="text-lg font-bold text-gray-50">
+          {{ modoEdicion ? 'Editar Transacción' : 'Registrar Transacción' }}
+        </h3>
         <button @click="modal" class="cursor-pointer text-gray-50 text-xl font-bold">
           &times;
         </button>
       </div>
 
-      <!-- Selector de Tipo de Movimiento (Tabs) -->
-      <div class="flex border-b border-gray-200 bg-gray-50">
+      <!-- Selector de Tipo de Movimiento (Tabs - sólo en creación) -->
+      <div v-if="!modoEdicion" class="flex border-b border-gray-200 bg-gray-50">
         <button
           type="button"
           @click="tipoMovimiento = 'mensualidad'"
@@ -231,7 +288,15 @@ const guardarDatos = async () => {
             :disabled="isSaving"
             class="cursor-pointer px-4 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ isSaving ? 'Guardando...' : 'Guardar' }}
+            {{
+              isSaving
+                ? modoEdicion
+                  ? 'Actualizando...'
+                  : 'Guardando...'
+                : modoEdicion
+                  ? 'Actualizar'
+                  : 'Guardar'
+            }}
           </button>
         </div>
       </form>

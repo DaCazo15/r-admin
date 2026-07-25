@@ -1,5 +1,5 @@
 import { db } from '@/config/firebase'
-import { collection, addDoc, getDocs, updateDoc, query, where } from 'firebase/firestore'
+import { collection, addDoc, getDocs, updateDoc, query, where, doc } from 'firebase/firestore'
 
 export const firebaseService = {
   async crearPersona(datosSocio) {
@@ -114,3 +114,19 @@ export const actualizarEstadoClub = async (nombreClub = 'Isla de Margarita') => 
     console.error('Error al actualizar el estado del club:', error)
   }
 }
+
+export const actualizarPersona = async (id, datosPersona, isSaving) => {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    const docRef = doc(db, 'persona', id)
+    await updateDoc(docRef, datosPersona)
+    console.log('Persona actualizada con éxito')
+  } catch (error) {
+    console.error('Error al actualizar persona:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+

@@ -9,12 +9,39 @@ import JuntaComponent from '@/components/JuntaComponent.vue'
 import { ref, computed } from 'vue'
 import { useEncabezado } from '../composable/useEncabezado.js'
 
+import ModalTesoreria from '../components/form/ModalTesoreria.vue'
+import { useEdicion } from '../composable/useEdicion.js'
+
+const { iniciarEdicion, cancelarEdicion } = useEdicion()
+
 const isOpen = ref(false)
+const isOpenTesoreria = ref(false)
+const personaActual = ref(null)
 const filtro = ref(false)
+const buscador = ref('')
+const terminoAplicado = ref('')
 const metricasOn = ref(false)
 const { estatus, encabezados } = useEncabezado()
 
-const modal = () => (isOpen.value = !isOpen.value)
+const modal = (persona = null) => {
+  if (persona && persona.id) {
+    iniciarEdicion(persona)
+  } else {
+    cancelarEdicion()
+  }
+  personaActual.value = persona
+  isOpen.value = !isOpen.value
+}
+
+const modalTesoreria = (registro = null) => {
+  if (registro && registro.id) {
+    iniciarEdicion(registro)
+  } else {
+    cancelarEdicion()
+  }
+  personaActual.value = registro
+  isOpenTesoreria.value = !isOpenTesoreria.value
+}
 const cambioEstatus = (nuevoEstatus) => (estatus.value = nuevoEstatus)
 const aplicarFiltro = () => (filtro.value = !filtro.value)
 
@@ -32,6 +59,10 @@ const mensajeExito = ref(false)
 
 const verMetricas = () => {
   metricasOn.value = !metricasOn.value
+}
+
+const aplicarBusqueda = () => {
+  terminoAplicado.value = buscador.value.trim()
 }
 
 const actualizarClub = async () => {
@@ -54,7 +85,8 @@ const actualizarClub = async () => {
 </script>
 
 <template>
-  <Modal v-if="isOpen" @close="modal" :estatus="estatus" />
+  <Modal v-if="isOpen" @close="modal" :estatus="estatus" :persona="personaActual" />
+  <ModalTesoreria v-if="isOpenTesoreria" @close="modalTesoreria" :transaccion="personaActual" />
   <main>
     <!-- Logo -->
     <Logo v-if="estatus !== 'Tesoreria'" />
@@ -93,7 +125,10 @@ const actualizarClub = async () => {
     <OpcionesTesoreria v-if="estatus === 'Tesoreria'" @metricas="verMetricas" />
 
     <!-- Buscador -->
-    <div v-if="addOn" class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-3 flex flex-col sm:flex-row justify-center items-center gap-2">
+    <div
+      v-if="addOn"
+      class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-3 flex flex-col sm:flex-row justify-center items-center gap-2"
+    >
       <button
         @click="modal"
         v-if="addOn && estatus !== 'Tesoreria'"
@@ -104,11 +139,13 @@ const actualizarClub = async () => {
       </button>
       <div v-if="!metricasOn" class="flex justify-center items-center gap-2 w-full">
         <input
+          v-model="buscador"
           type="text"
           placeholder="Buscar"
           class="w-full px-5 py-2 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
         />
         <button
+          @click="aplicarBusqueda"
           class="cursor-pointer px-2.5 py-1.5 text-white font-bold border-primary-600 border-2 bg-primary-600 rounded-lg ease-in-out duration-200 transition-all"
         >
           <i class="bi bi-search"></i>
@@ -164,7 +201,14 @@ const actualizarClub = async () => {
     <Filtros v-if="filtrosOn" />
 
     <!-- Tabla -->
-    <Tabla v-if="addOn && !metricasOn" :encabezados="encabezados" :estatus="estatus" />
+    <Tabla
+      v-if="addOn && !metricasOn"
+      :encabezados="encabezados"
+      :estatus="estatus"
+      :terminoBusqueda="terminoAplicado"
+      @modalPersona="modal"
+      @modalTesoreria="modalTesoreria"
+    />
 
     <!-- Metricas -->
     <MetricasComponent v-if="metricasOn && estatus === 'Tesoreria'" />

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useCollection } from 'vuefire'
 import { collection, query, where, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { actualizarPersona } from '@/services/firebaseService'
 
 export const useSociosStore = defineStore('socios', () => {
   const querySocios = computed(() => {
@@ -34,9 +35,14 @@ export const useSociosStore = defineStore('socios', () => {
     }
   }
 
+  const editarSocio = async (id, datosActualizados, isSaving) => {
+    await actualizarPersona(id, datosActualizados, isSaving)
+  }
+
   return {
     socios,
     totalSocios,
     eliminarSocio,
+    editarSocio,
   }
 })

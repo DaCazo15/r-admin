@@ -1,26 +1,69 @@
 <script setup>
-import { ref } from 'vue'
-import { firebaseService } from '@/services/firebaseService.js'
+import { ref, onMounted, watch } from 'vue'
 import { persona } from '@/helpers/list.js'
 import { guardarPersona } from '@/services/firebaseService.js'
+import { useEdicion } from '@/composable/useEdicion.js'
+import { useSociosStore } from '@/stores/useSociosStore'
+import { useAspirantesStore } from '@/stores/useAspirantesStore'
 
 const emit = defineEmits(['close'])
 const isSaving = ref(false)
 
-const modal = () => {
-  emit('close')
+const props = defineProps({
+  estatus: String,
+  persona: Object,
+})
+
+const { modoEdicion, cancelarEdicion } = useEdicion()
+const sociosStore = useSociosStore()
+const aspirantesStore = useAspirantesStore()
+
+const resetPersonaForm = () => {
   Object.keys(persona.value).forEach((key) => {
     persona.value[key] = ''
   })
 }
 
-const props = defineProps({
-  estatus: String,
+const cargarDatosSiEdicion = () => {
+  if (props.persona && props.persona.id) {
+    persona.value.nombre = props.persona.nombre || ''
+    persona.value.edad = props.persona.edad || ''
+    persona.value.fecha = props.persona.fecha || ''
+    persona.value.telefono = props.persona.telefono || ''
+    persona.value.correo = props.persona.correo || ''
+    persona.value.ubicacion = props.persona.ubicacion || ''
+  } else {
+    resetPersonaForm()
+  }
+}
+
+onMounted(() => {
+  cargarDatosSiEdicion()
 })
+
+watch(() => props.persona, () => {
+  cargarDatosSiEdicion()
+})
+
+const modal = () => {
+  emit('close')
+  cancelarEdicion()
+  resetPersonaForm()
+}
 
 const guardar = async () => {
   const datosSocio = { ...persona.value, estatus: props.estatus }
-  await guardarPersona(datosSocio, isSaving)
+
+  if (modoEdicion.value && props.persona?.id) {
+    if (props.estatus === 'Socios') {
+      await sociosStore.editarSocio(props.persona.id, datosSocio, isSaving)
+    } else if (props.estatus === 'Aspirantes') {
+      await aspirantesStore.editarAspirante(props.persona.id, datosSocio, isSaving)
+    }
+  } else {
+    await guardarPersona(datosSocio, isSaving)
+  }
+
   modal()
 }
 </script>
@@ -38,7 +81,9 @@ const guardar = async () => {
       <div
         class="bg-primary-600 px-6 py-4 flex justify-between items-center border-b border-gray-100"
       >
-        <h3 class="text-lg font-bold text-gray-50">Registrar Nuevo Socio</h3>
+        <h3 class="text-lg font-bold text-gray-50">
+          {{ modoEdicion ? 'Editar Persona' : 'Registrar Nuevo Socio' }}
+        </h3>
         <button @click="modal" class="cursor-pointer text-gray-50 text-xl font-bold">
           &times;
         </button>
@@ -127,7 +172,7 @@ const guardar = async () => {
             :disabled="isSaving"
             class="cursor-pointer px-4 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ isSaving ? 'Guardando...' : 'Guardar' }}
+            {{ isSaving ? (modoEdicion ? 'Actualizando...' : 'Guardando...') : (modoEdicion ? 'Actualizar' : 'Guardar') }}
           </button>
         </div>
       </form>

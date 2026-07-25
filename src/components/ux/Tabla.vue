@@ -6,15 +6,12 @@ import { useAspirantesStore } from '@/stores/useAspirantesStore'
 import { useTesoreriaStore } from '@/stores/useTesoreriaStore'
 
 const props = defineProps({
-  encabezados: {
-    type: Array,
-    required: true,
-  },
-  estatus: {
-    type: String,
-    required: true,
-  },
+  encabezados: { type: Array, required: true },
+  estatus: { type: String, required: true },
+  terminoBusqueda: { type: String, required: false },
 })
+
+const emit = defineEmits(['modalPersona', 'modalTesoreria'])
 
 const sociosStore = useSociosStore()
 const aspirantesStore = useAspirantesStore()
@@ -31,6 +28,16 @@ const registros = computed(() => {
   return []
 })
 
+const registrosFiltrados = computed(() => {
+  const termino = props.terminoBusqueda?.toLowerCase() || ''
+  if (!termino) return registros.value
+  return registros.value.filter((registro) => {
+    const nombre = registro.nombre?.toLowerCase() || ''
+    const descripcion = registro.descripcion?.toLowerCase() || ''
+    return nombre.includes(termino) || descripcion.includes(termino)
+  })
+})
+
 const eliminarRegistro = async (id) => {
   if (props.estatus === 'Socios') {
     await sociosStore.eliminarSocio(id)
@@ -42,10 +49,11 @@ const eliminarRegistro = async (id) => {
 }
 
 const editarPersona = async (id) => {
+  const registroEncontrado = registros.value.find((registro) => registro.id === id)
   if (props.estatus === 'Tesoreria') {
-    console.log('Editar transacción:', id)
+    emit('modalTesoreria', registroEncontrado)
   } else {
-    console.log('Editar persona:', id)
+    emit('modalPersona', registroEncontrado)
   }
 }
 </script>
@@ -79,7 +87,7 @@ const editarPersona = async (id) => {
         <!-- Renderizar dinámicamente si hay registros -->
         <tr
           v-else
-          v-for="item in registros"
+          v-for="item in registrosFiltrados"
           :key="item.id"
           class="hover:bg-gray-50 transition-colors"
         >
@@ -93,7 +101,14 @@ const editarPersona = async (id) => {
               {{ item.correo }}
             </td>
             <td class="px-4 py-3 text-gray-700">{{ item.ubicacion }}</td>
-            <td class="px-4 py-3 flex items-center justify-center gap-3">
+            <td class="px-4 py-3 flex items-center justify-center gap-8">
+              <button
+                @click="editarPersona(item.id)"
+                class="text-green-600 hover:text-green-800 transition-colors cursor-pointer"
+                title="Editar"
+              >
+                <i class="bi bi-pencil-square text-lg"></i>
+              </button>
               <button
                 @click="eliminarRegistro(item.id)"
                 class="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
