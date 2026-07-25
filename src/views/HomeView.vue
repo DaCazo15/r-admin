@@ -125,7 +125,11 @@ const actualizarClub = async () => {
         Junta Directiva
       </button>
     </div>
-    <OpcionesTesoreria v-if="estatus === 'Tesoreria'" @metricas="verMetricas" />
+    <OpcionesTesoreria
+      v-if="estatus === 'Tesoreria'"
+      @metricas="verMetricas"
+      :metricasOn="metricasOn"
+    />
 
     <!-- Buscador -->
     <div

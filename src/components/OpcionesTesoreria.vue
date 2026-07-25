@@ -14,6 +14,13 @@ const isSaving = ref(false)
 const mensajeExito = ref(false)
 const montoMensualidad = ref(0)
 
+const props = defineProps({
+  metricasOn: {
+    type: Boolean,
+    default: false,
+  },
+})
+
 const emit = defineEmits(['metricas'])
 
 watch(
@@ -59,7 +66,9 @@ const actualizarMensualidad = async () => {
         class="flex items-center font-medium bg-primary-600 text-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-lg shadow-2xs text-xs sm:text-sm flex-1 sm:flex-initial justify-between sm:justify-start"
       >
         <span>USDT</span>
-        <span class="text-primary-600 font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md bg-white ml-2 text-xs sm:text-sm">
+        <span
+          class="text-primary-600 font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md bg-white ml-2 text-xs sm:text-sm"
+        >
           {{ cargandoTasas ? '...' : usdt }}
         </span>
       </div>
@@ -67,7 +76,9 @@ const actualizarMensualidad = async () => {
         class="flex items-center font-medium bg-primary-600 text-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-lg shadow-2xs text-xs sm:text-sm flex-1 sm:flex-initial justify-between sm:justify-start"
       >
         <span>EUR</span>
-        <span class="text-primary-600 font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md bg-white ml-2 text-xs sm:text-sm">
+        <span
+          class="text-primary-600 font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md bg-white ml-2 text-xs sm:text-sm"
+        >
           {{ cargandoTasas ? '...' : eur }}
         </span>
       </div>
@@ -75,7 +86,9 @@ const actualizarMensualidad = async () => {
         class="flex items-center font-medium bg-primary-600 text-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-lg shadow-2xs text-xs sm:text-sm flex-1 sm:flex-initial justify-between sm:justify-start"
       >
         <span>BCV</span>
-        <span class="text-primary-600 font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md bg-white ml-2 text-xs sm:text-sm">
+        <span
+          class="text-primary-600 font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-md bg-white ml-2 text-xs sm:text-sm"
+        >
           {{ cargandoTasas ? '...' : bcv }}
         </span>
       </div>
@@ -86,7 +99,10 @@ const actualizarMensualidad = async () => {
         class="cursor-pointer px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors border border-gray-200"
         title="Actualizar tasas"
       >
-        <i class="bi bi-arrow-clockwise text-base sm:text-lg" :class="{ 'animate-spin': cargandoTasas }"></i>
+        <i
+          class="bi bi-arrow-clockwise text-base sm:text-lg"
+          :class="{ 'animate-spin': cargandoTasas }"
+        ></i>
       </button>
     </div>
 
@@ -106,7 +122,11 @@ const actualizarMensualidad = async () => {
       </button>
       <button
         @click="emitirMetricas"
-        class="cursor-pointer flex-1 sm:flex-initial bg-blue-600/40 hover:bg-blue-600 text-blue-700 hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
+        class="cursor-pointer flex-1 sm:flex-initial hover:bg-blue-600 hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
+        :class="{
+          'bg-blue-600 text-white': metricasOn,
+          'bg-blue-600/40 text-blue-700': !metricasOn,
+        }"
         title="Ver estadísticas de tesorería"
       >
         <i class="bi bi-graph-up-arrow text-lg sm:text-xl" />
@@ -115,7 +135,9 @@ const actualizarMensualidad = async () => {
   </div>
 
   <!-- Sección de Mensualidad y Registro de Monto -->
-  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+  <div
+    class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4"
+  >
     <!-- Ajustar mensualidad -->
     <div class="flex gap-2 items-center justify-between sm:justify-start">
       <label for="monto" class="font-bold text-primary-600 text-lg whitespace-nowrap"
