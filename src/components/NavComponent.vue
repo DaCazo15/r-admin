@@ -1,15 +1,23 @@
 <script setup>
+import { ref } from 'vue'
 import { useSesionStore } from '../stores/useSesionStore'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 
+import DesplegableComponent from './deplegable/desplegableComponent.vue'
+
 const sesionStore = useSesionStore()
+const desplegable = ref(false)
 const { usuario } = storeToRefs(sesionStore)
 const router = useRouter()
 
 const cerrarSesion = async () => {
   await sesionStore.cerrarSesion()
   router.push({ name: 'auth' })
+}
+
+const toggleDesplegable = () => {
+  desplegable.value = !desplegable.value
 }
 </script>
 
@@ -23,9 +31,28 @@ const cerrarSesion = async () => {
       <i class="bi bi-door-closed-fill"></i>
     </button>
   </div>
-  <button
-    class="cursor-pointer w-auto px-4 py-3 mt-3 bg-primary-600 font-bold text-white rounded-br-lg rounded-tr-lg"
-  >
+  <div class="relative flex items-end">
+    <DesplegableComponent
+      class="absolute top-0 left-0 z-40 shadow-2xl transition-all duration-300 ease-in-out transform origin-left"
+      :class="[
+        desplegable
+          ? 'translate-x-0 opacity-100 pointer-events-auto'
+          : '-translate-x-full opacity-0 pointer-events-none',
+      ]"
+      @cerrarSesion="cerrarSesion"
+    />
+
+    <!-- Botón de apertura/cierre flotante estilizado -->
+    <button
+      @click="toggleDesplegable"
+      aria-label="Abrir menú"
+      class="cursor-pointer h-12 w-10 flex items-center justify-center mt-3 bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white rounded-r-xl shadow-lg border-y border-r border-white/20 relative z-50 transition-all duration-300 ease-in-out active:scale-95 group"
+      :class="[desplegable ? 'translate-x-72 shadow-primary-900/30' : 'translate-x-0']"
     >
-  </button>
+      <i
+        class="bi bi-chevron-right text-lg transition-transform duration-300 group-hover:scale-110"
+        :class="{ 'rotate-180': desplegable }"
+      ></i>
+    </button>
+  </div>
 </template>

@@ -1,16 +1,22 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import NavBar from './components/NavComponent.vue'
 import { useSesionStore } from './stores/useSesionStore'
 
+const route = useRoute()
 const sesionStore = useSesionStore()
-const { usuario } = storeToRefs(sesionStore)
+const { usuario, cargando } = storeToRefs(sesionStore)
 </script>
 
 <template>
-  <NavBar v-if="usuario" />
-  <div class="px-5 py-4">
-    <RouterView />
+  <div v-if="cargando" class="flex justify-center items-center h-screen text-gray-500 font-medium">
+    Cargando...
   </div>
+  <template v-else>
+    <NavBar v-if="usuario && route.name !== 'auth'" />
+    <div class="px-5 py-4">
+      <RouterView />
+    </div>
+  </template>
 </template>
