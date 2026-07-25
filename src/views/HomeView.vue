@@ -92,7 +92,10 @@ const actualizarClub = async () => {
     <Logo v-if="estatus !== 'Tesoreria'" />
 
     <!-- Botones de Navegación -->
-    <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2">
+    <div
+      class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2"
+      :class="{ 'mt-15 sm:mt-20': estatus === 'Tesoreria' }"
+    >
       <button
         @click="(cambioEstatus('Socios'), (metricasOn = false))"
         :class="{ 'bg-primary-600 text-white': estatus === 'Socios' }"
