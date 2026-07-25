@@ -54,125 +54,128 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center">
-    <img src="../assets/img/logotipo-1.svg" alt="Inicio" class="h-20 w-60 my-10" />
-  </div>
+  <div class="min-h-[calc(100vh-2rem)] w-full flex flex-col justify-center items-center py-6 px-4">
+    <div class="mb-6 flex justify-center">
+      <img src="../assets/img/logotipo-1.svg" alt="Inicio" class="h-16 w-auto" />
+    </div>
 
-  <div class="max-h-screen flex items-center justify-center px-4">
     <!-- Contenedor principal de la tarjeta -->
+    <div class="w-full max-w-md">
 
-    <div
-      class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100"
-    >
-      <!-- Cabecera / Pestañas de Navegación -->
-      <div class="grid grid-cols-2 bg-gray-50 border-b border-gray-200">
-        <button
-          type="button"
-          @click="tipoAuth = 'login'"
-          :class="
-            tipoAuth === 'login'
-              ? 'bg-white text-primary-600 font-bold border-b-2 border-primary-600'
-              : 'text-gray-500 hover:text-gray-700'
-          "
-          class="py-4 text-sm font-semibold transition-all cursor-pointer"
-        >
-          Iniciar Sesión
-        </button>
-        <button
-          type="button"
-          @click="tipoAuth = 'signup'"
-          :class="
-            tipoAuth === 'signup'
-              ? 'bg-white text-primary-600 font-bold border-b-2 border-primary-600'
-              : 'text-gray-500 hover:text-gray-700'
-          "
-          class="py-4 text-sm font-semibold transition-all cursor-pointer"
-        >
-          Registrarse
-        </button>
-      </div>
 
-      <!-- Formulario -->
-      <form @submit.prevent="handleSubmit" class="p-8 space-y-5">
-        <!-- Título dinámico -->
-        <div class="text-center mb-6">
-          <h2 class="text-2xl font-bold text-gray-800">
-            {{ tipoAuth === 'login' ? '¡Bienvenido de nuevo!' : 'Crea tu cuenta' }}
-          </h2>
-          <p class="text-xs text-gray-500 mt-1">
-            {{
+      <div
+        class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100"
+      >
+        <!-- Cabecera / Pestañas de Navegación -->
+        <div class="grid grid-cols-2 bg-gray-50 border-b border-gray-200">
+          <button
+            type="button"
+            @click="tipoAuth = 'login'"
+            :class="
               tipoAuth === 'login'
-                ? 'Ingresa tus datos para acceder al sistema'
-                : 'Completa los campos para registrarte'
-            }}
-          </p>
-        </div>
-
-        <!-- Campo Nombre (Solo visible en Registro) -->
-        <div v-if="tipoAuth === 'signup'" class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
-            >Nombre completo</label
+                ? 'bg-white text-primary-600 font-bold border-b-2 border-primary-600'
+                : 'text-gray-500 hover:text-gray-700'
+            "
+            class="py-4 text-sm font-semibold transition-all cursor-pointer"
           >
-          <input
-            type="text"
-            v-model="form.nombre"
-            required
-            placeholder="Ej. Juan Pérez"
-            class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
-          />
-        </div>
-
-        <!-- Campo Email -->
-        <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
-            >Correo electrónico</label
+            Iniciar Sesión
+          </button>
+          <button
+            type="button"
+            @click="tipoAuth = 'signup'"
+            :class="
+              tipoAuth === 'signup'
+                ? 'bg-white text-primary-600 font-bold border-b-2 border-primary-600'
+                : 'text-gray-500 hover:text-gray-700'
+            "
+            class="py-4 text-sm font-semibold transition-all cursor-pointer"
           >
-          <input
-            type="email"
-            v-model="form.email"
-            required
-            placeholder="correo@ejemplo.com"
-            class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
-          />
+            Registrarse
+          </button>
         </div>
 
-        <!-- Campo Contraseña -->
-        <div class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
-            >Contraseña</label
+        <!-- Formulario -->
+        <form @submit.prevent="handleSubmit" class="p-8 space-y-5">
+          <!-- Título dinámico -->
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">
+              {{ tipoAuth === 'login' ? '¡Bienvenido de nuevo!' : 'Crea tu cuenta' }}
+            </h2>
+            <p class="text-xs text-gray-500 mt-1">
+              {{
+                tipoAuth === 'login'
+                  ? 'Ingresa tus datos para acceder al sistema'
+                  : 'Completa los campos para registrarte'
+              }}
+            </p>
+          </div>
+
+          <!-- Campo Nombre (Solo visible en Registro) -->
+          <div v-if="tipoAuth === 'signup'" class="space-y-1.5">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
+              >Nombre completo</label
+            >
+            <input
+              type="text"
+              v-model="form.nombre"
+              required
+              placeholder="Ej. Juan Pérez"
+              class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
+            />
+          </div>
+
+          <!-- Campo Email -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
+              >Correo electrónico</label
+            >
+            <input
+              type="email"
+              v-model="form.email"
+              required
+              placeholder="correo@ejemplo.com"
+              class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
+            />
+          </div>
+
+          <!-- Campo Contraseña -->
+          <div class="space-y-1.5">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
+              >Contraseña</label
+            >
+            <input
+              type="password"
+              v-model="form.password"
+              required
+              placeholder="••••••••"
+              class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
+            />
+          </div>
+
+          <!-- Campo Confirmar Contraseña (Solo visible en Registro) -->
+          <div v-if="tipoAuth === 'signup'" class="space-y-1.5">
+            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
+              >Confirmar contraseña</label
+            >
+            <input
+              type="password"
+              v-model="form.confirmPassword"
+              required
+              placeholder="••••••••"
+              class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
+            />
+          </div>
+
+          <!-- Botón de Envío -->
+          <button
+            type="submit"
+            :disabled="isSubmitting"
+            class="w-full mt-2 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg shadow-md transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-          <input
-            type="password"
-            v-model="form.password"
-            required
-            placeholder="••••••••"
-            class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
-          />
-        </div>
-
-        <!-- Campo Confirmar Contraseña (Solo visible en Registro) -->
-        <div v-if="tipoAuth === 'signup'" class="space-y-1.5">
-          <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
-            >Confirmar contraseña</label
-          >
-          <input
-            type="password"
-            v-model="form.confirmPassword"
-            required
-            placeholder="••••••••"
-            class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
-          />
-        </div>
-
-        <!-- Botón de Envío -->
-        <button
-          type="submit"
-          :disabled="isSubmitting"
-          class="w-full mt-2 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg shadow-md transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {{ isSubmitting ? 'Procesando...' : tipoAuth === 'login' ? 'Entrar' : 'Registrarse' }}
-        </button>
-      </form>
+            {{ isSubmitting ? 'Procesando...' : tipoAuth === 'login' ? 'Entrar' : 'Registrarse' }}
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
