@@ -15,7 +15,7 @@ const { usuario, cargando } = storeToRefs(sesionStore)
   </div>
   <template v-else>
     <NavBar v-if="usuario && route.name !== 'auth'" />
-    <div class="px-5 py-4">
+    <div class="px-5 py-4 mt-17">
       <RouterView />
     </div>
   </template>
