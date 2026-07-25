@@ -1,0 +1,17 @@
+.image-container {
+  /* Define el tamaño final del área visible (ejemplo: 300px por 300px) */
+  width: 65px;
+  height: 70px;
+  overflow: hidden; /* Esta propiedad es crucial: oculta lo que sobresalga del contenedor */
+  margin: 5px;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Escala la imagen para cubrir todo el contenedor sin deformarse */
+
+  /* Esta es la clave: ancla la imagen al borde derecho */
+  /* El primer valor es horizontal (right), el segundo vertical (center) */
+  object-position: right center;
+}

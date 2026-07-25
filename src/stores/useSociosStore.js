@@ -1,0 +1,42 @@
+import { defineStore } from 'pinia'
+import { computed } from 'vue'
+import { useCollection } from 'vuefire'
+import { collection, query, where, deleteDoc, doc } from 'firebase/firestore'
+import { db } from '@/config/firebase'
+
+export const useSociosStore = defineStore('socios', () => {
+  const querySocios = computed(() => {
+    if (!db) return null
+    return query(collection(db, 'persona'), where('estatus', '==', 'Socios'))
+  })
+
+  const sociosRaw = useCollection(querySocios)
+
+  const socios = computed(() => {
+    let list = [...(sociosRaw.value || [])]
+    return list.sort((a, b) => {
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0)
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0)
+      return dateB - dateA
+    })
+  })
+
+  const totalSocios = computed(() => socios.value.length)
+
+  const eliminarSocio = async (id) => {
+    if (confirm('¿Estás seguro de que deseas eliminar a esta persona?')) {
+      try {
+        await deleteDoc(doc(db, 'persona', id))
+        console.log('Socio eliminado con éxito de Firestore')
+      } catch (error) {
+        console.error('Error al eliminar socio:', error)
+      }
+    }
+  }
+
+  return {
+    socios,
+    totalSocios,
+    eliminarSocio,
+  }
+})
