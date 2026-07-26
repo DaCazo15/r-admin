@@ -80,7 +80,7 @@ const actualizarMensualidad = async () => {
     :reporte="reporteActual"
     @close="reporteActual = null"
   />
-  <ModalTesoreria v-if="isOpenModal" @close="isOpenModal.value = false" />
+  <ModalTesoreria v-if="isOpenModal" @close="isOpenModal = false" />
 
   <div
     class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-4 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4"
@@ -217,7 +217,7 @@ const actualizarMensualidad = async () => {
     <!-- Botón grande para ingresar monto -->
     <div class="flex-1">
       <button
-        @click="isOpenModal.value = true"
+        @click="isOpenModal = true"
         class="cursor-pointer px-4 py-3 w-full gap-2 flex flex-row justify-center items-center uppercase text-primary-600 hover:text-white font-semibold border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 transition-all shadow-sm"
       >
         Ingresar Monto
