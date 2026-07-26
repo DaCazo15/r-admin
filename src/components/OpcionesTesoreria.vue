@@ -14,7 +14,7 @@ const clubStore = useClubStore()
 const { mensualidadMargarita } = storeToRefs(clubStore)
 
 const isOpenModal = ref(false)
-const isOpneWhatsapp = ref(false)
+const isOpenWhatsapp = ref(false)
 const isSaving = ref(false)
 const mensajeExito = ref(false)
 const montoMensualidad = ref(0)
