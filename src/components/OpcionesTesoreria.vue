@@ -3,6 +3,7 @@ import { ref, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import ModalTesoreria from './form/ModalTesoreria.vue'
 import ModalReporte from './form/ModalReporte.vue'
+import ModalResultadoReporte from './form/ModalResultadoReporte.vue'
 import { useObtenerTasas } from '@/composable/useObtenerTasas'
 import { useClubStore } from '@/stores/useClubStore'
 import { generarReporte } from '@/services/reporteService'
@@ -16,6 +17,9 @@ const isSaving = ref(false)
 const mensajeExito = ref(false)
 const montoMensualidad = ref(0)
 const isOpenReporte = ref(false)
+const cargandoReporte = ref(false)
+const reporteActual = ref(null)
+const errorReporte = ref('')
 
 const props = defineProps({
   metricasOn: {
@@ -34,8 +38,17 @@ watch(
   { immediate: true },
 )
 
-const manejarReporte = (filtros) => {
-  generarReporte(filtros)
+const manejarReporte = async (filtros) => {
+  cargandoReporte.value = true
+  errorReporte.value = ''
+  try {
+    reporteActual.value = await generarReporte(filtros)
+  } catch (error) {
+    console.error('Error al generar el reporte:', error)
+    errorReporte.value = 'No se pudo generar el reporte. Intenta de nuevo.'
+  } finally {
+    cargandoReporte.value = false
+  }
 }
 
 const toggleModal = () => {
@@ -63,6 +76,11 @@ const actualizarMensualidad = async () => {
 
 <template>
   <ModalReporte v-if="isOpenReporte" @close="isOpenReporte = false" @generar="manejarReporte" />
+  <ModalResultadoReporte
+    v-if="reporteActual"
+    :reporte="reporteActual"
+    @close="reporteActual = null"
+  />
   <ModalTesoreria v-if="isOpenModal" @close="toggleModal" />
 
   <div
@@ -124,10 +142,14 @@ const actualizarMensualidad = async () => {
       </button>
       <button
         @click="isOpenReporte = true"
-        class="cursor-pointer flex-1 sm:flex-initial bg-blue-600/40 hover:bg-blue-600 text-blue-700 hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
+        :disabled="cargandoReporte"
+        class="cursor-pointer flex-1 sm:flex-initial bg-blue-600/40 hover:bg-blue-600 text-blue-700 hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
         title="Generar reporte general"
       >
-        <i class="bi bi-file-earmark-bar-graph text-lg sm:text-xl" />
+        <i
+          class="bi text-lg sm:text-xl"
+          :class="cargandoReporte ? 'bi-arrow-clockwise animate-spin' : 'bi-file-earmark-bar-graph'"
+        />
       </button>
       <button
         @click="emitirMetricas"
@@ -142,6 +164,13 @@ const actualizarMensualidad = async () => {
       </button>
     </div>
   </div>
+
+  <p
+    v-if="errorReporte"
+    class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-2 text-sm text-rose-600 text-right"
+  >
+    {{ errorReporte }}
+  </p>
 
   <!-- Sección de Mensualidad y Registro de Monto -->
   <div
