@@ -197,14 +197,14 @@ const enviar = () => {
         <button
           type="button"
           @click="cerrar"
-          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-[15px] sm:text-base bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
         >
           Cancelar
         </button>
         <button
           type="button"
           @click="limpiar"
-          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-100 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-[15px] sm:text-base bg-gray-100 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
         >
           Limpiar
         </button>
