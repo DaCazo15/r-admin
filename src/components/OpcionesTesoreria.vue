@@ -2,8 +2,10 @@
 import { ref, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import ModalTesoreria from './form/ModalTesoreria.vue'
+import ModalReporte from './form/ModalReporte.vue'
 import { useObtenerTasas } from '@/composable/useObtenerTasas'
 import { useClubStore } from '@/stores/useClubStore'
+import { generarReporte } from '@/services/reporteService'
 
 const { bcv, usdt, eur, cargandoTasas, obtenerTasas } = useObtenerTasas()
 const clubStore = useClubStore()
@@ -13,6 +15,7 @@ const isOpenModal = ref(false)
 const isSaving = ref(false)
 const mensajeExito = ref(false)
 const montoMensualidad = ref(0)
+const isOpenReporte = ref(false)
 
 const props = defineProps({
   metricasOn: {
@@ -30,6 +33,10 @@ watch(
   },
   { immediate: true },
 )
+
+const manejarReporte = (filtros) => {
+  generarReporte(filtros)
+}
 
 const toggleModal = () => {
   isOpenModal.value = !isOpenModal.value
@@ -55,6 +62,7 @@ const actualizarMensualidad = async () => {
 </script>
 
 <template>
+  <ModalReporte v-if="isOpenReporte" @close="isOpenReporte = false" @generar="manejarReporte" />
   <ModalTesoreria v-if="isOpenModal" @close="toggleModal" />
 
   <div
@@ -110,13 +118,14 @@ const actualizarMensualidad = async () => {
     <div class="flex gap-2">
       <button
         class="cursor-pointer flex-1 sm:flex-initial bg-emerald-600/40 hover:bg-emerald-600 text-emerald-700 hover:text-white border-2 border-emerald-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
-        title="Enviar reporte por WhatsApp"
+        title="Enviar mensaje de cobro a WhatsApp"
       >
         <i class="bi bi-whatsapp text-lg sm:text-xl" />
       </button>
       <button
+        @click="isOpenReporte = true"
         class="cursor-pointer flex-1 sm:flex-initial bg-blue-600/40 hover:bg-blue-600 text-blue-700 hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
-        title="Ver reporte general"
+        title="Generar reporte general"
       >
         <i class="bi bi-file-earmark-bar-graph text-lg sm:text-xl" />
       </button>
