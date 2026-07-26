@@ -29,6 +29,7 @@ const error = ref('')
 const socioSeleccionado = computed(
   () => socios.value?.find((s) => s.id === socioSeleccionadoId.value) || null,
 )
+const telefonoLimpio = computed(() => (socioSeleccionado.value?.telefono || '').replace(/\D/g, ''))
 
 watch(
   mensualidadMargarita,
@@ -37,6 +38,13 @@ watch(
   },
   { immediate: true },
 )
+
+// Regenera el mensaje cuando cambia el tipo o el socio (para no pisar lo que
+// el usuario ya haya escrito a mano en otros casos, se resetea con 'Limpiar').
+watch([tipoMensaje, socioSeleccionadoId], () => {
+  mensaje.value = generarPlantilla()
+  error.value = ''
+})
 
 // Genera el texto de la plantilla según el tipo elegido y el socio actual.
 // 'personalizado' arranca en blanco (o con un saludo) para que se escriba libre.
@@ -58,13 +66,6 @@ const generarPlantilla = () => {
   }
 }
 
-// Regenera el mensaje cuando cambia el tipo o el socio (para no pisar lo que
-// el usuario ya haya escrito a mano en otros casos, se resetea con 'Limpiar').
-watch([tipoMensaje, socioSeleccionadoId], () => {
-  mensaje.value = generarPlantilla()
-  error.value = ''
-})
-
 const limpiar = () => {
   socioSeleccionadoId.value = ''
   tipoMensaje.value = 'aviso'
@@ -72,8 +73,6 @@ const limpiar = () => {
   mensaje.value = ''
   error.value = ''
 }
-
-const telefonoLimpio = computed(() => (socioSeleccionado.value?.telefono || '').replace(/\D/g, ''))
 
 const enviar = () => {
   if (!socioSeleccionado.value) {
