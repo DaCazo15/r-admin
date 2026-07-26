@@ -211,7 +211,7 @@ const enviar = () => {
         <button
           type="button"
           @click="enviar"
-          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-sm text-[8px] sm:text-base text-white font-bold rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2"
+          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-[15px] sm:text-base text-white font-bold rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2"
           style="background-color: #25d366"
         >
           <i class="bi bi-send-fill"></i>
