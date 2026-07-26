@@ -7,6 +7,8 @@ import {
   socioSeleccionadoId,
 } from '../../services/serviceWhatsapp.js'
 
+const = defineEmits(['cerrar'])
+
 const tipoMensaje = ref('aviso')
 const montoCobro = ref(0)
 const mensaje = ref('')
@@ -27,9 +29,9 @@ watch([tipoMensaje, socioSeleccionadoId], () => {
   error.value = ''
 })
 
-  const texto = encodeURIComponent(m.trim())
-  window.open(`https://wa.me/${telefonoLimpio.value}?text=${texto}`, '_blank')
-  cerrar()
+const enviarMensaje = () =>{
+  enviar(mensaje.value)
+  emit('cerrar')
 }
 </script>
 
@@ -146,7 +148,7 @@ watch([tipoMensaje, socioSeleccionadoId], () => {
         </button>
         <button
           type="button"
-          @click="enviar(mensaje)"
+          @click="enviarMensaje"
           class="cursor-pointer px-4 py-2 text-white font-bold rounded-lg transition-colors flex items-center gap-2"
           style="background-color: #25d366"
         >

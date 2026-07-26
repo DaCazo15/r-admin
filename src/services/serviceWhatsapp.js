@@ -68,5 +68,4 @@ export const enviar = (m) => {
 
   const texto = encodeURIComponent(m.trim())
   window.open(`https://wa.me/${telefonoLimpio.value}?text=${texto}`, '_blank')
-  cerrar()
 }

@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import ModalTesoreria from './form/ModalTesoreria.vue'
+import ModalWhatsapp from './form/ModalWhatsapp.vue'
 import ModalReporte from './form/ModalReporte.vue'
 import ModalResultadoReporte from './form/ModalResultadoReporte.vue'
 import { useObtenerTasas } from '@/composable/useObtenerTasas'
@@ -13,6 +14,7 @@ const clubStore = useClubStore()
 const { mensualidadMargarita } = storeToRefs(clubStore)
 
 const isOpenModal = ref(false)
+const isOpneWhatsapp = ref(false)
 const isSaving = ref(false)
 const mensajeExito = ref(false)
 const montoMensualidad = ref(0)
@@ -51,10 +53,6 @@ const manejarReporte = async (filtros) => {
   }
 }
 
-const toggleModal = () => {
-  isOpenModal.value = !isOpenModal.value
-}
-
 onMounted(() => {
   obtenerTasas()
 })
@@ -75,13 +73,14 @@ const actualizarMensualidad = async () => {
 </script>
 
 <template>
+  <ModalWhatsapp v-if="isOpenWhatsapp" @cerrar="isOpenWhatsapp = false" />
   <ModalReporte v-if="isOpenReporte" @close="isOpenReporte = false" @generar="manejarReporte" />
   <ModalResultadoReporte
     v-if="reporteActual"
     :reporte="reporteActual"
     @close="reporteActual = null"
   />
-  <ModalTesoreria v-if="isOpenModal" @close="toggleModal" />
+  <ModalTesoreria v-if="isOpenModal" @close="isOpenModal.value = false" />
 
   <div
     class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-4 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4"
@@ -135,6 +134,7 @@ const actualizarMensualidad = async () => {
     <!-- Accesos rápidos / Reportes -->
     <div class="flex gap-2">
       <button
+        @click="isOpenWhatsapp = true"
         class="cursor-pointer flex-1 sm:flex-initial bg-emerald-600/40 hover:bg-emerald-600 text-emerald-700 hover:text-white border-2 border-emerald-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
         title="Enviar mensaje de cobro a WhatsApp"
       >
@@ -217,7 +217,7 @@ const actualizarMensualidad = async () => {
     <!-- Botón grande para ingresar monto -->
     <div class="flex-1">
       <button
-        @click="toggleModal"
+        @click="isOpenModal.value = true"
         class="cursor-pointer px-4 py-3 w-full gap-2 flex flex-row justify-center items-center uppercase text-primary-600 hover:text-white font-semibold border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 transition-all shadow-sm"
       >
         Ingresar Monto
