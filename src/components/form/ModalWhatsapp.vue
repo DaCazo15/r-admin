@@ -191,25 +191,27 @@ const enviar = () => {
       </div>
 
       <!-- Botones -->
-      <div class="flex justify-end gap-3 px-6 py-4 bg-white border-t border-gray-200">
+      <div
+        class="flex justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-white border-t border-gray-200"
+      >
         <button
           type="button"
           @click="cerrar"
-          class="cursor-pointer px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
         >
           Cancelar
         </button>
         <button
           type="button"
           @click="limpiar"
-          class="cursor-pointer px-4 py-2 bg-gray-100 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base bg-gray-100 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
         >
           Limpiar
         </button>
         <button
           type="button"
           @click="enviar"
-          class="cursor-pointer px-4 py-2 text-white font-bold rounded-lg transition-colors flex items-center gap-2"
+          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base text-white font-bold rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2"
           style="background-color: #25d366"
         >
           <i class="bi bi-send-fill"></i>
