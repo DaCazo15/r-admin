@@ -263,7 +263,7 @@ const generarReporte = () => {
           >
             <option v-for="a in aniosRotarios" :key="a" :value="a">{{ a }} - {{ a + 1 }}</option>
           </select>
-          <p class="text-xs text-gray-50 mt-1">
+          <p class="text-xs text-gray-500 mt-1">
             Va del 1 de julio de {{ anioRotarioInicio }} al 30 de junio de
             {{ anioRotarioInicio + 1 }}.
           </p>
