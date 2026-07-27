@@ -219,7 +219,7 @@ const tipoPago = computed(() => {
         <!-- Cuota Distrital -->
         <div class="flex gap-2 justify-start items-center w-full">
           <label class="block text-sm font-medium text-gray-700 mb-1" for="pagoDistrital"
-            >Pago distrital</label
+            >Cuota distrital</label
           >
           <input type="checkbox" @change="pagoDistrital = !pagoDistrital" id="pagoDistrital" />
         </div>
