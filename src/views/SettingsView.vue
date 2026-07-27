@@ -70,7 +70,7 @@ const clickCheck = (name, check) => {
       <div class="flex items-center gap-3.5 p-5 border-b border-gray-100">
         <div class="relative">
           <img
-            src="../../assets/img/img_user/user_img.webp"
+            src="../assets/img/img_user/user_img.webp"
             :alt="usuario?.nombre || 'Foto de perfil'"
             class="rounded-full w-14 h-14 object-cover shadow-sm border-2 border-primary-100 p-0.5 ring-2 ring-primary-400/30"
           />
