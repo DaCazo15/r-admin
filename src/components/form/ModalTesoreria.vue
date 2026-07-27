@@ -35,12 +35,15 @@ const resetForm = () => {
   form.value.tipoPago = ''
   form.value.tipoMovimiento = ''
   form.value.mes = ''
+  pagoDistrital.value = false
 }
 
 const cargarDatosSiEdicion = () => {
   if (props.transaccion && props.transaccion.id) {
     const item = props.transaccion
-    tipoMovimiento.value = item.tipoMovimiento || 'mensualidad'
+    const tipoOriginal = item.tipoMovimiento?.toLowerCase() || 'mensualidad'
+    tipoMovimiento.value = tipoOriginal === 'cuota distrital' ? 'mensualidad' : tipoOriginal
+    pagoDistrital.value = tipoOriginal === 'cuota distrital'
     form.value.nombre = item.nombre || ''
     form.value.descripcion = item.descripcion || ''
     form.value.monto = item.monto || ''
@@ -224,7 +227,7 @@ const tipoPago = computed(() => {
           <label class="block text-sm font-medium text-gray-700 mb-1" for="pagoDistrital"
             >cuota distrital</label
           >
-          <input type="checkbox" @change="pagoDistrital = !pagoDistrital" id="pagoDistrital" />
+          <input type="checkbox" v-model="pagoDistrital" id="pagoDistrital" />
         </div>
         <!-- Campos Comunes -->
         <div class="grid grid-cols-3 gap-4">

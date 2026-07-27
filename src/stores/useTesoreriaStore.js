@@ -22,9 +22,9 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
         if (item.tipoMovimiento === 'ingreso' && !filtros.value.ingreso) return false
         if (item.tipoMovimiento === 'egreso' && !filtros.value.egreso) return false
         if (item.tipoMovimiento === 'mensualidad' && !filtros.value.mensualidad) return false
-        if (item.tipoMovimiento === 'cuota distrital' && !filtros.value.pagoDistrital) return false
+        if (item.tipoMovimiento?.toLowerCase() === 'cuota distrital' && !filtros.value.pagoDistrital) return false
 
-        if (['mensualidad', 'cuota distrital'].includes(item.tipoMovimiento)) {
+        if (['mensualidad', 'cuota distrital'].includes(item.tipoMovimiento?.toLowerCase())) {
           if (item.estatus === 'sin revisar' && !filtros.value.sinRevisar) return false
           if (item.estatus === 'revisado' && !filtros.value.revisado) return false
         }
@@ -67,7 +67,7 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
     tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'mensualidad'),
   )
   const pagoDistrital = computed(() =>
-    tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'cuota distrital'),
+    tesoreriaRawList.value.filter((t) => t.tipoMovimiento?.toLowerCase() === 'cuota distrital'),
   )
 
   const totalIngresos = computed(() =>
@@ -147,7 +147,7 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
       const monto = Number(t.monto || 0)
       if (t.tipoMovimiento === 'ingreso') mapa[clave].ingresos += monto
       else if (t.tipoMovimiento === 'egreso') mapa[clave].egresos += monto
-      else if (['mensualidad', 'cuota distrital'].includes(t.tipoMovimiento))
+      else if (['mensualidad', 'cuota distrital'].includes(t.tipoMovimiento?.toLowerCase()))
         mapa[clave].mensualidades += monto
     })
 

@@ -123,10 +123,15 @@ const editarPersona = async (id) => {
           <template v-else-if="props.estatus === 'Tesoreria'">
             <!-- Columna Nombre / Concepto -->
             <td class="px-4 py-3 font-medium text-gray-900">
-              <span v-if="['mensualidad', 'cuota distrital'].includes(item.tipoMovimiento)">
-                {{ item.nombre }}
+              <span
+                v-if="
+                  ['mensualidad', 'cuota distrital'].includes(item.tipoMovimiento?.toLowerCase())
+                "
+              >
+                {{ item.nombre || item.descripcion }}
+
                 <span
-                  class="font-bold capitalize block"
+                  class="font-bold capitalize block text-xs mt-1"
                   :class="item.estatus === 'revisado' ? 'text-green-600' : 'text-red-600'"
                   >{{ item.estatus }}</span
                 >
@@ -138,9 +143,13 @@ const editarPersona = async (id) => {
             <!-- Columna Monto (con clase de color verde/rojo según el tipo) -->
             <td
               class="px-4 py-3 font-bold"
-              :class="item.tipoMovimiento === 'egreso' ? 'text-red-600' : 'text-green-600'"
+              :class="
+                item.tipoMovimiento?.toLowerCase() === 'egreso' ? 'text-red-600' : 'text-green-600'
+              "
             >
-              {{ item.tipoMovimiento === 'egreso' ? '-' : '+' }}${{ Number(item.monto).toFixed(2) }}
+              {{ item.tipoMovimiento?.toLowerCase() === 'egreso' ? '-' : '+' }}${{
+                Number(item.monto).toFixed(2)
+              }}
             </td>
             <!-- Columna Referencia -->
             <td class="px-4 py-3 text-gray-600 font-mono text-xs">{{ item.referencia }}</td>
@@ -151,10 +160,11 @@ const editarPersona = async (id) => {
               <span
                 class="px-2.5 py-1 text-xs font-semibold uppercase"
                 :class="{
-                  'bg-emerald-50 text-emerald-700': item.tipoMovimiento === 'ingreso',
-                  'bg-rose-50 text-rose-700': item.tipoMovimiento === 'egreso',
+                  'bg-emerald-50 text-emerald-700':
+                    item.tipoMovimiento?.toLowerCase() === 'ingreso',
+                  'bg-rose-50 text-rose-700': item.tipoMovimiento?.toLowerCase() === 'egreso',
                   'bg-blue-50 text-blue-700': ['mensualidad', 'cuota distrital'].includes(
-                    item.tipoMovimiento,
+                    item.tipoMovimiento?.toLowerCase(),
                   ),
                 }"
               >
@@ -165,10 +175,11 @@ const editarPersona = async (id) => {
               <span
                 class="px-2.5 py-1 text-xs font-semibold uppercase"
                 :class="{
-                  'bg-emerald-50 text-emerald-700': item.tipoMovimiento === 'ingreso',
-                  'bg-rose-50 text-rose-700': item.tipoMovimiento === 'egreso',
+                  'bg-emerald-50 text-emerald-700':
+                    item.tipoMovimiento?.toLowerCase() === 'ingreso',
+                  'bg-rose-50 text-rose-700': item.tipoMovimiento?.toLowerCase() === 'egreso',
                   'bg-blue-50 text-blue-700': ['mensualidad', 'cuota distrital'].includes(
-                    item.tipoMovimiento,
+                    item.tipoMovimiento?.toLowerCase(),
                   ),
                 }"
               >

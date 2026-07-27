@@ -45,7 +45,7 @@ export const guardarMovimiento = async (movimiento, datos, isSaving) => {
       createdAt: new Date(),
     }
 
-    if (['mensualidad', 'cuota distrital'].includes(movimiento)) {
+    if (['mensualidad', 'cuota distrital'].includes(movimiento?.toLowerCase())) {
       datosPago.nombre = datos.nombre
       datosPago.mes = datos.mes
       datosPago.estatus = 'sin revisar'
@@ -112,10 +112,10 @@ export const actualizarEstadoClub = async (nombreClub = 'Isla de Margarita') => 
     let saldo = 0
     tesoreriaSnap.docs.forEach((doc) => {
       const data = doc.data()
-      const monto = Number(data.monto || 0)
-      if (data.tipoMovimiento === 'ingreso' || data.tipoMovimiento === 'mensualidad') {
+      const tipo = data.tipoMovimiento?.toLowerCase()
+      if (tipo === 'ingreso' || tipo === 'mensualidad' || tipo === 'cuota distrital') {
         saldo += monto
-      } else if (data.tipoMovimiento === 'egreso') {
+      } else if (tipo === 'egreso') {
         saldo -= monto
       }
     })
