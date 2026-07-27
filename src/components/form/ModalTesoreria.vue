@@ -72,6 +72,8 @@ const modal = () => {
 }
 
 const guardarDatos = async () => {
+  console.log(modoEdicion.value)
+  console.log(props.transaccion?.id)
   if (modoEdicion.value && props.transaccion?.id) {
     const datosActualizados = {
       tipoMovimiento: pagoDistrital.value ? 'Cuota Distrital' : tipoMovimiento.value,
@@ -213,9 +215,13 @@ const tipoPago = computed(() => {
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
           />
         </div>
+
+        <!-- Cuota Distrital -->
         <div class="flex gap-2 justify-start items-center w-full">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Pago distrital</label>
-          <input type="checkbox" @change="pagoDistrital = !pagoDistrital" />
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="pagoDistrital"
+            >Pago distrital</label
+          >
+          <input type="checkbox" @change="pagoDistrital = !pagoDistrital" id="pagoDistrital" />
         </div>
         <!-- Campos Comunes -->
         <div class="grid grid-cols-3 gap-4">
