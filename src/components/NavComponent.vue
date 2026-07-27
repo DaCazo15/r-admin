@@ -22,9 +22,7 @@ const toggleDesplegable = () => {
 </script>
 
 <template>
-  <!-- Quitamos w-full para que el contenedor principal no cubra toda la pantalla -->
-  <div class="flex flex-col fixed top-0 left-0 z-40 w-auto">
-    <!-- Barra superior -->
+  <div class="flex flex-col fixed w-full">
     <div
       class="py-2 px-4 flex justify-between items-center bg-white border-b border-gray-200 w-full"
     >
@@ -36,31 +34,34 @@ const toggleDesplegable = () => {
         <i class="bi bi-door-closed-fill"></i>
       </button>
     </div>
+    <div
+      @click="toggleDesplegable"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    >
+      <div class="relative flex items-start">
+        <DesplegableComponent
+          class="absolute top-0 left-0 z-40 shadow-2xl transition-all duration-300 ease-in-out transform origin-left"
+          :class="[
+            desplegable
+              ? 'translate-x-0 opacity-100 pointer-events-auto'
+              : '-translate-x-full opacity-0 pointer-events-none',
+          ]"
+          @cerrarSesion="cerrarSesion"
+        />
 
-    <!-- Contenedor del menú desplegable -->
-    <div class="relative flex items-start w-82">
-      <DesplegableComponent
-        class="absolute top-0 left-0 z-40 shadow-2xl transition-all duration-300 ease-in-out transform origin-left"
-        :class="[
-          desplegable
-            ? 'translate-x-0 opacity-100 pointer-events-auto'
-            : '-translate-x-full opacity-0 pointer-events-none',
-        ]"
-        @cerrarSesion="cerrarSesion"
-      />
-
-      <!-- Botón de apertura/cierre flotante estilizado -->
-      <button
-        @click="toggleDesplegable"
-        aria-label="Abrir menú"
-        class="cursor-pointer h-12 w-10 flex items-center justify-center mt-3 bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white rounded-r-xl shadow-lg border-y border-r border-white/20 relative z-50 transition-all duration-300 ease-in-out active:scale-95 group"
-        :class="[desplegable ? 'translate-x-72 shadow-primary-900/30' : 'translate-x-0']"
-      >
-        <i
-          class="bi bi-chevron-right text-lg transition-transform duration-300 group-hover:scale-110"
-          :class="{ 'rotate-180': desplegable }"
-        ></i>
-      </button>
+        <!-- Botón de apertura/cierre flotante estilizado -->
+        <button
+          @click="toggleDesplegable"
+          aria-label="Abrir menú"
+          class="cursor-pointer h-12 w-10 flex items-center justify-center mt-3 bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white rounded-r-xl shadow-lg border-y border-r border-white/20 relative z-50 transition-all duration-300 ease-in-out active:scale-95 group"
+          :class="[desplegable ? 'translate-x-72 shadow-primary-900/30' : 'translate-x-0']"
+        >
+          <i
+            class="bi bi-chevron-right text-lg transition-transform duration-300 group-hover:scale-110"
+            :class="{ 'rotate-180': desplegable }"
+          ></i>
+        </button>
+      </div>
     </div>
   </div>
 </template>
