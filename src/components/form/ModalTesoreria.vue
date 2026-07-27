@@ -15,6 +15,7 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const isSaving = ref(false)
+const pagoDistrital = ref(false)
 const tipoMovimiento = ref('mensualidad')
 const { modoEdicion, cancelarEdicion } = useEdicion()
 const tesoreriaStore = useTesoreriaStore()
@@ -34,6 +35,7 @@ const resetForm = () => {
   form.value.tipoPago = ''
   form.value.tipoMovimiento = ''
   form.value.mes = ''
+  pagoDistrital.value = false
 }
 
 const cargarDatosSiEdicion = () => {
@@ -48,6 +50,7 @@ const cargarDatosSiEdicion = () => {
     form.value.tipoPago = item.metodoPago || item.tipoPago || ''
     form.value.tipoMovimiento = item.tipoMovimiento || ''
     form.value.mes = item.mes || ''
+    pagoDistrital.value = !!item.pagoDistrital
   } else {
     resetForm()
   }
@@ -78,6 +81,7 @@ const guardarDatos = async () => {
       referencia: form.value.referencia || 'N/A',
       fechaPago: form.value.fechaPago,
       metodoPago: form.value.tipoPago,
+      pagoDistrital: pagoDistrital.value,
       estatus: 'revisado',
     }
     if (tipoMovimiento.value === 'mensualidad') {
@@ -88,11 +92,21 @@ const guardarDatos = async () => {
     }
     await tesoreriaStore.editarTransaccion(props.transaccion.id, datosActualizados)
   } else {
-    await guardarMovimiento(tipoMovimiento.value, form.value, isSaving)
+    await guardarMovimiento(
+      tipoMovimiento.value,
+      { ...form.value, pagoDistrital: pagoDistrital.value },
+      isSaving,
+    )
   }
   resetForm()
   modal()
 }
+const tipoPago = computed(() => {
+  if (!pagoDistrital.value) {
+    return tipoMovimiento.value.charAt(0).toUpperCase() + tipoMovimiento.value.slice(1)
+  }
+  return 'Pago Distrital'
+})
 </script>
 
 <template>
@@ -197,14 +211,15 @@ const guardarDatos = async () => {
             v-model="form.descripcion"
             required
             :placeholder="
-              tipoMovimiento === 'ingreso'
-                ? 'Ej. Venta de rifas'
-                : 'Ej. Reparación de aire acondicionado'
+              tipoMovimiento === 'ingreso' ? 'Venta de rifas' : 'Reparación de aire acondicionado'
             "
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
           />
         </div>
-
+        <div class="flex gap-2 justify-start items-center w-full">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Pago distrital</label>
+          <input type="checkbox" v-model="pagoDistrital" />
+        </div>
         <!-- Campos Comunes -->
         <div class="grid grid-cols-3 gap-4">
           <!-- Monto -->
@@ -243,7 +258,7 @@ const guardarDatos = async () => {
             <input
               type="text"
               disabled
-              :value="tipoMovimiento.charAt(0).toUpperCase() + tipoMovimiento.slice(1)"
+              :value="tipoPago"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white"
             />
           </div>

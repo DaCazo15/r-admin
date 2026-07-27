@@ -42,6 +42,7 @@ export const guardarMovimiento = async (movimiento, datos, isSaving) => {
       referencia: datos.referencia || 'N/A',
       fechaPago: datos.fechaPago,
       metodoPago: datos.tipoPago,
+      pagoDistrital: !!datos.pagoDistrital,
       createdAt: new Date(),
     }
 
@@ -129,4 +130,3 @@ export const actualizarPersona = async (id, datosPersona, isSaving) => {
     isSaving.value = false
   }
 }
-

@@ -62,6 +62,19 @@ const { filtros } = storeToRefs(useFiltrosStore())
         />
         Mensualidad
       </label>
+
+      <label
+        for="mensualidad"
+        class="flex items-center gap-2 text-sm font-semibold text-black/70 cursor-pointer select-none"
+      >
+        <input
+          type="checkbox"
+          id="mensualidad"
+          v-model="filtros.pagoDistrital"
+          class="w-4 h-4 accent-primary-600 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 cursor-pointer"
+        />
+        Pago Distrital
+      </label>
     </div>
 
     <!-- Separador -->

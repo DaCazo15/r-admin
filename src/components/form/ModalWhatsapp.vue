@@ -68,7 +68,7 @@ const generarPlantilla = () => {
 
 const limpiar = () => {
   socioSeleccionadoId.value = ''
-  tipoMensaje.value = 'aviso'
+  tipoMensaje.value = ''
   montoCobro.value = mensualidadMargarita.value
   mensaje.value = ''
   error.value = ''

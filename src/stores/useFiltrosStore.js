@@ -7,6 +7,7 @@ export const useFiltrosStore = defineStore('filtros', () => {
     ingreso: true,
     egreso: true,
     mensualidad: true,
+    pagoDistrital: true,
     sinRevisar: true,
     revisado: true,
     min: null,
@@ -19,15 +20,21 @@ export const useFiltrosStore = defineStore('filtros', () => {
       filtros.value.ingreso = nuevoValor
       filtros.value.egreso = nuevoValor
       filtros.value.mensualidad = nuevoValor
+      filtros.value.pagoDistrital = nuevoValor
     },
   )
 
   watch(
-    () => [filtros.value.ingreso, filtros.value.egreso, filtros.value.mensualidad],
-    ([ingreso, egreso, mensualidad]) => {
-      if (!ingreso || !egreso || !mensualidad) {
+    () => [
+      filtros.value.ingreso,
+      filtros.value.egreso,
+      filtros.value.mensualidad,
+      filtros.value.pagoDistrital,
+    ],
+    ([ingreso, egreso, mensualidad, pagoDistrital]) => {
+      if (!ingreso || !egreso || !mensualidad || !pagoDistrital) {
         filtros.value.todos = false
-      } else if (ingreso && egreso && mensualidad) {
+      } else if (ingreso && egreso && mensualidad && pagoDistrital) {
         filtros.value.todos = true
       }
     },
