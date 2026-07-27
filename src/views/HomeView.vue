@@ -2,6 +2,7 @@
 import Logo from '../components/ux/Logo.vue'
 import Tabla from '../components/ux/Tabla.vue'
 import Modal from '../components/form/Modal.vue'
+import ModalPassEstandarClub from '../components/form/ModalPassEstandarClub.vue'
 import Filtros from '../components/ux/Filtros.vue'
 import OpcionesTesoreria from '@/components/OpcionesTesoreria.vue'
 import MetricasComponent from '@/components/MetricasComponent.vue'
@@ -16,6 +17,7 @@ const { iniciarEdicion, cancelarEdicion } = useEdicion()
 
 const isOpen = ref(false)
 const isOpenTesoreria = ref(false)
+const isOpenModalPass = ref(false)
 const personaActual = ref(null)
 const filtro = ref(false)
 const buscador = ref('')
@@ -87,6 +89,7 @@ const actualizarClub = async () => {
 <template>
   <Modal v-if="isOpen" @close="modal" :estatus="estatus" :persona="personaActual" />
   <ModalTesoreria v-if="isOpenTesoreria" @close="modalTesoreria" :transaccion="personaActual" />
+  <ModalPassEstandarClub v-if="isOpenModalPass" @close="isOpenModalPass = false" />
   <main>
     <!-- Logo -->
     <Logo v-if="estatus !== 'Tesoreria'" />
@@ -136,6 +139,7 @@ const actualizarClub = async () => {
       v-if="addOn"
       class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-3 flex flex-col sm:flex-row justify-center items-center gap-2"
     >
+      <!-- Agregar Persona -->
       <button
         @click="modal"
         v-if="addOn && estatus !== 'Tesoreria'"
@@ -144,6 +148,18 @@ const actualizarClub = async () => {
         <i class="bi bi-plus-lg"></i>
         Agregar Persona
       </button>
+
+      <!-- Password Estandar -->
+      <button
+        @click="isOpenModalPass = true"
+        v-if="estatus === 'Socios'"
+        class="cursor-pointer px-3 py-2 w-full gap-2 flex flex-row justify-center items-center text-primary-600 hover:text-white font-medium border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 transition-all"
+      >
+        <i class="bi bi-shield-lock-fill"></i>
+        Password Estandar
+      </button>
+
+      <!-- Buscador -->
       <div v-if="!metricasOn" class="flex justify-center items-center gap-2 w-full">
         <input
           v-model="buscador"

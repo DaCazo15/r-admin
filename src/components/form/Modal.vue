@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { persona } from '@/helpers/list.js'
 import { guardarPersona } from '@/services/firebaseService.js'
 import { useEdicion } from '@/composable/useEdicion.js'
@@ -8,6 +8,7 @@ import { useAspirantesStore } from '@/stores/useAspirantesStore'
 
 const emit = defineEmits(['close'])
 const isSaving = ref(false)
+const cambioEstatus = ref(false)
 
 const props = defineProps({
   estatus: String,
@@ -55,10 +56,17 @@ const modal = () => {
 }
 
 const guardar = async () => {
-  const datosSocio = { ...persona.value, estatus: props.estatus }
+  const id = props.persona?.id
+  let datosSocio
+  if (cambioEstatus.value) {
+    datosSocio = { ...persona.value, estatus: 'Socios' }
+  } else {
+    datosSocio = { ...persona.value, estatus: props.estatus }
+  }
 
-  if (modoEdicion.value && props.persona?.id) {
+  if (modoEdicion.value && id) {
     if (props.estatus === 'Socios') {
+      if (cambioEstatus.value) await aspirantesStore.eliminarAspirante(id)
       await sociosStore.editarSocio(props.persona.id, datosSocio, isSaving)
     } else if (props.estatus === 'Aspirantes') {
       await aspirantesStore.editarAspirante(props.persona.id, datosSocio, isSaving)
@@ -69,6 +77,10 @@ const guardar = async () => {
 
   modal()
 }
+
+const estadoEstatus = computed(() => {
+  return cambioEstatus.value ? 'Socios' : props.estatus
+})
 </script>
 
 <template>
@@ -109,6 +121,13 @@ const guardar = async () => {
             placeholder="Nombre"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
           />
+        </div>
+
+        <div class="flex gap-2 justify-start items-center w-full" v-if="modoEdicion">
+          <label for="estatusCambio" class="block text-sm font-medium text-gray-700 mb-1"
+            >Combertir en Socio</label
+          >
+          <input type="checkbox" @change="cambioEstatus = !pagoDistrital" id="estatusCambio" />
         </div>
 
         <div class="grid grid-cols-2 gap-4">

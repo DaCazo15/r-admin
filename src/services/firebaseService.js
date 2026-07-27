@@ -55,7 +55,6 @@ export const guardarMovimiento = async (movimiento, datos, isSaving) => {
     }
 
     await addDoc(collection(db, 'tesoreria'), datosPago)
-    console.log('Transacción registrada exitosamente')
   } catch (error) {
     console.error('Error al registrar transacción:', error)
   } finally {
@@ -75,6 +74,29 @@ export const guardarPersona = async (persona, isSaving) => {
     isSaving.value = false
   }
 }
+
+export const guardarPassEstandar = async (pass, isSaving, nombreClub = 'Isla de Margarita') => {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    const clubSnap = await getDocs(collection(db, 'club'))
+    const docEncontrado = clubSnap.docs.find(
+      (doc) => doc.data().club?.toLowerCase() === nombreClub.toLowerCase(),
+    )
+
+    if (docEncontrado) {
+      await updateDoc(docEncontrado.ref, {
+        passEstandar: pass,
+      })
+    }
+  } catch (error) {
+    console.error('Error al guardar socio:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
 export const actualizarEstadoClub = async (nombreClub = 'Isla de Margarita') => {
   try {
     const [sociosSnap, aspirantesSnap, tesoreriaSnap, clubSnap] = await Promise.all([
@@ -127,5 +149,21 @@ export const actualizarPersona = async (id, datosPersona, isSaving) => {
     console.error('Error al actualizar persona:', error)
   } finally {
     isSaving.value = false
+  }
+}
+
+export const extraerPassEstandarClub = async (nombreClub = 'Isla de Margarita') => {
+  try {
+    const clubSnap = await getDocs(collection(db, 'club'))
+
+    // Buscamos el documento que coincida con el club
+    const docEncontrado = clubSnap.docs.find(
+      (doc) => doc.data().club?.toLowerCase() === nombreClub.toLowerCase(),
+    )
+
+    return docEncontrado ? docEncontrado.data().passEstandar : ''
+  } catch (error) {
+    console.error('Error al extraer la contraseña:', error)
+    return ''
   }
 }
