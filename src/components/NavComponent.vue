@@ -22,7 +22,9 @@ const toggleDesplegable = () => {
 </script>
 
 <template>
-  <div class="flex flex-col fixed w-full">
+  <!-- Quitamos w-full para que el contenedor principal no cubra toda la pantalla -->
+  <div class="flex flex-col fixed top-0 left-0 z-40">
+    <!-- Barra superior -->
     <div
       class="py-2 px-4 flex justify-between items-center bg-white border-b border-gray-200 w-full"
     >
@@ -34,6 +36,8 @@ const toggleDesplegable = () => {
         <i class="bi bi-door-closed-fill"></i>
       </button>
     </div>
+
+    <!-- Contenedor del menú desplegable -->
     <div class="relative flex items-start w-82">
       <DesplegableComponent
         class="absolute top-0 left-0 z-40 shadow-2xl transition-all duration-300 ease-in-out transform origin-left"
