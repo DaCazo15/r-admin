@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 const sesionStore = useSesionStore()
 const { usuario } = storeToRefs(sesionStore)
 
-const emit = defineEmits(['cerrarSesion'])
+const emit = defineEmits(['cerrarSesion', 'cerrar'])
 </script>
 
 <template>
@@ -49,6 +49,16 @@ const emit = defineEmits(['cerrarSesion'])
           class="bi bi-person text-lg text-primary-200 group-hover:text-white transition-colors"
         ></i>
         <span>Perfil</span>
+      </router-link>
+      <router-link
+        :to="{ name: 'home' }"
+        @click="emit('cerrar')"
+        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/15 active:scale-[0.98] transition-all text-sm font-medium group"
+      >
+        <i
+          class="bi bi-house-door-fill text-lg text-primary-200 group-hover:text-white transition-colors"
+        ></i>
+        <span>Inicio</span>
       </router-link>
       <router-link
         :to="{ name: 'error' }"
@@ -139,7 +149,8 @@ const emit = defineEmits(['cerrarSesion'])
         <span>Herramientas</span>
       </router-link>
       <router-link
-        :to="{ name: 'error' }"
+        :to="{ name: 'settings' }"
+        @click="emit('cerrar')"
         class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/15 active:scale-[0.98] transition-all text-sm font-medium group"
       >
         <i class="bi bi-gear text-lg text-primary-200 group-hover:text-white transition-colors"></i>

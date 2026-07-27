@@ -2,10 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { getCurrentUser } from 'vuefire'
 import HomeView from '../views/HomeView.vue'
 import AuthView from '../views/AuthView.vue'
+import SettingsView from '../views/SettingsView.vue'
 import ErrorView from '../views/ErrorView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior(to, from, savedPosition) {
+    return { top: 0, behavior: 'smooth' }
+  },
   routes: [
     {
       path: '/',
@@ -16,6 +20,14 @@ const router = createRouter({
       path: '/home',
       name: 'home',
       component: HomeView,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/setting.4370',
+      name: 'settings',
+      component: SettingsView,
       meta: {
         requiresAuth: true,
       },

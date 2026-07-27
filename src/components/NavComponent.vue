@@ -44,6 +44,7 @@ const toggleDesplegable = () => {
             ? 'translate-x-0 opacity-100 pointer-events-auto'
             : '-translate-x-full opacity-0 pointer-events-none',
         ]"
+        @cerrar="toggleDesplegable"
         @cerrarSesion="cerrarSesion"
       />
 
