@@ -34,7 +34,7 @@ const toggleDesplegable = () => {
         <i class="bi bi-door-closed-fill"></i>
       </button>
     </div>
-    <div class="relative flex items-start w-auto">
+    <div class="relative flex items-start w-82">
       <DesplegableComponent
         class="absolute top-0 left-0 z-40 shadow-2xl transition-all duration-300 ease-in-out transform origin-left"
         :class="[
