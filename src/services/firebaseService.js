@@ -42,11 +42,10 @@ export const guardarMovimiento = async (movimiento, datos, isSaving) => {
       referencia: datos.referencia || 'N/A',
       fechaPago: datos.fechaPago,
       metodoPago: datos.tipoPago,
-      pagoDistrital: !!datos.pagoDistrital,
       createdAt: new Date(),
     }
 
-    if (movimiento === 'mensualidad') {
+    if (['mensualidad', 'cuota distrital'].includes(movimiento)) {
       datosPago.nombre = datos.nombre
       datosPago.mes = datos.mes
       datosPago.estatus = 'sin revisar'

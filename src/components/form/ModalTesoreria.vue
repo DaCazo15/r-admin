@@ -35,7 +35,6 @@ const resetForm = () => {
   form.value.tipoPago = ''
   form.value.tipoMovimiento = ''
   form.value.mes = ''
-  pagoDistrital.value = false
 }
 
 const cargarDatosSiEdicion = () => {
@@ -50,7 +49,6 @@ const cargarDatosSiEdicion = () => {
     form.value.tipoPago = item.metodoPago || item.tipoPago || ''
     form.value.tipoMovimiento = item.tipoMovimiento || ''
     form.value.mes = item.mes || ''
-    pagoDistrital.value = !!item.pagoDistrital
   } else {
     resetForm()
   }
@@ -76,12 +74,11 @@ const modal = () => {
 const guardarDatos = async () => {
   if (modoEdicion.value && props.transaccion?.id) {
     const datosActualizados = {
-      tipoMovimiento: tipoMovimiento.value,
+      tipoMovimiento: pagoDistrital.value ? 'Cuota Distrital' : tipoMovimiento.value,
       monto: Number(form.value.monto),
       referencia: form.value.referencia || 'N/A',
       fechaPago: form.value.fechaPago,
       metodoPago: form.value.tipoPago,
-      pagoDistrital: pagoDistrital.value,
       estatus: 'revisado',
     }
     if (tipoMovimiento.value === 'mensualidad') {
@@ -93,8 +90,8 @@ const guardarDatos = async () => {
     await tesoreriaStore.editarTransaccion(props.transaccion.id, datosActualizados)
   } else {
     await guardarMovimiento(
-      tipoMovimiento.value,
-      { ...form.value, pagoDistrital: pagoDistrital.value },
+      pagoDistrital.value ? 'cuota distrital' : tipoMovimiento.value,
+      form.value,
       isSaving,
     )
   }
@@ -105,7 +102,7 @@ const tipoPago = computed(() => {
   if (!pagoDistrital.value) {
     return tipoMovimiento.value.charAt(0).toUpperCase() + tipoMovimiento.value.slice(1)
   }
-  return 'Pago Distrital'
+  return 'Cuota Distrital'
 })
 </script>
 
@@ -218,7 +215,7 @@ const tipoPago = computed(() => {
         </div>
         <div class="flex gap-2 justify-start items-center w-full">
           <label class="block text-sm font-medium text-gray-700 mb-1">Pago distrital</label>
-          <input type="checkbox" v-model="pagoDistrital" />
+          <input type="checkbox" @change="pagoDistrital = !pagoDistrital" />
         </div>
         <!-- Campos Comunes -->
         <div class="grid grid-cols-3 gap-4">

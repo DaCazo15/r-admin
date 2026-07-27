@@ -123,7 +123,7 @@ const editarPersona = async (id) => {
           <template v-else-if="props.estatus === 'Tesoreria'">
             <!-- Columna Nombre / Concepto -->
             <td class="px-4 py-3 font-medium text-gray-900">
-              <span v-if="item.tipoMovimiento === 'mensualidad'">
+              <span v-if="['mensualidad', 'cuota distrital'].includes(item.tipoMovimiento)">
                 {{ item.nombre }}
                 <span
                   class="font-bold capitalize block"
@@ -153,7 +153,9 @@ const editarPersona = async (id) => {
                 :class="{
                   'bg-emerald-50 text-emerald-700': item.tipoMovimiento === 'ingreso',
                   'bg-rose-50 text-rose-700': item.tipoMovimiento === 'egreso',
-                  'bg-blue-50 text-blue-700': item.tipoMovimiento === 'mensualidad',
+                  'bg-blue-50 text-blue-700': ['mensualidad', 'cuota distrital'].includes(
+                    item.tipoMovimiento,
+                  ),
                 }"
               >
                 {{ item.metodoPago }}
@@ -165,7 +167,9 @@ const editarPersona = async (id) => {
                 :class="{
                   'bg-emerald-50 text-emerald-700': item.tipoMovimiento === 'ingreso',
                   'bg-rose-50 text-rose-700': item.tipoMovimiento === 'egreso',
-                  'bg-blue-50 text-blue-700': item.tipoMovimiento === 'mensualidad',
+                  'bg-blue-50 text-blue-700': ['mensualidad', 'cuota distrital'].includes(
+                    item.tipoMovimiento,
+                  ),
                 }"
               >
                 {{ item.tipoMovimiento }}

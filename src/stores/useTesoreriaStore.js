@@ -22,8 +22,9 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
         if (item.tipoMovimiento === 'ingreso' && !filtros.value.ingreso) return false
         if (item.tipoMovimiento === 'egreso' && !filtros.value.egreso) return false
         if (item.tipoMovimiento === 'mensualidad' && !filtros.value.mensualidad) return false
+        if (item.tipoMovimiento === 'cuota distrital' && !filtros.value.pagoDistrital) return false
 
-        if (item.tipoMovimiento === 'mensualidad') {
+        if (['mensualidad', 'cuota distrital'].includes(item.tipoMovimiento)) {
           if (item.estatus === 'sin revisar' && !filtros.value.sinRevisar) return false
           if (item.estatus === 'revisado' && !filtros.value.revisado) return false
         }
@@ -56,17 +57,45 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
   })
 
   // Computados para métricas
-  const ingresos = computed(() => tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'ingreso'))
-  const egresos = computed(() => tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'egreso'))
-  const mensualidades = computed(() => tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'mensualidad'))
+  const ingresos = computed(() =>
+    tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'ingreso'),
+  )
+  const egresos = computed(() =>
+    tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'egreso'),
+  )
+  const mensualidades = computed(() =>
+    tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'mensualidad'),
+  )
+  const pagoDistrital = computed(() =>
+    tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'cuota distrital'),
+  )
 
-  const totalIngresos = computed(() => ingresos.value.reduce((sum, t) => sum + Number(t.monto || 0), 0))
-  const totalEgresos = computed(() => egresos.value.reduce((sum, t) => sum + Number(t.monto || 0), 0))
-  const totalMensualidades = computed(() => mensualidades.value.reduce((sum, t) => sum + Number(t.monto || 0), 0))
-  const balance = computed(() => totalIngresos.value + totalMensualidades.value - totalEgresos.value)
+  const totalIngresos = computed(() =>
+    ingresos.value.reduce((sum, t) => sum + Number(t.monto || 0), 0),
+  )
+  const totalEgresos = computed(() =>
+    egresos.value.reduce((sum, t) => sum + Number(t.monto || 0), 0),
+  )
+  const totalMensualidades = computed(() =>
+    mensualidades.value.reduce((sum, t) => sum + Number(t.monto || 0), 0),
+  )
+  const cuotaDistritalTotal = computed(() =>
+    pagoDistrital.value.reduce((sum, t) => sum + Number(t.monto || 0), 0),
+  )
+  const balance = computed(
+    () =>
+      totalIngresos.value +
+      totalMensualidades.value +
+      cuotaDistritalTotal.value -
+      totalEgresos.value,
+  )
 
-  const sinRevisar = computed(() => mensualidades.value.filter((t) => t.estatus === 'sin revisar').length)
-  const revisadas = computed(() => mensualidades.value.filter((t) => t.estatus === 'revisado').length)
+  const sinRevisar = computed(
+    () => mensualidades.value.filter((t) => t.estatus === 'sin revisar').length,
+  )
+  const revisadas = computed(
+    () => mensualidades.value.filter((t) => t.estatus === 'revisado').length,
+  )
   const porcentajeRevisadas = computed(() => {
     if (mensualidades.value.length === 0) return 0
     return Math.round((revisadas.value / mensualidades.value.length) * 100)
@@ -89,7 +118,20 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
 
   const resumenMensual = computed(() => {
     const mapa = {}
-    const mesesNombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+    const mesesNombres = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ]
 
     tesoreriaRawList.value.forEach((t) => {
       let fecha = null
@@ -105,10 +147,14 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
       const monto = Number(t.monto || 0)
       if (t.tipoMovimiento === 'ingreso') mapa[clave].ingresos += monto
       else if (t.tipoMovimiento === 'egreso') mapa[clave].egresos += monto
-      else if (t.tipoMovimiento === 'mensualidad') mapa[clave].mensualidades += monto
+      else if (['mensualidad', 'cuota distrital'].includes(t.tipoMovimiento))
+        mapa[clave].mensualidades += monto
     })
 
-    return Object.values(mapa).sort((a, b) => b.clave.localeCompare(a.clave)).slice(0, 6).reverse()
+    return Object.values(mapa)
+      .sort((a, b) => b.clave.localeCompare(a.clave))
+      .slice(0, 6)
+      .reverse()
   })
 
   const eliminarTransaccion = async (id) => {
