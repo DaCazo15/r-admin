@@ -41,9 +41,12 @@ onMounted(() => {
   cargarDatosSiEdicion()
 })
 
-watch(() => props.persona, () => {
-  cargarDatosSiEdicion()
-})
+watch(
+  () => props.persona,
+  () => {
+    cargarDatosSiEdicion()
+  },
+)
 
 const modal = () => {
   emit('close')
@@ -82,7 +85,13 @@ const guardar = async () => {
         class="bg-primary-600 px-6 py-4 flex justify-between items-center border-b border-gray-100"
       >
         <h3 class="text-lg font-bold text-gray-50">
-          {{ modoEdicion ? 'Editar Persona' : 'Registrar Nuevo Socio' }}
+          {{
+            modoEdicion
+              ? 'Editar Persona'
+              : estatus === 'Socios'
+                ? 'Registrar Nuevo Socio'
+                : 'Registrar Nuevo Aspirante'
+          }}
         </h3>
         <button @click="modal" class="cursor-pointer text-gray-50 text-xl font-bold">
           &times;
@@ -172,7 +181,15 @@ const guardar = async () => {
             :disabled="isSaving"
             class="cursor-pointer px-4 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ isSaving ? (modoEdicion ? 'Actualizando...' : 'Guardando...') : (modoEdicion ? 'Actualizar' : 'Guardar') }}
+            {{
+              isSaving
+                ? modoEdicion
+                  ? 'Actualizando...'
+                  : 'Guardando...'
+                : modoEdicion
+                  ? 'Actualizar'
+                  : 'Guardar'
+            }}
           </button>
         </div>
       </form>

@@ -1,8 +1,7 @@
 import { ref, computed } from 'vue'
 
-const registroAEditar = ref(null)
-
 export const useEdicion = () => {
+  const registroAEditar = ref(null)
   const modoEdicion = computed(() => registroAEditar.value !== null)
 
   const iniciarEdicion = (registro) => {
