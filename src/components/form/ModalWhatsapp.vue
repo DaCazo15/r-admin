@@ -1,97 +1,21 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useSociosStore } from '@/stores/useSociosStore'
-import { useClubStore } from '@/stores/useClubStore'
+import { useModalWhatsapp } from '@/composable/useModalWhatsapp'
 
 const emit = defineEmits(['cerrar'])
 const cerrar = () => emit('cerrar')
 
-const sociosStore = useSociosStore()
-const { socios } = storeToRefs(sociosStore)
-
-const clubStore = useClubStore()
-const { mensualidadMargarita } = storeToRefs(clubStore)
-
-const tiposMensaje = [
-  { value: 'aviso', label: 'Aviso', icono: 'bi-megaphone-fill' },
-  { value: 'recordatorio', label: 'Recordatorio', icono: 'bi-bell-fill' },
-  { value: 'cobro', label: 'Cobro', icono: 'bi-cash-coin' },
-  { value: 'personalizado', label: 'Personalizado', icono: 'bi-pencil-fill' },
-]
-
-const socioSeleccionadoId = ref('')
-const tipoMensaje = ref('aviso')
-const montoCobro = ref(0)
-const mensaje = ref('')
-const error = ref('')
-
-const socioSeleccionado = computed(
-  () => socios.value?.find((s) => s.id === socioSeleccionadoId.value) || null,
-)
-const telefonoLimpio = computed(() => (socioSeleccionado.value?.telefono || '').replace(/\D/g, ''))
-
-watch(
-  mensualidadMargarita,
-  (nuevoValor) => {
-    montoCobro.value = nuevoValor
-  },
-  { immediate: true },
-)
-
-// Regenera el mensaje cuando cambia el tipo o el socio (para no pisar lo que
-// el usuario ya haya escrito a mano en otros casos, se resetea con 'Limpiar').
-watch([tipoMensaje, socioSeleccionadoId], () => {
-  mensaje.value = generarPlantilla()
-  error.value = ''
-})
-
-// Genera el texto de la plantilla según el tipo elegido y el socio actual.
-// 'personalizado' arranca en blanco (o con un saludo) para que se escriba libre.
-const generarPlantilla = () => {
-  const nombre = socioSeleccionado.value?.nombre?.split(' ')[0] || ''
-  const saludo = nombre ? `Hola ${nombre},` : 'Hola,'
-
-  switch (tipoMensaje.value) {
-    case 'aviso':
-      return `${saludo} 📢\n\nTe escribimos desde *Rotaract Isla de Margarita* para informarte:\n\n[Escribe aquí el aviso]\n\n¡Gracias!`
-    case 'recordatorio':
-      return `${saludo} 👋\n\nTe recordamos que tu *mensualidad* del club está pendiente de pago. Si ya la realizaste, ¡ignora este mensaje y gracias!\n\nCualquier duda, quedamos atentos. 🙌`
-    case 'cobro':
-      return `${saludo}\n\nTe contactamos desde *Tesorería* de Rotaract Isla de Margarita. Tienes un monto pendiente de *$${Number(montoCobro.value || 0).toFixed(2)}* correspondiente a la mensualidad del club.\n\nPor favor realiza el pago a la brevedad y envíanos el comprobante. ¡Gracias por tu apoyo! 🙏`
-    case 'personalizado':
-      return `${saludo}\n\n`
-    default:
-      return ''
-  }
-}
-
-const limpiar = () => {
-  socioSeleccionadoId.value = ''
-  tipoMensaje.value = ''
-  montoCobro.value = mensualidadMargarita.value
-  mensaje.value = ''
-  error.value = ''
-}
-
-const enviar = () => {
-  if (!socioSeleccionado.value) {
-    error.value = 'Selecciona un socio para enviarle el mensaje.'
-    return
-  }
-  if (!telefonoLimpio.value) {
-    error.value = 'Este socio no tiene un teléfono registrado.'
-    return
-  }
-  if (!mensaje.value.trim()) {
-    error.value = 'El mensaje no puede estar vacío.'
-    return
-  }
-
-  const texto = encodeURIComponent(mensaje.value.trim())
-  window.open(`https://wa.me/${telefonoLimpio.value}?text=${texto}`, '_blank')
-  cerrar()
-}
+const {
+  socios,
+  tiposMensaje,
+  socioSeleccionadoId,
+  tipoMensaje,
+  montoCobro,
+  mensaje,
+  error,
+  generarPlantilla,
+  limpiar,
+  enviar,
+} = useModalWhatsapp(cerrar)
 </script>
 
 <template>
@@ -146,7 +70,7 @@ const enviar = () => {
               :key="t.value"
               type="button"
               @click="tipoMensaje = t.value"
-              class="cursor-pointer flex flex-col items-center gap-1 py-2.5 px-2 rounded-lg border-2 text-xs font-semibold transition-all"
+              class="cursor-pointer flex flex-col items-center gap-1 py-2.5 px-2 rounded-lg border-2 text-xs font-semibold active:scale-95 transition-all"
               :style="
                 tipoMensaje === t.value
                   ? 'background-color:#25d366; border-color:#25d366; color:white;'
@@ -196,21 +120,21 @@ const enviar = () => {
         <button
           type="button"
           @click="cerrar"
-          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-[15px] sm:text-base bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-[15px] sm:text-base bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 active:scale-95 transition-all"
         >
           Cancelar
         </button>
         <button
           type="button"
           @click="limpiar"
-          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-[15px] sm:text-base bg-gray-100 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-[15px] sm:text-base bg-gray-100 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 active:scale-95 transition-all"
         >
           Limpiar
         </button>
         <button
           type="button"
           @click="enviar"
-          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-[15px] sm:text-base text-white font-bold rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2"
+          class="cursor-pointer px-3 py-1.5 sm:px-4 sm:py-2 text-[15px] sm:text-base text-white font-bold rounded-lg active:scale-95 transition-all flex items-center gap-1.5 sm:gap-2"
           style="background-color: #25d366"
         >
           <i class="bi bi-send-fill"></i>

@@ -104,14 +104,14 @@ const editarPersona = async (id) => {
             <td class="px-4 py-3 flex items-center justify-center gap-8">
               <button
                 @click="editarPersona(item.id)"
-                class="text-green-600 hover:text-green-800 transition-colors cursor-pointer"
+                class="text-green-600 hover:text-green-800 transition-all cursor-pointer active:scale-75"
                 title="Editar"
               >
                 <i class="bi bi-pencil-square text-lg"></i>
               </button>
               <button
                 @click="eliminarRegistro(item.id)"
-                class="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
+                class="text-red-600 hover:text-red-800 transition-all cursor-pointer active:scale-75"
                 title="Eliminar"
               >
                 <i class="bi bi-trash text-lg"></i>
@@ -190,14 +190,14 @@ const editarPersona = async (id) => {
             <td class="px-4 py-3 flex items-center justify-center gap-8">
               <button
                 @click="editarPersona(item.id)"
-                class="text-green-600 hover:text-green-800 transition-colors cursor-pointer"
+                class="text-green-600 hover:text-green-800 transition-all cursor-pointer active:scale-75"
                 title="Editar"
               >
                 <i class="bi bi-pencil-square text-lg"></i>
               </button>
               <button
                 @click="eliminarRegistro(item.id)"
-                class="text-red-600 hover:text-red-800 transition-colors cursor-pointer"
+                class="text-red-600 hover:text-red-800 transition-all cursor-pointer active:scale-75"
                 title="Eliminar"
               >
                 <i class="bi bi-trash text-lg"></i>

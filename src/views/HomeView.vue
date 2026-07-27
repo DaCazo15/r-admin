@@ -102,28 +102,28 @@ const actualizarClub = async () => {
       <button
         @click="(cambioEstatus('Socios'), (metricasOn = false))"
         :class="{ 'bg-primary-600 text-white': estatus === 'Socios' }"
-        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
+        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 active:scale-95 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
       >
         Socios
       </button>
       <button
         @click="(cambioEstatus('Aspirantes'), (metricasOn = false))"
         :class="{ 'bg-primary-600 text-white': estatus === 'Aspirantes' }"
-        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
+        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 active:scale-95 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
       >
         Aspirantes
       </button>
       <button
         @click="cambioEstatus('Tesoreria')"
         :class="{ 'bg-primary-600 text-white': estatus === 'Tesoreria' }"
-        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
+        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 active:scale-95 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
       >
         Tesorería
       </button>
       <button
         @click="(cambioEstatus('Junta'), (metricasOn = false))"
         :class="{ 'bg-primary-600 text-white': estatus === 'Junta' }"
-        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
+        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 active:scale-95 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
       >
         Junta Directiva
       </button>
@@ -143,7 +143,7 @@ const actualizarClub = async () => {
       <button
         @click="modal"
         v-if="addOn && estatus !== 'Tesoreria'"
-        class="cursor-pointer px-3 py-2 w-full gap-2 flex flex-row justify-center items-center text-primary-600 hover:text-white font-medium border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 transition-all"
+        class="cursor-pointer px-3 py-2 w-full gap-2 flex flex-row justify-center items-center text-primary-600 hover:text-white font-medium border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-95 transition-all"
       >
         <i class="bi bi-plus-lg"></i>
         Agregar Persona
@@ -153,7 +153,7 @@ const actualizarClub = async () => {
       <button
         @click="isOpenModalPass = true"
         v-if="estatus === 'Socios'"
-        class="cursor-pointer px-3 py-2 w-full gap-2 flex flex-row justify-center items-center text-primary-600 hover:text-white font-medium border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 transition-all"
+        class="cursor-pointer px-3 py-2 w-full gap-2 flex flex-row justify-center items-center text-primary-600 hover:text-white font-medium border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-95 transition-all"
       >
         <i class="bi bi-shield-lock-fill"></i>
         Password Estandar
@@ -169,7 +169,7 @@ const actualizarClub = async () => {
         />
         <button
           @click="aplicarBusqueda"
-          class="cursor-pointer px-2.5 py-1.5 text-white font-bold border-primary-600 border-2 bg-primary-600 rounded-lg ease-in-out duration-200 transition-all"
+          class="cursor-pointer px-2.5 py-1.5 text-white font-bold border-primary-600 border-2 bg-primary-600 rounded-lg ease-in-out duration-200 active:scale-90 transition-all"
         >
           <i class="bi bi-search"></i>
         </button>
@@ -180,7 +180,7 @@ const actualizarClub = async () => {
             'bg-primary-600/80 text-white': filtro,
             'text-white': !filtro,
           }"
-          class="cursor-pointer px-2.5 py-1.5 border-primary-600 border-2 font-bold bg-primary-600 rounded-lg ease-in-out duration-200 transition-all"
+          class="cursor-pointer px-2.5 py-1.5 border-primary-600 border-2 font-bold bg-primary-600 rounded-lg ease-in-out duration-200 active:scale-90 transition-all"
         >
           <i class="bi bi-funnel-fill"></i>
         </button>
@@ -190,7 +190,7 @@ const actualizarClub = async () => {
         <button
           @click="actualizarClub"
           :disabled="isUpdating"
-          class="cursor-pointer px-3 py-3 w-full flex flex-row justify-center items-center font-medium border-2 rounded-lg ease-in-out duration-300 transition-all shadow-xs"
+          class="cursor-pointer px-3 py-3 w-full flex flex-row justify-center items-center font-medium border-2 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-xs"
           :class="[
             mensajeExito
               ? 'bg-emerald-600 text-white border-emerald-600'

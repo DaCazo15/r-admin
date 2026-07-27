@@ -121,7 +121,7 @@ const actualizarMensualidad = async () => {
       <button
         @click="obtenerTasas"
         :disabled="cargandoTasas"
-        class="cursor-pointer px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors border border-gray-200"
+        class="cursor-pointer px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg active:scale-95 transition-all border border-gray-200"
         title="Actualizar tasas"
       >
         <i
@@ -135,7 +135,7 @@ const actualizarMensualidad = async () => {
     <div class="flex gap-2">
       <button
         @click="isOpenWhatsapp = true"
-        class="cursor-pointer flex-1 sm:flex-initial bg-emerald-600/40 hover:bg-emerald-600 text-emerald-700 hover:text-white border-2 border-emerald-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
+        class="cursor-pointer flex-1 sm:flex-initial bg-emerald-600/40 hover:bg-emerald-600 text-emerald-700 hover:text-white border-2 border-emerald-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 active:scale-95 transition-all text-center flex justify-center items-center"
         title="Enviar mensaje de cobro a WhatsApp"
       >
         <i class="bi bi-whatsapp text-lg sm:text-xl" />
@@ -143,7 +143,7 @@ const actualizarMensualidad = async () => {
       <button
         @click="isOpenReporte = true"
         :disabled="cargandoReporte"
-        class="cursor-pointer flex-1 sm:flex-initial bg-blue-600/40 hover:bg-blue-600 text-blue-700 hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
+        class="cursor-pointer flex-1 sm:flex-initial bg-blue-600/40 hover:bg-blue-600 text-blue-700 hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 active:scale-95 transition-all text-center flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
         title="Generar reporte general"
       >
         <i
@@ -153,7 +153,7 @@ const actualizarMensualidad = async () => {
       </button>
       <button
         @click="emitirMetricas"
-        class="cursor-pointer flex-1 sm:flex-initial hover:bg-blue-600 active:bg-blue-600 active:text-white hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 transition-all text-center flex justify-center items-center"
+        class="cursor-pointer flex-1 sm:flex-initial hover:bg-blue-600 active:bg-blue-600 active:text-white hover:text-white border-2 border-blue-600 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 active:scale-95 transition-all text-center flex justify-center items-center"
         :class="{
           'bg-blue-600 text-white': metricasOn,
           'bg-blue-600/40 text-blue-700': !metricasOn,
@@ -192,7 +192,7 @@ const actualizarMensualidad = async () => {
         <button
           @click="actualizarMensualidad"
           :disabled="isSaving"
-          class="cursor-pointer py-2 px-3 rounded-lg border-2 ease-in-out duration-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          class="cursor-pointer py-2 px-3 rounded-lg border-2 ease-in-out duration-200 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           :class="[
             mensajeExito
               ? 'bg-emerald-600 border-emerald-600 text-white'
@@ -218,7 +218,7 @@ const actualizarMensualidad = async () => {
     <div class="flex-1">
       <button
         @click="isOpenModal = true"
-        class="cursor-pointer px-4 py-3 w-full gap-2 flex flex-row justify-center items-center uppercase text-primary-600 hover:text-white font-semibold border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 transition-all shadow-sm"
+        class="cursor-pointer px-4 py-3 w-full gap-2 flex flex-row justify-center items-center uppercase text-primary-600 hover:text-white font-semibold border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-sm"
       >
         Ingresar Monto
       </button>
