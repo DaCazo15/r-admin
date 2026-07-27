@@ -23,7 +23,7 @@ const toggleDesplegable = () => {
 
 <template>
   <!-- Quitamos w-full para que el contenedor principal no cubra toda la pantalla -->
-  <div class="flex flex-col fixed top-0 left-0 z-40">
+  <div class="flex flex-col fixed top-0 left-0 z-40 w-auto">
     <!-- Barra superior -->
     <div
       class="py-2 px-4 flex justify-between items-center bg-white border-b border-gray-200 w-full"
