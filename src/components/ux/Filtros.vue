@@ -73,7 +73,7 @@ const { filtros } = storeToRefs(useFiltrosStore())
           v-model="filtros.pagoDistrital"
           class="w-4 h-4 accent-primary-600 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 cursor-pointer"
         />
-        Cuota Distrital
+        cuota distrital
       </label>
     </div>
 

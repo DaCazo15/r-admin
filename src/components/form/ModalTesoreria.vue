@@ -76,7 +76,7 @@ const guardarDatos = async () => {
   console.log(props.transaccion?.id)
   if (modoEdicion.value && props.transaccion?.id) {
     const datosActualizados = {
-      tipoMovimiento: pagoDistrital.value ? 'Cuota Distrital' : tipoMovimiento.value,
+      tipoMovimiento: pagoDistrital.value ? 'cuota distrital' : tipoMovimiento.value,
       monto: Number(form.value.monto),
       referencia: form.value.referencia || 'N/A',
       fechaPago: form.value.fechaPago,
@@ -104,7 +104,7 @@ const tipoPago = computed(() => {
   if (!pagoDistrital.value) {
     return tipoMovimiento.value.charAt(0).toUpperCase() + tipoMovimiento.value.slice(1)
   }
-  return 'Cuota Distrital'
+  return 'cuota distrital'
 })
 </script>
 
@@ -172,7 +172,7 @@ const tipoPago = computed(() => {
       <!-- Formulario -->
       <form @submit.prevent="guardarDatos" class="p-6 space-y-4">
         <!-- Vista Mensualidad: Miembro y Mes -->
-        <div v-if="tipoMovimiento === 'mensualidad'" class="space-y-4">
+        <div v-if="['mensualidad', 'cuota distrital'].includes(tipoMovimiento)" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Socio / Aspirante</label>
             <select
@@ -216,10 +216,13 @@ const tipoPago = computed(() => {
           />
         </div>
 
-        <!-- Cuota Distrital -->
-        <div class="flex gap-2 justify-start items-center w-full">
+        <!-- cuota distrital -->
+        <div
+          class="flex gap-2 justify-start items-center w-full"
+          v-if="tipoMovimiento === 'mensualidad'"
+        >
           <label class="block text-sm font-medium text-gray-700 mb-1" for="pagoDistrital"
-            >Cuota distrital</label
+            >cuota distrital</label
           >
           <input type="checkbox" @change="pagoDistrital = !pagoDistrital" id="pagoDistrital" />
         </div>
