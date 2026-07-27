@@ -22,7 +22,7 @@ const toggleDesplegable = () => {
 </script>
 
 <template>
-  <div class="flex flex-col fixed w-full">
+  <div class="flex flex-col fixed w-82">
     <div
       class="py-2 px-4 flex justify-between items-center bg-white border-b border-gray-200 w-full"
     >
