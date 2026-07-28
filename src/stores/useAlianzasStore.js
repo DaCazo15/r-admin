@@ -6,12 +6,7 @@ import { db } from '@/config/firebase'
 import { actualizarAlianza } from '@/services/firebaseService'
 
 export const useAlianzasStore = defineStore('alianzas', () => {
-  const queryAlianzas = computed(() => {
-    if (!db) return null
-    return collection(db, 'alianzas')
-  })
-
-  const alianzasRaw = useCollection(queryAlianzas)
+  const alianzasRaw = useCollection(collection(db, 'alianzas'))
 
   const alianzas = computed(() => {
     let list = [...(alianzasRaw.value || [])]
@@ -35,7 +30,7 @@ export const useAlianzasStore = defineStore('alianzas', () => {
   }
 
   const editarAlianza = async (id, datosActualizados, isSaving) => {
-    await actualizarAlianza(id, datosActualizados, isSaving)
+    return await actualizarAlianza(id, datosActualizados, isSaving)
   }
 
   return {

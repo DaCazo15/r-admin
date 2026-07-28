@@ -6,12 +6,7 @@ import { db } from '@/config/firebase'
 import { actualizarPersona } from '@/services/firebaseService'
 
 export const useAspirantesStore = defineStore('aspirantes', () => {
-  const queryAspirantes = computed(() => {
-    if (!db) return null
-    return query(collection(db, 'persona'), where('estatus', '==', 'Aspirantes'))
-  })
-
-  const aspirantesRaw = useCollection(queryAspirantes)
+  const aspirantesRaw = useCollection(query(collection(db, 'persona'), where('estatus', '==', 'Aspirantes')))
 
   const aspirantes = computed(() => {
     let list = [...(aspirantesRaw.value || [])]
@@ -35,7 +30,7 @@ export const useAspirantesStore = defineStore('aspirantes', () => {
   }
 
   const editarAspirante = async (id, datosActualizados, isSaving) => {
-    await actualizarPersona(id, datosActualizados, isSaving)
+    return await actualizarPersona(id, datosActualizados, isSaving)
   }
 
   return {

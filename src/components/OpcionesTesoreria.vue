@@ -10,6 +10,7 @@ import ModalTesoreria from './form/ModalTesoreria.vue'
 import ModalWhatsapp from './form/ModalWhatsapp.vue'
 import ModalReporte from './form/ModalReporte.vue'
 import ModalResultadoReporte from './form/ModalResultadoReporte.vue'
+import ModalMetodosPago from './form/ModalMetodosPago.vue'
 
 const { bcv, usdt, eur, cargandoTasas, obtenerTasas } = useObtenerTasas()
 const clubStore = useClubStore()
@@ -25,6 +26,7 @@ const isOpenReporte = ref(false)
 const cargandoReporte = ref(false)
 const reporteActual = ref(null)
 const errorReporte = ref('')
+const isOpenMetodos = ref(false)
 
 const props = defineProps({
   metricasOn: {
@@ -84,12 +86,14 @@ const actualizarMensualidad = async () => {
     @close="reporteActual = null"
   />
   <ModalTesoreria v-if="isOpenModal" @close="isOpenModal = false" />
+  <ModalMetodosPago v-if="isOpenMetodos" @close="isOpenMetodos = false" />
 
   <div
     class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-4 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4"
   >
     <!-- Indicadores de Tasas -->
     <div class="flex flex-wrap items-center justify-between sm:justify-start gap-2">
+      <!-- USDT -->
       <div
         class="flex items-center font-medium bg-primary-600 text-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-lg shadow-2xs text-xs sm:text-sm flex-1 sm:flex-initial justify-between sm:justify-start"
       >
@@ -100,6 +104,7 @@ const actualizarMensualidad = async () => {
           {{ cargandoTasas ? '...' : usdt }}
         </span>
       </div>
+      <!-- EUR -->
       <div
         class="flex items-center font-medium bg-primary-600 text-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-lg shadow-2xs text-xs sm:text-sm flex-1 sm:flex-initial justify-between sm:justify-start"
       >
@@ -110,6 +115,7 @@ const actualizarMensualidad = async () => {
           {{ cargandoTasas ? '...' : eur }}
         </span>
       </div>
+      <!-- BCV -->
       <div
         class="flex items-center font-medium bg-primary-600 text-white py-2.5 px-3 sm:py-3 sm:px-4 rounded-lg shadow-2xs text-xs sm:text-sm flex-1 sm:flex-initial justify-between sm:justify-start"
       >
@@ -164,6 +170,13 @@ const actualizarMensualidad = async () => {
         title="Ver estadísticas de tesorería"
       >
         <i class="bi bi-graph-up-arrow text-lg sm:text-xl" />
+      </button>
+      <button
+        @click="isOpenMetodos = true"
+        class="cursor-pointer flex-1 sm:flex-initial bg-gray-500/40 hover:bg-gray-500 text-gray-700 hover:text-white border-2 border-gray-500 py-2 sm:py-2.5 px-3 rounded-lg ease-in-out duration-200 active:scale-95 transition-all text-center flex justify-center items-center"
+        title="Ajustar de pago"
+      >
+        <i class="bi bi-sliders text-base sm:text-lg"></i>
       </button>
     </div>
   </div>

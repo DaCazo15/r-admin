@@ -34,8 +34,10 @@ export const actualizar = async (mensualidad, club, isSaving) => {
         mensualidad: mensualidad,
       })
     }
+    return { ok: true }
   } catch (error) {
-    console.error('Hubo un error: ', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al actualizar mensualidad.' }
   } finally {
     isSaving.value = false
   }
@@ -65,8 +67,10 @@ export const guardarMovimiento = async (movimiento, datos, isSaving) => {
     }
 
     await addDoc(collection(db, 'tesoreria'), datosPago)
+    return { ok: true }
   } catch (error) {
-    console.error('Error al registrar transacción:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al registrar transacción.' }
   } finally {
     isSaving.value = false
   }
@@ -78,8 +82,10 @@ export const guardarPersona = async (persona, isSaving) => {
 
   try {
     await firebaseService.crearPersona(persona)
+    return { ok: true }
   } catch (error) {
-    console.error('Error al guardar socio:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al guardar persona.' }
   } finally {
     isSaving.value = false
   }
@@ -100,8 +106,10 @@ export const guardarPassEstandar = async (pass, isSaving, nombreClub = 'Isla de 
         passEstandar: pass,
       })
     }
+    return { ok: true }
   } catch (error) {
-    console.error('Error al guardar socio:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al guardar contraseña estándar.' }
   } finally {
     isSaving.value = false
   }
@@ -109,11 +117,12 @@ export const guardarPassEstandar = async (pass, isSaving, nombreClub = 'Isla de 
 
 export const actualizarEstadoClub = async (nombreClub = 'Isla de Margarita') => {
   try {
-    const [sociosSnap, aspirantesSnap, tesoreriaSnap, clubSnap] = await Promise.all([
+    const [sociosSnap, aspirantesSnap, tesoreriaSnap, clubSnap, eventosSnap] = await Promise.all([
       getDocs(query(collection(db, 'persona'), where('estatus', '==', 'Socios'))),
       getDocs(query(collection(db, 'persona'), where('estatus', '==', 'Aspirantes'))),
       getDocs(collection(db, 'tesoreria')),
       getDocs(collection(db, 'club')),
+      getDocs(query(collection(db, 'eventos'), where('estatus', '==', 'activo'))),
     ])
 
     const st = sociosSnap.size
@@ -123,11 +132,17 @@ export const actualizarEstadoClub = async (nombreClub = 'Isla de Margarita') => 
     tesoreriaSnap.docs.forEach((doc) => {
       const data = doc.data()
       const tipo = data.tipoMovimiento?.toLowerCase()
+      const monto = Number(data.monto || 0)
       if (tipo === 'ingreso' || tipo === 'mensualidad' || tipo === 'cuota distrital') {
         saldo += monto
       } else if (tipo === 'egreso') {
         saldo -= monto
       }
+    })
+
+    eventosSnap.docs.forEach((doc) => {
+      const data = doc.data()
+      saldo -= Number(data.totalGastado || 0)
     })
 
     const docEncontrado = clubSnap.docs.find(
@@ -142,8 +157,10 @@ export const actualizarEstadoClub = async (nombreClub = 'Isla de Margarita') => 
       })
       console.log('Estado del club actualizado exitosamente')
     }
+    return { ok: true }
   } catch (error) {
-    console.error('Error al actualizar el estado del club:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al actualizar el estado del club.' }
   }
 }
 
@@ -154,9 +171,10 @@ export const actualizarPersona = async (id, datosPersona, isSaving) => {
   try {
     const docRef = doc(db, 'persona', id)
     await updateDoc(docRef, datosPersona)
-    console.log('Persona actualizada con éxito')
+    return { ok: true }
   } catch (error) {
-    console.error('Error al actualizar persona:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al actualizar persona.' }
   } finally {
     isSaving.value = false
   }
@@ -165,15 +183,12 @@ export const actualizarPersona = async (id, datosPersona, isSaving) => {
 export const extraerPassEstandarClub = async (nombreClub = 'Isla de Margarita') => {
   try {
     const clubSnap = await getDocs(collection(db, 'club'))
-
-    // Buscamos el documento que coincida con el club
     const docEncontrado = clubSnap.docs.find(
       (doc) => doc.data().club?.toLowerCase() === nombreClub.toLowerCase(),
     )
-
     return docEncontrado ? docEncontrado.data().passEstandar : ''
   } catch (error) {
-    console.error('Error al extraer la contraseña:', error)
+    console.error(error)
     return ''
   }
 }
@@ -188,9 +203,10 @@ export const guardarAlianza = async (alianza, isSaving) => {
       createdAt: new Date(),
     }
     await addDoc(collection(db, 'alianzas'), datosParaSubir)
-    console.log('Alianza guardada con éxito')
+    return { ok: true }
   } catch (error) {
-    console.error('Error al guardar alianza:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al guardar alianza.' }
   } finally {
     isSaving.value = false
   }
@@ -203,9 +219,10 @@ export const actualizarAlianza = async (id, datosAlianza, isSaving) => {
   try {
     const docRef = doc(db, 'alianzas', id)
     await updateDoc(docRef, datosAlianza)
-    console.log('Alianza actualizada con éxito')
+    return { ok: true }
   } catch (error) {
-    console.error('Error al actualizar alianza:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al actualizar alianza.' }
   } finally {
     isSaving.value = false
   }
@@ -234,9 +251,10 @@ export const crearEvento = async (evento, isSaving) => {
       estatus: 'activo',
       createdAt: new Date(),
     })
-    console.log('Evento creado con éxito')
+    return { ok: true }
   } catch (error) {
-    console.error('Error al crear evento:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al crear evento.' }
   } finally {
     isSaving.value = false
   }
@@ -248,9 +266,10 @@ export const actualizarEvento = async (id, datosEvento, isSaving) => {
 
   try {
     await updateDoc(doc(db, 'eventos', id), datosEvento)
-    console.log('Evento actualizado con éxito')
+    return { ok: true }
   } catch (error) {
-    console.error('Error al actualizar evento:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al actualizar evento.' }
   } finally {
     isSaving.value = false
   }
@@ -300,10 +319,9 @@ export const registrarGastoEvento = async (eventoId, gasto, isSaving) => {
       })
     })
 
-    console.log('Gasto registrado con éxito')
     return { ok: true }
   } catch (error) {
-    console.error('Error al registrar gasto:', error)
+    console.error(error)
     return { ok: false, mensaje: error.message || 'No se pudo registrar el gasto.' }
   } finally {
     isSaving.value = false
@@ -334,10 +352,10 @@ export const eliminarGastoEvento = async (eventoId, gastoId, isSaving) => {
         totalGastado: Math.max(0, totalGastado - monto),
       })
     })
-
-    console.log('Gasto eliminado con éxito')
+    return { ok: true }
   } catch (error) {
-    console.error('Error al eliminar gasto:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al eliminar gasto.' }
   } finally {
     isSaving.value = false
   }
@@ -358,7 +376,6 @@ export const finalizarEvento = async (evento, isSaving) => {
       finalizadoAt: new Date(),
     })
 
-    // Solo se registra egreso en Tesorería si efectivamente hubo gasto
     if (totalGastado > 0) {
       const tesoreriaRef = doc(collection(db, 'tesoreria'))
       batch.set(tesoreriaRef, {
@@ -374,9 +391,10 @@ export const finalizarEvento = async (evento, isSaving) => {
     }
 
     await batch.commit()
-    console.log('Evento finalizado y egreso registrado en Tesorería')
+    return { ok: true }
   } catch (error) {
-    console.error('Error al finalizar evento:', error)
+    console.error(error)
+    return { ok: false, mensaje: error.message || 'Error al finalizar evento.' }
   } finally {
     isSaving.value = false
   }

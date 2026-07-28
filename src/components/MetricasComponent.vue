@@ -4,13 +4,16 @@ import { storeToRefs } from 'pinia'
 import { useTesoreriaStore } from '@/stores/useTesoreriaStore'
 import { useSociosStore } from '@/stores/useSociosStore'
 import { useAspirantesStore } from '@/stores/useAspirantesStore'
+import { useEventosStore } from '@/stores/useEventosStore'
 
 const tesoreriaStore = useTesoreriaStore()
 const sociosStore = useSociosStore()
 const aspirantesStore = useAspirantesStore()
+const eventosStore = useEventosStore()
 
 const { totalSocios } = storeToRefs(sociosStore)
 const { totalAspirantes } = storeToRefs(aspirantesStore)
+const { presupuestoReservado, balanceDisponible } = storeToRefs(eventosStore)
 
 const {
   ingresos,
@@ -59,7 +62,7 @@ const coloresMetodo = [
 
 <template>
   <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-5 space-y-5">
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
       <div
         class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1 hover:shadow-md transition-shadow"
       >
@@ -117,7 +120,7 @@ const coloresMetodo = [
               :class="balance >= 0 ? 'text-emerald-600' : 'text-rose-600'"
             ></i>
           </div>
-          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Balance</span>
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Balance Caja</span>
         </div>
         <span
           class="text-xl font-bold"
@@ -126,6 +129,32 @@ const coloresMetodo = [
           {{ balance >= 0 ? '+' : '' }}${{ formatMonto(balance) }}
         </span>
         <span class="text-xs text-gray-400">{{ totalTransacciones }} total</span>
+      </div>
+
+      <div
+        class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1 hover:shadow-md transition-shadow"
+      >
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+            <i class="bi bi-bookmark-dash-fill text-amber-600"></i>
+          </div>
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Reservado</span>
+        </div>
+        <span class="text-xl font-bold text-amber-600">${{ formatMonto(presupuestoReservado) }}</span>
+        <span class="text-xs text-gray-400">Eventos activos</span>
+      </div>
+
+      <div
+        class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1 hover:shadow-md transition-shadow ring-1 ring-blue-200"
+      >
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+            <i class="bi bi-wallet2 text-blue-600"></i>
+          </div>
+          <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Disponible</span>
+        </div>
+        <span class="text-xl font-bold text-blue-600">${{ formatMonto(balanceDisponible) }}</span>
+        <span class="text-xs text-gray-400">Saldo disponible real</span>
       </div>
 
       <div

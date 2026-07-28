@@ -26,6 +26,27 @@ const querySocios = computed(() => {
 })
 const socios = useCollection(querySocios)
 
+const metodosPagoRaw = useCollection(collection(db, 'metodos_pago'))
+
+const metodosDisponibles = computed(() => {
+  const list = []
+  const tiposRegistrados = new Set((metodosPagoRaw.value || []).map((m) => m.tipo))
+
+  if (tiposRegistrados.has('pago_movil')) {
+    list.push({ value: 'Pago Móvil', label: 'Pago Móvil' })
+  }
+  if (tiposRegistrados.has('transferencia')) {
+    list.push({ value: 'Transferencia', label: 'Transferencia' })
+  }
+  if (tiposRegistrados.has('binance')) {
+    list.push({ value: 'USDT', label: 'Binance' })
+  }
+  if (tiposRegistrados.has('paypal')) {
+    list.push({ value: 'PayPal', label: 'PayPal' })
+  }
+  return list
+})
+
 const resetForm = () => {
   form.value.nombre = ''
   form.value.descripcion = ''
@@ -68,13 +89,18 @@ watch(
   },
 )
 
+const errorMsg = ref('')
+
 const modal = () => {
   emit('close')
   cancelarEdicion()
   resetForm()
+  errorMsg.value = ''
 }
 
 const guardarDatos = async () => {
+  errorMsg.value = ''
+  let res = { ok: true }
   if (modoEdicion.value && props.transaccion?.id) {
     const datosActualizados = {
       tipoMovimiento: pagoDistrital.value ? 'cuota distrital' : tipoMovimiento.value,
@@ -90,16 +116,21 @@ const guardarDatos = async () => {
     } else {
       datosActualizados.descripcion = form.value.descripcion
     }
-    await tesoreriaStore.editarTransaccion(props.transaccion.id, datosActualizados)
+    res = await tesoreriaStore.editarTransaccion(props.transaccion.id, datosActualizados)
   } else {
-    await guardarMovimiento(
+    res = await guardarMovimiento(
       pagoDistrital.value ? 'cuota distrital' : tipoMovimiento.value,
       form.value,
       isSaving,
     )
   }
-  resetForm()
-  modal()
+
+  if (res && !res.ok) {
+    errorMsg.value = res.mensaje || 'Error al guardar.'
+  } else {
+    resetForm()
+    modal()
+  }
 }
 const tipoPago = computed(() => {
   if (!pagoDistrital.value) {
@@ -250,13 +281,12 @@ const tipoPago = computed(() => {
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600 bg-white"
             >
               <option value="" disabled selected>Método de...</option>
-
-              <option value="Pago Móvil">Pago Móvil</option>
-              <option value="Transferencia">Transferencia</option>
-              <option value="Efectivo">Efectivo</option>
-              <option value="Zelle">Zelle</option>
-              <option value="USDT">Binance</option>
-              <option value="Otro">Otro</option>
+              <option v-for="op in metodosDisponibles" :key="op.value" :value="op.value">
+                {{ op.label }}
+              </option>
+              <option v-if="metodosDisponibles.length === 0" disabled>
+                Registra métodos de pago
+              </option>
             </select>
           </div>
           <!-- Tipo de Moviemiento -->
@@ -295,7 +325,10 @@ const tipoPago = computed(() => {
           </div>
         </div>
 
-        <!-- Botones de Acción -->
+        <div v-if="errorMsg" class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium">
+          {{ errorMsg }}
+        </div>
+
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
           <button
             type="button"

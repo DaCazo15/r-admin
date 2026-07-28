@@ -43,8 +43,8 @@ const enlacesInternos = enlaces.filter((e) => !e.href)
       <h2 class="text-lg font-bold text-gray-900">R-Admin</h2>
       <p class="text-xs text-gray-400 mt-1">Versión {{ version }}</p>
       <p class="text-sm text-gray-600 leading-relaxed mt-4 max-w-md">
-        Panel de administración y gestión desarrollado para el club Rotaract 4370, orientado a
-        simplificar la organización de miembros, actividades y calendario del club.
+        Panel de administración y gestión desarrollado para los clubes del distrito 4370, orientado
+        a simplificar la organización de miembros, actividades y calendario del club.
       </p>
     </div>
 

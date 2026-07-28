@@ -11,12 +11,20 @@ onMounted(async () => {
   pass.value = await extraerPassEstandarClub()
 })
 
+const errorMsg = ref('')
+
 const cerrar = () => {
   emit('close')
+  errorMsg.value = ''
 }
 const guardar = async () => {
-  await guardarPassEstandar(pass.value, isSaving)
-  cerrar()
+  errorMsg.value = ''
+  const res = await guardarPassEstandar(pass.value, isSaving)
+  if (res && !res.ok) {
+    errorMsg.value = res.mensaje || 'Error al guardar.'
+  } else {
+    cerrar()
+  }
 }
 const cambioEstado = computed(() => {
   return passView.value ? 'text' : 'password'
@@ -69,7 +77,10 @@ const cambioEstado = computed(() => {
             @click="passView = !passView"
           ></i>
         </div>
-        <!-- Botones -->
+        <div v-if="errorMsg" class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium text-center">
+          {{ errorMsg }}
+        </div>
+
         <div class="flex gap-4 items-center justify-end pt-4 border-t border-gray-100">
           <button
             class="cursor-pointer py-2.5 px-4 rounded-lg capitalize bg-gray-200 hover:bg-gray-300 active:bg-gray-300 text-gray-700 ease-in-out transition-all duration-300"

@@ -61,7 +61,8 @@ const emit = defineEmits(['cerrarSesion', 'cerrar'])
         <span>Inicio</span>
       </router-link>
       <router-link
-        :to="{ name: 'error' }"
+        :to="{ name: 'pagar' }"
+        @click="emit('cerrar')"
         class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/15 active:scale-[0.98] transition-all text-sm font-medium group"
       >
         <i
@@ -70,7 +71,7 @@ const emit = defineEmits(['cerrarSesion', 'cerrar'])
         <span>Pagar</span>
       </router-link>
       <router-link
-        :to="{ name: 'error' }"
+        :to="{ name: 'calendar' }"
         @click="emit('cerrar')"
         class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/15 active:scale-[0.98] transition-all text-sm font-medium group"
       >

@@ -48,23 +48,32 @@ watch(
   },
 )
 
+const errorMsg = ref('')
+
 const modal = () => {
   emit('close')
   cancelarEdicion()
   resetAlianzaForm()
+  errorMsg.value = ''
 }
 
 const guardar = async () => {
+  errorMsg.value = ''
   const id = props.registro?.id
   const datosAlianza = { ...alianza.value, club: 'Isla de Margarita' }
 
+  let res = { ok: true }
   if (modoEdicion.value && id) {
-    await alianzasStore.editarAlianza(id, datosAlianza, isSaving)
+    res = await alianzasStore.editarAlianza(id, datosAlianza, isSaving)
   } else {
-    await guardarAlianza(datosAlianza, isSaving)
+    res = await guardarAlianza(datosAlianza, isSaving)
   }
 
-  modal()
+  if (res && !res.ok) {
+    errorMsg.value = res.mensaje || 'Error al guardar.'
+  } else {
+    modal()
+  }
 }
 </script>
 
@@ -172,6 +181,10 @@ const guardar = async () => {
             placeholder="URL"
             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
           />
+        </div>
+
+        <div v-if="errorMsg" class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium">
+          {{ errorMsg }}
         </div>
 
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">

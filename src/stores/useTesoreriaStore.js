@@ -11,11 +11,30 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
   const { filtros } = storeToRefs(filtrosStore)
 
   const tesoreriaRaw = useCollection(collection(db, 'tesoreria'))
+  const eventosRaw = useCollection(collection(db, 'eventos'))
 
   const tesoreriaRawList = computed(() => tesoreriaRaw.value || [])
 
   const transacciones = computed(() => {
     let list = [...tesoreriaRawList.value]
+
+    const activosConGastos = (eventosRaw.value || []).filter(
+      (e) => e.estatus === 'activo' && Number(e.totalGastado || 0) > 0
+    )
+
+    activosConGastos.forEach((e) => {
+      list.push({
+        id: `evento-gasto-${e.id}`,
+        tipoMovimiento: 'egreso',
+        monto: Number(e.totalGastado || 0),
+        referencia: 'En tránsito',
+        fechaPago: e.fecha || (e.createdAt?.toDate ? e.createdAt.toDate() : new Date(e.createdAt || 0)).toISOString().split('T')[0],
+        metodoPago: 'N/A',
+        descripcion: `Gasto Evento: ${e.nombre} (Activo)`,
+        estatus: 'evento_activo',
+        createdAt: e.createdAt,
+      })
+    })
 
     if (filtros.value) {
       list = list.filter((item) => {
@@ -60,13 +79,29 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
     })
   })
 
-  // Computados para métricas
   const ingresos = computed(() =>
     tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'ingreso'),
   )
-  const egresos = computed(() =>
-    tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'egreso'),
-  )
+  const egresos = computed(() => {
+    const list = tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'egreso')
+    const activosConGastos = (eventosRaw.value || []).filter(
+      (e) => e.estatus === 'activo' && Number(e.totalGastado || 0) > 0
+    )
+    activosConGastos.forEach((e) => {
+      list.push({
+        id: `evento-gasto-${e.id}`,
+        tipoMovimiento: 'egreso',
+        monto: Number(e.totalGastado || 0),
+        referencia: 'En tránsito',
+        fechaPago: e.fecha || (e.createdAt?.toDate ? e.createdAt.toDate() : new Date(e.createdAt || 0)).toISOString().split('T')[0],
+        metodoPago: 'N/A',
+        descripcion: `Gasto Evento: ${e.nombre} (Activo)`,
+        estatus: 'evento_activo',
+        createdAt: e.createdAt,
+      })
+    })
+    return list
+  })
   const mensualidades = computed(() =>
     tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'mensualidad'),
   )
@@ -174,8 +209,10 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
   const editarTransaccion = async (id, datosActualizados) => {
     try {
       await updateDoc(doc(db, 'tesoreria', id), datosActualizados)
+      return { ok: true }
     } catch (error) {
-      console.error('Error al editar transacción:', error)
+      console.error(error)
+      return { ok: false, mensaje: error.message || 'Error al editar transacción.' }
     }
   }
 

@@ -6,12 +6,7 @@ import { db } from '@/config/firebase'
 import { actualizarPersona } from '@/services/firebaseService'
 
 export const useSociosStore = defineStore('socios', () => {
-  const querySocios = computed(() => {
-    if (!db) return null
-    return query(collection(db, 'persona'), where('estatus', '==', 'Socios'))
-  })
-
-  const sociosRaw = useCollection(querySocios)
+  const sociosRaw = useCollection(query(collection(db, 'persona'), where('estatus', '==', 'Socios')))
 
   const socios = computed(() => {
     let list = [...(sociosRaw.value || [])]
@@ -35,7 +30,7 @@ export const useSociosStore = defineStore('socios', () => {
   }
 
   const editarSocio = async (id, datosActualizados, isSaving) => {
-    await actualizarPersona(id, datosActualizados, isSaving)
+    return await actualizarPersona(id, datosActualizados, isSaving)
   }
 
   return {
