@@ -221,13 +221,13 @@ const actualizarMensualidad = async () => {
     <div class="flex gap-2 items-center justify-between w-full">
       <button
         @click="isOpenModal = true"
-        class="cursor-pointer px-4 py-3 w-full flex flex-row justify-center items-center uppercase text-primary-600 active:text-white hover:text-white font-semibold border-2 border-primary-600 active:bg-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-sm"
+        class="cursor-pointer py-3 px-2 text-[13px] sm:px-4 w-full flex flex-row justify-center items-center uppercase text-primary-600 active:text-white hover:text-white font-semibold border-2 border-primary-600 active:bg-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-sm"
       >
         Ingresar Monto
       </button>
       <router-link
         :to="{ name: 'eventos' }"
-        class="cursor-pointer px-4 py-3 w-full flex flex-row justify-center items-center uppercase text-primary-600 active:text-white hover:text-white font-semibold border-2 border-primary-600 active:bg-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-sm"
+        class="cursor-pointer py-3 px-2 text-[13px] sm:px-4 w-full flex flex-row justify-center items-center uppercase text-primary-600 active:text-white hover:text-white font-semibold border-2 border-primary-600 active:bg-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-sm"
       >
         Eventos
       </router-link>

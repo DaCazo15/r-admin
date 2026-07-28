@@ -61,8 +61,6 @@ const handleSubmit = async () => {
 
     <!-- Contenedor principal de la tarjeta -->
     <div class="w-full max-w-md">
-
-
       <div
         class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100"
       >
@@ -113,13 +111,13 @@ const handleSubmit = async () => {
           <!-- Campo Nombre (Solo visible en Registro) -->
           <div v-if="tipoAuth === 'signup'" class="space-y-1.5">
             <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
-              >Nombre completo</label
+              >Nombre del club</label
             >
             <input
               type="text"
               v-model="form.nombre"
               required
-              placeholder="Ej. Juan Pérez"
+              placeholder="Nombre del club"
               class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
             />
           </div>
@@ -133,7 +131,7 @@ const handleSubmit = async () => {
               type="email"
               v-model="form.email"
               required
-              placeholder="correo@ejemplo.com"
+              placeholder="correo@correo.com"
               class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
             />
           </div>
