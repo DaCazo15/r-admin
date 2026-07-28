@@ -55,7 +55,7 @@ const router = createRouter({
     {
       path: '/help.4370',
       name: 'help',
-      component: Informacion,
+      component: CentroAyuda,
       meta: {
         requiresAuth: true,
       },
