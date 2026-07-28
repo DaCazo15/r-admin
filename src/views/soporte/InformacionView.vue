@@ -10,7 +10,7 @@ const enlacesInternos = enlaces.filter((e) => !e.href)
 </script>
 
 <template>
-  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto max-w-3xl pt-10">
+  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto max-w-3xl sm:pt-10 pt-14">
     <!-- Encabezado -->
     <div class="mb-6">
       <button
@@ -18,7 +18,7 @@ const enlacesInternos = enlaces.filter((e) => !e.href)
         @click="router.back()"
         class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-primary-600 transition-colors cursor-pointer mb-4"
       >
-        <i class="bi bi-arrow-left"></i>
+        <i class="bi bi-arrow-left text-xl sm:text-lg"></i>
         Volver
       </button>
 
