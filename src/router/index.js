@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { getCurrentUser } from 'vuefire'
-import HomeView from '../views/HomeView.vue'
-import AuthView from '../views/AuthView.vue'
-import SettingsView from '../views/SettingsView.vue'
-import ErrorView from '../views/ErrorView.vue'
+import HomeView from '@/views/HomeView.vue'
+import AuthView from '@/views/AuthView.vue'
+import SettingsView from '@/views/SettingsView.vue'
+import ErrorView from '@/views/ErrorView.vue'
+import TerminosCondiciones from '@/views/soporte/TerminosView.vue'
+import Politicas from '@/views/soporte/TerminosView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +30,22 @@ const router = createRouter({
       path: '/setting.4370',
       name: 'settings',
       component: SettingsView,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/conditions.4370',
+      name: 'conditions',
+      component: TerminosCondiciones,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/policies.4370',
+      name: 'policies',
+      component: Politicas,
       meta: {
         requiresAuth: true,
       },

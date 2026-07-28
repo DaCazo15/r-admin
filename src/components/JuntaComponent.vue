@@ -20,7 +20,7 @@ const getMiembroCargo = (key) => {
 </script>
 
 <template>
-  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto my-6 space-y-8 pb-12">
+  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto my-6 space-y-8">
     <!-- Modal para configurar/editar Junta -->
     <ModalJunta v-if="showModal" @close="showModal = false" />
 

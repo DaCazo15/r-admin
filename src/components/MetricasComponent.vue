@@ -58,7 +58,7 @@ const coloresMetodo = [
 </script>
 
 <template>
-  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-5 space-y-5 pb-10">
+  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-5 space-y-5">
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
       <div
         class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1 hover:shadow-md transition-shadow"

@@ -53,7 +53,8 @@ const clickCheck = (name, check) => {
   if (name === 'Cerrar sesión') {
     cerrarSesion()
   } else {
-    console.log(name)
+    if (name === 'Condiciones del servicio') router.push({ name: 'conditions' })
+    if (name === 'Política de privacidad') router.push({ name: 'policies' })
   }
 }
 </script>
