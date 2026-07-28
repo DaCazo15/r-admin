@@ -1,7 +1,3 @@
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
 export const tecnologias = [
   { nombre: 'Vue 3', icon: 'bi-lightning-charge' },
   { nombre: 'Vite', icon: 'bi-cpu' },
@@ -20,16 +16,16 @@ export const enlaces = [
   {
     icon: 'bi-file-text',
     titulo: 'Condiciones del servicio',
-    accion: () => router.push({ name: 'conditions' }),
+    ruta: 'conditions',
   },
   {
     icon: 'bi-file-lock',
     titulo: 'Política de privacidad',
-    accion: () => router.push({ name: 'policies' }),
+    ruta: 'policies',
   },
   {
     icon: 'bi-question-circle',
     titulo: 'Centro de ayuda',
-    accion: () => router.push({ name: 'help' }),
+    ruta: 'help',
   },
 ]

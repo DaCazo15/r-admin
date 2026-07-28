@@ -10,7 +10,7 @@ const enlacesInternos = enlaces.filter((e) => !e.href)
 </script>
 
 <template>
-  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto max-w-3xl pb-10">
+  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto max-w-3xl pt-10">
     <!-- Encabezado -->
     <div class="mb-6">
       <button
@@ -91,7 +91,7 @@ const enlacesInternos = enlaces.filter((e) => !e.href)
           v-for="enlace in enlacesInternos"
           :key="enlace.titulo"
           type="button"
-          @click="enlace.accion"
+          @click="router.push({ name: enlace.ruta })"
           class="w-full cursor-pointer flex items-center gap-3 px-5 md:px-6 py-3.5 text-sm font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-all group"
         >
           <i :class="['bi', enlace.icon, 'text-gray-400 group-hover:text-primary-600 text-lg']"></i>
@@ -102,9 +102,5 @@ const enlacesInternos = enlaces.filter((e) => !e.href)
         </button>
       </div>
     </div>
-
-    <p class="text-xs text-gray-400 text-center mt-8">
-      Rotaract 4370 &middot; R-Admin &middot; Todos los derechos reservados
-    </p>
   </div>
 </template>
