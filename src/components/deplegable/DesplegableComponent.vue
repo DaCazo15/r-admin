@@ -80,6 +80,17 @@ const emit = defineEmits(['cerrarSesion', 'cerrar'])
       </router-link>
       <router-link
         :to="{ name: 'error' }"
+        @click="emit('cerrar')"
+        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/15 active:scale-[0.98] transition-all text-sm font-medium group"
+      >
+        <i
+          class="bi bi-calendar2-check text-lg text-primary-200 group-hover:text-white transition-colors"
+        ></i>
+        <span>Eventos</span>
+      </router-link>
+      <router-link
+        :to="{ name: 'alianzas' }"
+        @click="emit('cerrar')"
         class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/15 active:scale-[0.98] transition-all text-sm font-medium group"
       >
         <i

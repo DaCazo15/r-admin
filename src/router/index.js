@@ -4,6 +4,7 @@ import HomeView from '@/views/HomeView.vue'
 import AuthView from '@/views/AuthView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import ErrorView from '@/views/ErrorView.vue'
+import AlianzaView from '@/views/AlianzasView.vue'
 import TerminosCondiciones from '@/views/soporte/TerminosView.vue'
 import Politicas from '@/views/soporte/PrivacidadView.vue'
 import CentroAyuda from '@/views/soporte/AyudaView.vue'
@@ -24,6 +25,14 @@ const router = createRouter({
       path: '/home',
       name: 'home',
       component: HomeView,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/alianzas.4370',
+      name: 'alianzas',
+      component: AlianzaView,
       meta: {
         requiresAuth: true,
       },

@@ -167,3 +167,36 @@ export const extraerPassEstandarClub = async (nombreClub = 'Isla de Margarita') 
     return ''
   }
 }
+
+export const guardarAlianza = async (alianza, isSaving) => {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    const datosParaSubir = {
+      ...alianza,
+      createdAt: new Date(),
+    }
+    await addDoc(collection(db, 'alianzas'), datosParaSubir)
+    console.log('Alianza guardada con éxito')
+  } catch (error) {
+    console.error('Error al guardar alianza:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+export const actualizarAlianza = async (id, datosAlianza, isSaving) => {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    const docRef = doc(db, 'alianzas', id)
+    await updateDoc(docRef, datosAlianza)
+    console.log('Alianza actualizada con éxito')
+  } catch (error) {
+    console.error('Error al actualizar alianza:', error)
+  } finally {
+    isSaving.value = false
+  }
+}

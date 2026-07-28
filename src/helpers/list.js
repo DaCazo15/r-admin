@@ -35,3 +35,13 @@ export const meses = [
   'Noviembre',
   'Diciembre',
 ]
+
+export const alianza = ref({
+  nombre: '',
+  tipo: '',
+  descripcion: '',
+  contacto: '',
+  correo: '',
+  telefono: '',
+  sitioWeb: '',
+})
