@@ -28,7 +28,6 @@ export const useAspirantesStore = defineStore('aspirantes', () => {
     if (confirm('¿Estás seguro de que deseas eliminar a este aspirante?')) {
       try {
         await deleteDoc(doc(db, 'persona', id))
-        console.log('Aspirante eliminado con éxito de Firestore')
       } catch (error) {
         console.error('Error al eliminar aspirante:', error)
       }

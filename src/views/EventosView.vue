@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import Logo from '../components/ux/Logo.vue'
 import ModalEvento from '../components/form/ModalEvento.vue'
 import ModalGasto from '../components/form/ModalGasto.vue'
+import EventoGastos from '../components/EventoGastos.vue'
 import { useEdicion } from '../composable/useEdicion.js'
 import { useEventosStore } from '@/stores/useEventosStore'
 
@@ -305,40 +306,16 @@ const formatoFecha = (fecha) => {
                 class="bi bi-chevron-down transition-transform duration-200"
                 :class="{ 'rotate-180': expandido === evento.id }"
               ></i>
-              {{ (evento.gastos || []).length }} gasto(s) registrado(s)
+              {{ expandido === evento.id ? 'Ocultar' : 'Ver' }} detalle de gastos
             </button>
           </div>
 
-          <!-- Detalle de gastos -->
-          <div v-show="expandido === evento.id" class="border-t border-gray-100 bg-gray-50/60">
-            <div v-if="(evento.gastos || []).length === 0" class="px-5 py-4 text-xs text-gray-400">
-              Aún no se han registrado gastos en este evento.
-            </div>
-            <div v-else class="divide-y divide-gray-100">
-              <div
-                v-for="gasto in evento.gastos"
-                :key="gasto.id"
-                class="px-5 py-3 flex items-center justify-between gap-3"
-              >
-                <div class="min-w-0">
-                  <p class="text-sm font-medium text-gray-700 truncate">{{ gasto.descripcion }}</p>
-                  <p class="text-xs text-gray-400">{{ formatoFecha(gasto.fecha) }}</p>
-                </div>
-                <div class="flex items-center gap-3 shrink-0">
-                  <span class="text-sm font-bold text-gray-800"
-                    >${{ Number(gasto.monto).toFixed(2) }}</span
-                  >
-                  <button
-                    v-if="evento.estatus !== 'finalizado'"
-                    @click="eliminarGasto(evento, gasto.id)"
-                    class="cursor-pointer text-gray-400 hover:text-red-600 transition-colors"
-                    title="Eliminar gasto"
-                  >
-                    <i class="bi bi-x-lg text-xs"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
+          <!-- Detalle de gastos (solo se consulta la subcolección mientras está expandido) -->
+          <div v-if="expandido === evento.id" class="border-t border-gray-100 bg-gray-50/60">
+            <EventoGastos
+              :evento="evento"
+              @eliminarGasto="(gastoId) => eliminarGasto(evento, gastoId)"
+            />
           </div>
         </div>
       </div>

@@ -28,7 +28,6 @@ export const useAlianzasStore = defineStore('alianzas', () => {
     if (confirm('¿Estás seguro de que deseas eliminar esta alianza?')) {
       try {
         await deleteDoc(doc(db, 'alianzas', id))
-        console.log('Alianza eliminada con éxito de Firestore')
       } catch (error) {
         console.error('Error al eliminar alianza:', error)
       }

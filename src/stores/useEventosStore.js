@@ -1,14 +1,16 @@
 import { defineStore, storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useCollection } from 'vuefire'
-import { collection, deleteDoc, doc } from 'firebase/firestore'
+import { collection } from 'firebase/firestore'
 import { db } from '@/config/firebase'
 import { useTesoreriaStore } from './useTesoreriaStore'
 import {
   crearEvento,
   actualizarEvento,
-  actualizarGastosEvento,
+  registrarGastoEvento,
+  eliminarGastoEvento,
   finalizarEvento as finalizarEventoService,
+  eliminarEventoCompleto,
 } from '@/services/firebaseService'
 
 export const useEventosStore = defineStore('eventos', () => {
@@ -27,9 +29,7 @@ export const useEventosStore = defineStore('eventos', () => {
   })
 
   const eventosActivos = computed(() => eventos.value.filter((e) => e.estatus !== 'finalizado'))
-  const eventosFinalizados = computed(() =>
-    eventos.value.filter((e) => e.estatus === 'finalizado'),
-  )
+  const eventosFinalizados = computed(() => eventos.value.filter((e) => e.estatus === 'finalizado'))
 
   const totalEventos = computed(() => eventos.value.length)
 
@@ -41,8 +41,11 @@ export const useEventosStore = defineStore('eventos', () => {
   // Balance del club menos lo ya reservado en eventos activos
   const balanceDisponible = computed(() => balance.value - presupuestoReservado.value)
 
-  const gastosDeEvento = (evento) =>
-    (evento?.gastos || []).reduce((sum, g) => sum + Number(g.monto || 0), 0)
+  // `totalGastado` es un acumulado que Firestore mantiene de forma atómica
+  // (ver registrarGastoEvento/eliminarGastoEvento en firebaseService.js), ya
+  // no se calcula sumando un array local — así evitamos "last write wins"
+  // cuando dos personas registran gastos casi al mismo tiempo.
+  const gastosDeEvento = (evento) => Number(evento?.totalGastado || 0)
 
   const restanteDeEvento = (evento) => Number(evento?.presupuesto || 0) - gastosDeEvento(evento)
 
@@ -110,6 +113,13 @@ export const useEventosStore = defineStore('eventos', () => {
     return { ok: true }
   }
 
+  /**
+   * Registra un gasto contra un evento. La validación real (que el monto no
+   * exceda el restante) ocurre DENTRO de una transacción de Firestore en
+   * registrarGastoEvento, que es la fuente de verdad. Aquí hacemos además un
+   * chequeo rápido con los datos que ya tenemos localmente, solo para dar
+   * feedback instantáneo sin esperar el viaje al servidor.
+   */
   const registrarGasto = async (evento, gasto, isSaving) => {
     const monto = Number(gasto.monto)
 
@@ -124,23 +134,11 @@ export const useEventosStore = defineStore('eventos', () => {
       }
     }
 
-    const nuevosGastos = [
-      ...(evento.gastos || []),
-      {
-        id: crypto.randomUUID(),
-        descripcion: gasto.descripcion,
-        monto,
-        fecha: gasto.fecha || new Date().toISOString().split('T')[0],
-      },
-    ]
-
-    await actualizarGastosEvento(evento.id, nuevosGastos, isSaving)
-    return { ok: true }
+    return await registrarGastoEvento(evento.id, gasto, isSaving)
   }
 
   const eliminarGasto = async (evento, gastoId, isSaving) => {
-    const nuevosGastos = (evento.gastos || []).filter((g) => g.id !== gastoId)
-    await actualizarGastosEvento(evento.id, nuevosGastos, isSaving)
+    await eliminarGastoEvento(evento.id, gastoId, isSaving)
   }
 
   const finalizarEvento = async (evento, isSaving) => {
@@ -154,13 +152,11 @@ export const useEventosStore = defineStore('eventos', () => {
 
   const eliminarEvento = async (id) => {
     if (
-      confirm(
-        '¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.',
-      )
+      confirm('¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.')
     ) {
       try {
-        await deleteDoc(doc(db, 'eventos', id))
-        console.log('Evento eliminado con éxito de Firestore')
+        await eliminarEventoCompleto(id)
+        console.log('Evento y sus gastos eliminados con éxito de Firestore')
       } catch (error) {
         console.error('Error al eliminar evento:', error)
       }

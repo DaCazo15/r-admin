@@ -8,6 +8,7 @@ import {
   where,
   doc,
   writeBatch,
+  runTransaction,
 } from 'firebase/firestore'
 
 export const firebaseService = {
@@ -212,9 +213,14 @@ export const actualizarAlianza = async (id, datosAlianza, isSaving) => {
 
 // ---------------------------------------------------------------------------
 // Eventos: cada evento reserva un presupuesto tomado del balance disponible.
-// Los gastos se llevan de forma independiente dentro del evento y solo al
-// finalizarlo se refleja lo realmente gastado como un egreso en Tesorería,
-// liberando automáticamente el sobrante del presupuesto reservado.
+// Los gastos viven en la subcolección `eventos/{id}/gastos` (un documento por
+// gasto, no un array embebido) para que dos personas puedan registrar gastos
+// al mismo tiempo sin pisarse. El campo `totalGastado` del evento se mantiene
+// como un acumulado, pero SIEMPRE se lee y escribe dentro de una transacción
+// de Firestore, así que la validación de presupuesto y la actualización del
+// total son atómicas: no hay ventana en la que dos escrituras concurrentes
+// puedan hacer que el gasto total supere el presupuesto ni que se pierda una
+// de las dos escrituras.
 // ---------------------------------------------------------------------------
 
 export const crearEvento = async (evento, isSaving) => {
@@ -224,7 +230,7 @@ export const crearEvento = async (evento, isSaving) => {
   try {
     await addDoc(collection(db, 'eventos'), {
       ...evento,
-      gastos: [],
+      totalGastado: 0,
       estatus: 'activo',
       createdAt: new Date(),
     })
@@ -250,15 +256,88 @@ export const actualizarEvento = async (id, datosEvento, isSaving) => {
   }
 }
 
-export const actualizarGastosEvento = async (id, gastosActualizados, isSaving) => {
+export const registrarGastoEvento = async (eventoId, gasto, isSaving) => {
   if (isSaving.value) return
   isSaving.value = true
 
   try {
-    await updateDoc(doc(db, 'eventos', id), { gastos: gastosActualizados })
-    console.log('Gastos del evento actualizados con éxito')
+    const eventoRef = doc(db, 'eventos', eventoId)
+    const gastoRef = doc(collection(db, 'eventos', eventoId, 'gastos'))
+    const monto = Number(gasto.monto)
+
+    await runTransaction(db, async (transaction) => {
+      const eventoSnap = await transaction.get(eventoRef)
+
+      if (!eventoSnap.exists()) {
+        throw new Error('El evento ya no existe.')
+      }
+
+      const datos = eventoSnap.data()
+
+      if (datos.estatus === 'finalizado') {
+        throw new Error('El evento ya fue finalizado, no se pueden agregar más gastos.')
+      }
+
+      const presupuesto = Number(datos.presupuesto || 0)
+      const totalGastado = Number(datos.totalGastado || 0)
+      const restante = presupuesto - totalGastado
+
+      if (monto > restante) {
+        throw new Error(
+          `El gasto excede el presupuesto restante del evento ($${restante.toFixed(2)}).`,
+        )
+      }
+
+      transaction.set(gastoRef, {
+        descripcion: gasto.descripcion,
+        monto,
+        fecha: gasto.fecha || new Date().toISOString().split('T')[0],
+        createdAt: new Date(),
+      })
+
+      transaction.update(eventoRef, {
+        totalGastado: totalGastado + monto,
+      })
+    })
+
+    console.log('Gasto registrado con éxito')
+    return { ok: true }
   } catch (error) {
-    console.error('Error al actualizar los gastos del evento:', error)
+    console.error('Error al registrar gasto:', error)
+    return { ok: false, mensaje: error.message || 'No se pudo registrar el gasto.' }
+  } finally {
+    isSaving.value = false
+  }
+}
+
+export const eliminarGastoEvento = async (eventoId, gastoId, isSaving) => {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    const eventoRef = doc(db, 'eventos', eventoId)
+    const gastoRef = doc(db, 'eventos', eventoId, 'gastos', gastoId)
+
+    await runTransaction(db, async (transaction) => {
+      const [eventoSnap, gastoSnap] = await Promise.all([
+        transaction.get(eventoRef),
+        transaction.get(gastoRef),
+      ])
+
+      if (!eventoSnap.exists() || !gastoSnap.exists()) return
+
+      const totalGastado = Number(eventoSnap.data().totalGastado || 0)
+      const monto = Number(gastoSnap.data().monto || 0)
+
+      transaction.delete(gastoRef)
+      transaction.update(eventoRef, {
+        totalGastado: Math.max(0, totalGastado - monto),
+      })
+    })
+
+    console.log('Gasto eliminado con éxito')
+  } catch (error) {
+    console.error('Error al eliminar gasto:', error)
   } finally {
     isSaving.value = false
   }
@@ -269,14 +348,13 @@ export const finalizarEvento = async (evento, isSaving) => {
   isSaving.value = true
 
   try {
-    const totalGastado = (evento.gastos || []).reduce((sum, g) => sum + Number(g.monto || 0), 0)
+    const totalGastado = Number(evento.totalGastado || 0)
 
     const batch = writeBatch(db)
 
     const eventoRef = doc(db, 'eventos', evento.id)
     batch.update(eventoRef, {
       estatus: 'finalizado',
-      totalGastado,
       finalizadoAt: new Date(),
     })
 
@@ -302,4 +380,14 @@ export const finalizarEvento = async (evento, isSaving) => {
   } finally {
     isSaving.value = false
   }
+}
+
+export const eliminarEventoCompleto = async (id) => {
+  const gastosSnap = await getDocs(collection(db, 'eventos', id, 'gastos'))
+  const batch = writeBatch(db)
+
+  gastosSnap.docs.forEach((gastoDoc) => batch.delete(gastoDoc.ref))
+  batch.delete(doc(db, 'eventos', id))
+
+  await batch.commit()
 }

@@ -75,8 +75,6 @@ const modal = () => {
 }
 
 const guardarDatos = async () => {
-  console.log(modoEdicion.value)
-  console.log(props.transaccion?.id)
   if (modoEdicion.value && props.transaccion?.id) {
     const datosActualizados = {
       tipoMovimiento: pagoDistrital.value ? 'cuota distrital' : tipoMovimiento.value,

@@ -99,7 +99,6 @@ export const useJuntaStore = defineStore('junta', () => {
         ...datosJunta,
         updatedAt: new Date(),
       })
-      console.log('Junta directiva actualizada exitosamente')
     } catch (error) {
       console.error('Error al guardar junta directiva:', error)
     } finally {

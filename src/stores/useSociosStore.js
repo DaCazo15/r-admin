@@ -28,7 +28,6 @@ export const useSociosStore = defineStore('socios', () => {
     if (confirm('¿Estás seguro de que deseas eliminar a esta persona?')) {
       try {
         await deleteDoc(doc(db, 'persona', id))
-        console.log('Socio eliminado con éxito de Firestore')
       } catch (error) {
         console.error('Error al eliminar socio:', error)
       }

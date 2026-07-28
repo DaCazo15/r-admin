@@ -22,7 +22,11 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
         if (item.tipoMovimiento === 'ingreso' && !filtros.value.ingreso) return false
         if (item.tipoMovimiento === 'egreso' && !filtros.value.egreso) return false
         if (item.tipoMovimiento === 'mensualidad' && !filtros.value.mensualidad) return false
-        if (item.tipoMovimiento?.toLowerCase() === 'cuota distrital' && !filtros.value.pagoDistrital) return false
+        if (
+          item.tipoMovimiento?.toLowerCase() === 'cuota distrital' &&
+          !filtros.value.pagoDistrital
+        )
+          return false
 
         if (['mensualidad', 'cuota distrital'].includes(item.tipoMovimiento?.toLowerCase())) {
           if (item.estatus === 'sin revisar' && !filtros.value.sinRevisar) return false
@@ -161,7 +165,6 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
     if (confirm('¿Estás seguro de que deseas eliminar esta transacción?')) {
       try {
         await deleteDoc(doc(db, 'tesoreria', id))
-        console.log('Transacción eliminada con éxito de Firestore')
       } catch (error) {
         console.error('Error al eliminar transacción:', error)
       }
@@ -171,7 +174,6 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
   const editarTransaccion = async (id, datosActualizados) => {
     try {
       await updateDoc(doc(db, 'tesoreria', id), datosActualizados)
-      console.log('Transacción editada con éxito en Firestore')
     } catch (error) {
       console.error('Error al editar transacción:', error)
     }
