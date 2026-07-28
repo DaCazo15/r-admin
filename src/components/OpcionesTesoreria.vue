@@ -1,17 +1,20 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useObtenerTasas } from '@/composable/useObtenerTasas'
+import { useClubStore } from '@/stores/useClubStore'
+import { generarReporte } from '@/services/reporteService'
+import { useRouter } from 'vue-router'
+
 import ModalTesoreria from './form/ModalTesoreria.vue'
 import ModalWhatsapp from './form/ModalWhatsapp.vue'
 import ModalReporte from './form/ModalReporte.vue'
 import ModalResultadoReporte from './form/ModalResultadoReporte.vue'
-import { useObtenerTasas } from '@/composable/useObtenerTasas'
-import { useClubStore } from '@/stores/useClubStore'
-import { generarReporte } from '@/services/reporteService'
 
 const { bcv, usdt, eur, cargandoTasas, obtenerTasas } = useObtenerTasas()
 const clubStore = useClubStore()
 const { mensualidadMargarita } = storeToRefs(clubStore)
+const router = useRouter()
 
 const isOpenModal = ref(false)
 const isOpenWhatsapp = ref(false)
@@ -215,13 +218,19 @@ const actualizarMensualidad = async () => {
     </div>
 
     <!-- Botón grande para ingresar monto -->
-    <div class="flex-1">
+    <div class="flex gap-2 items-center justify-between w-full">
       <button
         @click="isOpenModal = true"
-        class="cursor-pointer px-4 py-3 w-full gap-2 flex flex-row justify-center items-center uppercase text-primary-600 hover:text-white font-semibold border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-sm"
+        class="cursor-pointer px-4 py-3 w-full flex flex-row justify-center items-center uppercase text-primary-600 active:text-white hover:text-white font-semibold border-2 border-primary-600 active:bg-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-sm"
       >
         Ingresar Monto
       </button>
+      <router-link
+        :to="{ name: 'eventos' }"
+        class="cursor-pointer px-4 py-3 w-full flex flex-row justify-center items-center uppercase text-primary-600 active:text-white hover:text-white font-semibold border-2 border-primary-600 active:bg-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-sm"
+      >
+        Eventos
+      </router-link>
     </div>
   </div>
 </template>

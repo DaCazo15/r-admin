@@ -1,5 +1,14 @@
 import { db } from '@/config/firebase'
-import { collection, addDoc, getDocs, updateDoc, query, where, doc } from 'firebase/firestore'
+import {
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  query,
+  where,
+  doc,
+  writeBatch,
+} from 'firebase/firestore'
 
 export const firebaseService = {
   async crearPersona(datosSocio) {
@@ -196,6 +205,100 @@ export const actualizarAlianza = async (id, datosAlianza, isSaving) => {
     console.log('Alianza actualizada con éxito')
   } catch (error) {
     console.error('Error al actualizar alianza:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Eventos: cada evento reserva un presupuesto tomado del balance disponible.
+// Los gastos se llevan de forma independiente dentro del evento y solo al
+// finalizarlo se refleja lo realmente gastado como un egreso en Tesorería,
+// liberando automáticamente el sobrante del presupuesto reservado.
+// ---------------------------------------------------------------------------
+
+export const crearEvento = async (evento, isSaving) => {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    await addDoc(collection(db, 'eventos'), {
+      ...evento,
+      gastos: [],
+      estatus: 'activo',
+      createdAt: new Date(),
+    })
+    console.log('Evento creado con éxito')
+  } catch (error) {
+    console.error('Error al crear evento:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+export const actualizarEvento = async (id, datosEvento, isSaving) => {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    await updateDoc(doc(db, 'eventos', id), datosEvento)
+    console.log('Evento actualizado con éxito')
+  } catch (error) {
+    console.error('Error al actualizar evento:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+export const actualizarGastosEvento = async (id, gastosActualizados, isSaving) => {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    await updateDoc(doc(db, 'eventos', id), { gastos: gastosActualizados })
+    console.log('Gastos del evento actualizados con éxito')
+  } catch (error) {
+    console.error('Error al actualizar los gastos del evento:', error)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+export const finalizarEvento = async (evento, isSaving) => {
+  if (isSaving.value) return
+  isSaving.value = true
+
+  try {
+    const totalGastado = (evento.gastos || []).reduce((sum, g) => sum + Number(g.monto || 0), 0)
+
+    const batch = writeBatch(db)
+
+    const eventoRef = doc(db, 'eventos', evento.id)
+    batch.update(eventoRef, {
+      estatus: 'finalizado',
+      totalGastado,
+      finalizadoAt: new Date(),
+    })
+
+    // Solo se registra egreso en Tesorería si efectivamente hubo gasto
+    if (totalGastado > 0) {
+      const tesoreriaRef = doc(collection(db, 'tesoreria'))
+      batch.set(tesoreriaRef, {
+        tipoMovimiento: 'egreso',
+        monto: totalGastado,
+        referencia: 'N/A',
+        fechaPago: new Date().toISOString().split('T')[0],
+        metodoPago: 'N/A',
+        descripcion: `Evento: ${evento.nombre}`,
+        estatus: 'n/a',
+        createdAt: new Date(),
+      })
+    }
+
+    await batch.commit()
+    console.log('Evento finalizado y egreso registrado en Tesorería')
+  } catch (error) {
+    console.error('Error al finalizar evento:', error)
   } finally {
     isSaving.value = false
   }

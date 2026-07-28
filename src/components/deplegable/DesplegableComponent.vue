@@ -71,6 +71,7 @@ const emit = defineEmits(['cerrarSesion', 'cerrar'])
       </router-link>
       <router-link
         :to="{ name: 'error' }"
+        @click="emit('cerrar')"
         class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/15 active:scale-[0.98] transition-all text-sm font-medium group"
       >
         <i
@@ -79,7 +80,7 @@ const emit = defineEmits(['cerrarSesion', 'cerrar'])
         <span>Calendario</span>
       </router-link>
       <router-link
-        :to="{ name: 'error' }"
+        :to="{ name: 'eventos' }"
         @click="emit('cerrar')"
         class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/15 active:scale-[0.98] transition-all text-sm font-medium group"
       >
