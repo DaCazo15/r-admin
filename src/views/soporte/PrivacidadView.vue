@@ -92,7 +92,7 @@ const secciones = [
 </script>
 
 <template>
-  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto max-w-3xl pb-10">
+  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto max-w-3xl pt-10">
     <!-- Encabezado -->
     <div class="mb-6">
       <button
@@ -108,7 +108,7 @@ const secciones = [
         <div
           class="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center shrink-0 border border-primary-100"
         >
-          <i class="bi bi-file-lock text-xl text-primary-600"></i>
+          <i class="bi bi-lock-fill text-xl text-primary-600"></i>
         </div>
         <div>
           <h1 class="text-xl md:text-2xl font-bold text-gray-900 leading-tight">
@@ -147,9 +147,5 @@ const secciones = [
         </section>
       </div>
     </div>
-
-    <p class="text-xs text-gray-400 text-center mt-6">
-      Rotaract 4370 &middot; R-Admin &middot; Todos los derechos reservados
-    </p>
   </div>
 </template>

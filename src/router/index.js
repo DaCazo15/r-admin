@@ -5,7 +5,9 @@ import AuthView from '@/views/AuthView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import ErrorView from '@/views/ErrorView.vue'
 import TerminosCondiciones from '@/views/soporte/TerminosView.vue'
-import Politicas from '@/views/soporte/TerminosView.vue'
+import Politicas from '@/views/soporte/PrivacidadView.vue'
+import CentroAyuda from '@/views/soporte/AyudaView.vue'
+import Informacion from '@/views/soporte/InformacionView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,6 +48,22 @@ const router = createRouter({
       path: '/policies.4370',
       name: 'policies',
       component: Politicas,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/help.4370',
+      name: 'help',
+      component: Informacion,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/info.4370',
+      name: 'info',
+      component: Informacion,
       meta: {
         requiresAuth: true,
       },

@@ -149,3 +149,101 @@ export const secciones_politicas = [
     ],
   },
 ]
+
+const mensaje = 'Hola, tengo una duda con respecto a R-Admin.'
+
+export const canales = [
+  {
+    icon: 'bi-envelope',
+    titulo: 'Correo electrónico',
+    descripcion: 'Escríbenos y te responderemos a la brevedad.',
+    accion: 'Enviar correo',
+    href: 'https://mail.google.com/mail/?view=cm&fs=1&to=dcazorla.0190@gmail.com',
+  },
+  {
+    icon: 'bi-whatsapp',
+    titulo: 'WhatsApp',
+    descripcion: 'Contacta directamente al equipo administrativo del club.',
+    accion: 'Escribir mensaje',
+    href: 'https://wa.me/+584148197912?text=' + mensaje,
+  },
+  {
+    icon: 'bi-instagram',
+    titulo: 'Redes sociales',
+    descripcion: 'Síguenos para novedades y anuncios del club.',
+    accion: 'Ver perfil',
+    href: 'https://www.instagram.com/rotaractmargarita/',
+  },
+]
+
+export const categorias_ayuda = [
+  {
+    titulo: 'Cuenta y acceso',
+    icon: 'bi-person-badge',
+    preguntas: [
+      {
+        pregunta: '¿Cómo inicio sesión en el Panel?',
+        respuesta:
+          'Ingresa a la pantalla principal con el correo electrónico y la contraseña con los que te registraste. Si tienes una sesión activa, el sistema te redirigirá automáticamente al inicio.',
+      },
+      {
+        pregunta: 'Olvidé mi contraseña, ¿qué hago?',
+        respuesta:
+          'Comunícate con el equipo administrativo del club Rotaract 4370 a través de los canales oficiales para que puedan ayudarte a restablecer el acceso a tu cuenta.',
+      },
+      {
+        pregunta: '¿Cómo cierro sesión en todos mis dispositivos?',
+        respuesta:
+          'Desde Configuración → Cerrar sesión puedes salir del dispositivo actual. Si sospechas de un acceso no autorizado, notifícalo de inmediato al equipo administrativo.',
+      },
+    ],
+  },
+  {
+    titulo: 'Perfil y configuración',
+    icon: 'bi-sliders',
+    preguntas: [
+      {
+        pregunta: '¿Dónde edito mi información de perfil?',
+        respuesta:
+          'En Configuración → Cuenta y datos puedes revisar y actualizar tu información personal. Si algún campo no está disponible aún, contacta al equipo administrativo.',
+      },
+      {
+        pregunta: '¿Cómo cambio la visibilidad de mi perfil?',
+        respuesta:
+          'En Configuración → Perfil → Visibilidad del perfil puedes ajustar quién puede ver tu información dentro del Panel.',
+      },
+    ],
+  },
+  {
+    titulo: 'Actividades y calendario',
+    icon: 'bi-calendar-event',
+    preguntas: [
+      {
+        pregunta: '¿Cómo veo las próximas actividades del club?',
+        respuesta:
+          'Desde el Inicio del Panel puedes consultar el calendario de actividades y eventos programados por el club Rotaract 4370.',
+      },
+      {
+        pregunta: '¿Puedo exportar o descargar información en PDF?',
+        respuesta:
+          'Sí, algunas secciones del Panel permiten generar reportes en PDF para su descarga o impresión, según los permisos asociados a tu cuenta.',
+      },
+    ],
+  },
+  {
+    titulo: 'Privacidad y seguridad',
+    icon: 'bi-shield-check',
+    preguntas: [
+      {
+        pregunta: '¿Quién puede ver mis datos?',
+        respuesta:
+          'Solo el equipo administrativo del club Rotaract 4370 puede acceder a tus datos, en la medida necesaria para la gestión de actividades y miembros. Consulta la Política de Privacidad para más detalles.',
+      },
+      {
+        pregunta: '¿Cómo solicito la eliminación de mi cuenta?',
+        respuesta:
+          'Puedes solicitarlo contactando al equipo administrativo del club a través de los canales oficiales. Revisaremos tu solicitud conforme a lo indicado en la Política de Privacidad.',
+      },
+    ],
+  },
+]

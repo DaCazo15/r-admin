@@ -29,7 +29,7 @@ const { usuario, cargando } = storeToRefs(sesionStore)
           Política de privacidad
         </router-link>
         <p class="text-gray-400 font-semibold">|</p>
-        <router-link :to="{ name: 'error' }" class="text-gray-400 cursor-pointer text-xs py-1 px-2 hover:text-primary-600 font-medium ">
+        <router-link :to="{ name: 'info' }" class="text-gray-400 cursor-pointer text-xs py-1 px-2 hover:text-primary-600 font-medium ">
           Información
         </router-link>
       </div>

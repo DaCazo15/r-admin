@@ -8,7 +8,7 @@ const fechaActualizacion = '27 de julio de 2026'
 </script>
 
 <template>
-  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto max-w-3xl py-10">
+  <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto max-w-3xl pt-10">
     <!-- Encabezado -->
     <div class="mb-6">
       <button
