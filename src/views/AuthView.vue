@@ -48,7 +48,7 @@ const verificarClub = async () => {
   try {
     const allClubsSnap = await getDocs(collection(db, 'club'))
     const exists = allClubsSnap.docs.some(
-      (doc) => doc.data().club?.toLowerCase().trim() === clubName.value.trim().toLowerCase()
+      (doc) => doc.data().club?.toLowerCase().trim() === clubName.value.trim().toLowerCase(),
     )
 
     if (exists) {
@@ -93,7 +93,7 @@ const handleSubmit = async () => {
       const resultado = await sesionStore.registrarUsuario(
         form.value.email,
         form.value.password,
-        form.value.nombre.trim()
+        form.value.nombre.trim(),
       )
       if (resultado.success) {
         const normalizedClub = clubName.value.trim()
@@ -149,7 +149,9 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-2rem)] w-full flex flex-col justify-center items-center py-6 px-4">
+  <div
+    class="-mt-5 min-h-[calc(100vh-2rem)] w-full flex flex-col justify-center items-center py-6 px-4"
+  >
     <!-- Contenedor principal de la tarjeta -->
     <div class="w-full max-w-md">
       <div
@@ -176,7 +178,10 @@ const handleSubmit = async () => {
           :error-msg="errorMsg"
           :is-submitting="isSubmitting"
           @verifyClub="verificarClub"
-          @changeClub="clubExiste = null; errorMsg = ''"
+          @changeClub="
+            clubExiste = null
+            errorMsg = ''
+          "
           @submit="handleSubmit"
         />
       </div>
