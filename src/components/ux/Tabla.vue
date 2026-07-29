@@ -74,8 +74,20 @@ const registros = computed(() => {
 
 const registrosFiltrados = computed(() => {
   const termino = props.terminoBusqueda?.toLowerCase() || ''
-  if (!termino) return registros.value
-  return registros.value.filter((registro) => {
+  let list = registros.value
+
+  // Ocultar perfiles privados a usuarios sin privilegios administrativos (excepto al propio dueño)
+  if (props.estatus === 'Socios' || props.estatus === 'Aspirantes') {
+    list = list.filter((item) => {
+      if (item.perfilPrivado && !['presidente', 'vicepresidente', 'secretario'].includes(rol.value) && item.correo?.toLowerCase() !== usuario.value?.email?.toLowerCase()) {
+        return false
+      }
+      return true
+    })
+  }
+
+  if (!termino) return list
+  return list.filter((registro) => {
     const nombre = registro.nombre?.toLowerCase() || ''
     const descripcion = registro.descripcion?.toLowerCase() || ''
     return nombre.includes(termino) || descripcion.includes(termino)
@@ -140,9 +152,11 @@ const editarPersona = async (id) => {
             <td class="px-4 py-3 font-medium text-gray-900">{{ item.nombre }}</td>
             <td class="px-4 py-3 text-gray-700">{{ item.edad }}</td>
             <td class="px-4 py-3 text-gray-700">{{ item.fecha }}</td>
-            <td class="px-4 py-3 text-gray-700">{{ item.telefono }}</td>
-            <td class="px-4 py-3 text-gray-700 truncate max-w-50" :title="item.correo">
-              {{ item.correo }}
+            <td class="px-4 py-3 text-gray-700">
+              {{ (item.mostrarContacto !== false || ['presidente', 'vicepresidente', 'secretario'].includes(rol) || item.correo?.toLowerCase() === usuario?.email?.toLowerCase()) ? (item.telefono || 'No registrado') : 'Oculto' }}
+            </td>
+            <td class="px-4 py-3 text-gray-700 truncate max-w-50" :title="(item.mostrarContacto !== false || ['presidente', 'vicepresidente', 'secretario'].includes(rol) || item.correo?.toLowerCase() === usuario?.email?.toLowerCase()) ? item.correo : 'Oculto'">
+              {{ (item.mostrarContacto !== false || ['presidente', 'vicepresidente', 'secretario'].includes(rol) || item.correo?.toLowerCase() === usuario?.email?.toLowerCase()) ? item.correo : 'Oculto' }}
             </td>
             <td class="px-4 py-3 text-gray-700">{{ item.ubicacion }}</td>
             <td

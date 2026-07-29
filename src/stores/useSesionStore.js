@@ -54,7 +54,7 @@ export const useSesionStore = defineStore('sesion', () => {
             })
           } else {
             // Fallback de último recurso
-            userRol = 'presidente'
+            userRol = 'socio'
             userClub = 'Isla de Margarita'
           }
         }

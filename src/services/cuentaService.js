@@ -1,5 +1,6 @@
-import { auth } from '@/config/firebase'
+import { auth, db } from '@/config/firebase'
 import { deleteUser } from 'firebase/auth'
+import { doc, deleteDoc, query, collection, where, getDocs } from 'firebase/firestore'
 import logoUrl from '@/assets/img/logotipo-1.svg'
 
 // jsPDF no puede dibujar SVG directamente, así que el logo se rasteriza a PNG
@@ -193,7 +194,30 @@ export async function eliminarCuenta() {
     if (!auth.currentUser) {
       return { ok: false, mensaje: 'No hay una sesión activa.' }
     }
-    await deleteUser(auth.currentUser)
+
+    const user = auth.currentUser
+    const emailKey = user.email.toLowerCase().trim()
+
+    // 1. Eliminar de la colección 'usuarios'
+    try {
+      const userDocRef = doc(db, 'usuarios', emailKey)
+      await deleteDoc(userDocRef)
+    } catch (e) {
+      console.error('Error al eliminar de la colección usuarios:', e)
+    }
+
+    // 2. Buscar y eliminar de la colección 'persona'
+    try {
+      const q = query(collection(db, 'persona'), where('correo', '==', user.email))
+      const snapshot = await getDocs(q)
+      const promesas = snapshot.docs.map((docSnap) => deleteDoc(docSnap.ref))
+      await Promise.all(promesas)
+    } catch (e) {
+      console.error('Error al eliminar de la colección persona:', e)
+    }
+
+    // 3. Eliminar el usuario de Firebase Auth
+    await deleteUser(user)
     return { ok: true }
   } catch (error) {
     console.error('Error al eliminar la cuenta:', error)

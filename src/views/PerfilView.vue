@@ -270,7 +270,7 @@ const guardarPerfil = async () => {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto mt-8 px-4">
+  <div class="max-w-4xl mx-auto mt-10 px-4">
     <!-- Card Principal -->
     <div class="bg-white shadow-md rounded-2xl border border-gray-100 overflow-hidden">
       <!-- Banner Cabecera & Info del Socio (Presentación) -->
@@ -309,6 +309,9 @@ const guardarPerfil = async () => {
           :club="sesionStore.club"
           :redes-registradas="redesRegistradas"
           :email-link="emailLink"
+          :linktree-style="datosPersona?.linktreeStyle || 'classic'"
+          :mostrar-contacto="datosPersona?.mostrarContacto !== false"
+          :mostrar-laburo="datosPersona?.mostrarLaburo !== false"
           @volver="linktree = false"
         />
 

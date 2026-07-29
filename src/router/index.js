@@ -14,6 +14,9 @@ import CuentaDatos from '@/views/soporte/CuentaDatosView.vue'
 import CalendarView from '@/views/CalendarView.vue'
 import PagarView from '@/views/PagarView.vue'
 import PerfilUser from '@/views/PerfilView.vue'
+import VisibilidadPerfil from '@/views/perfil-settings/VisibilidadPerfilView.vue'
+import Networking from '@/views/perfil-settings/NetworkingView.vue'
+import ToolsView from '@/views/ToolsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -126,6 +129,30 @@ const router = createRouter({
       path: '/perfil.4370',
       name: 'perfil',
       component: PerfilUser,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/visibilidad.4370',
+      name: 'visibilidad',
+      component: VisibilidadPerfil,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/networking.4370',
+      name: 'networking',
+      component: Networking,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/tools.4370',
+      name: 'tools',
+      component: ToolsView,
       meta: {
         requiresAuth: true,
       },

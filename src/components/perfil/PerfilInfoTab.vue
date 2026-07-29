@@ -1,4 +1,6 @@
 <script setup>
+import { sanitizeUrl } from '@/helpers/security'
+
 defineProps({
   datosPersona: Object,
   redesRegistradas: Array,
@@ -28,52 +30,47 @@ const emit = defineEmits(['agregarEmpleo'])
             {{ datosPersona?.nombre || '--' }}
           </p>
         </div>
-
         <div class="space-y-1">
-          <span class="text-xs text-gray-400 font-medium uppercase tracking-wider"
-            >Correo Electrónico</span
-          >
-          <p class="text-sm font-semibold text-gray-800">{{ datosPersona?.correo || '--' }}</p>
+          <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Edad</span>
+          <p class="text-sm font-semibold text-gray-800">
+            {{ datosPersona?.edad ? `${datosPersona.edad} años` : '--' }}
+          </p>
         </div>
-
+        <div class="space-y-1">
+          <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Fecha</span>
+          <p class="text-sm font-semibold text-gray-800">
+            {{ datosPersona?.fecha || '--' }}
+          </p>
+        </div>
         <div class="space-y-1">
           <span class="text-xs text-gray-400 font-medium uppercase tracking-wider"
             >Número de Teléfono</span
           >
           <p class="text-sm font-semibold text-gray-800">
-            {{ datosPersona?.telefono || 'No registrado' }}
+            {{ datosPersona?.telefono || '--' }}
           </p>
         </div>
-
         <div class="space-y-1">
           <span class="text-xs text-gray-400 font-medium uppercase tracking-wider"
-            >Ubicación / Residencia</span
+            >Correo Electrónico</span
+          >
+          <p class="text-sm font-semibold text-gray-800 truncate" :title="datosPersona?.correo">
+            {{ datosPersona?.correo || '--' }}
+          </p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs text-gray-400 font-medium uppercase tracking-wider"
+            >Ubicación</span
           >
           <p class="text-sm font-semibold text-gray-800 capitalize">
-            {{ datosPersona?.ubicacion || 'No registrada' }}
-          </p>
-        </div>
-
-        <div class="space-y-1">
-          <span class="text-xs text-gray-400 font-medium uppercase tracking-wider"
-            >Fecha de Nacimiento</span
-          >
-          <p class="text-sm font-semibold text-gray-800">
-            {{ datosPersona?.fecha || 'No registrada' }}
-          </p>
-        </div>
-
-        <div class="space-y-1">
-          <span class="text-xs text-gray-400 font-medium uppercase tracking-wider">Edad</span>
-          <p class="text-sm font-semibold text-gray-800">
-            {{ datosPersona?.edad ? `${datosPersona.edad} años` : 'No registrada' }}
+            {{ datosPersona?.ubicacion || '--' }}
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Sección de Redes Sociales Individuales (si <= 4 redes) -->
-    <div v-if="!tieneMasDe4Redes && redesRegistradas.length > 0" class="space-y-4">
+    <!-- Sección de Redes Sociales -->
+    <div v-if="redesRegistradas && redesRegistradas.length > 0" class="space-y-3">
       <h3
         class="text-lg font-bold text-gray-900 border-b pb-2 border-gray-100 flex items-center gap-2"
       >
@@ -84,7 +81,7 @@ const emit = defineEmits(['agregarEmpleo'])
         <a
           v-for="red in redesRegistradas"
           :key="red.tipo"
-          :href="red.url"
+          :href="sanitizeUrl(red.url)"
           target="_blank"
           class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all transform active:scale-95"
           :class="red.color"
@@ -116,7 +113,7 @@ const emit = defineEmits(['agregarEmpleo'])
           </div>
         </div>
         <a
-          :href="datosPersona.cvUrl"
+          :href="sanitizeUrl(datosPersona.cvUrl)"
           target="_blank"
           class="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl text-sm transition-all duration-200 active:scale-95"
         >

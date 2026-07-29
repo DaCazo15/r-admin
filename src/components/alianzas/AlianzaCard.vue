@@ -1,4 +1,6 @@
 <script setup>
+import { sanitizeUrl } from '@/helpers/security'
+
 defineProps({
   item: Object,
   puedeModificarAlianzas: Boolean
@@ -63,7 +65,7 @@ const emit = defineEmits(['edit', 'delete'])
       </p>
       <a
         v-if="item.sitioWeb"
-        :href="item.sitioWeb"
+        :href="sanitizeUrl(item.sitioWeb)"
         target="_blank"
         rel="noopener noreferrer"
         class="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-2"

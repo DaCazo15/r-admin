@@ -100,6 +100,8 @@ const clickCheck = (name, check) => {
   if (name === 'Cerrar sesión') {
     cerrarSesion()
   } else {
+    if (name === 'Visibilidad del perfil') router.push({ name: 'visibilidad' })
+    if (name === 'Networking') router.push({ name: 'networking' })
     if (name === 'Cuenta y datos') router.push({ name: 'cuenta-datos' })
     if (name === 'Centro de ayuda') router.push({ name: 'help' })
     if (name === 'Condiciones del servicio') router.push({ name: 'conditions' })
