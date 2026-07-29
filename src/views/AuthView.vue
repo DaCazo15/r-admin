@@ -154,7 +154,7 @@ const resetearVerificacionClub = () => {
 
 <template>
   <div
-    class="-mt-5 min-h-[calc(100vh-2rem)] w-full flex flex-col justify-center items-center py-6 px-4"
+    class="-mt-10 min-h-[calc(100vh-2rem)] w-full flex flex-col justify-center items-center py-6 px-4"
   >
     <!-- Contenedor principal de la tarjeta -->
     <div class="w-full max-w-md">
