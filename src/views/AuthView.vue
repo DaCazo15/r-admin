@@ -146,6 +146,10 @@ const handleSubmit = async () => {
     isSubmitting.value = false
   }
 }
+const resetearVerificacionClub = () => {
+  clubExiste.value = null
+  errorMsg.value = ''
+}
 </script>
 
 <template>
@@ -178,10 +182,7 @@ const handleSubmit = async () => {
           :error-msg="errorMsg"
           :is-submitting="isSubmitting"
           @verifyClub="verificarClub"
-          @changeClub="
-            clubExiste = null
-            errorMsg = ''
-          "
+          @changeClub="resetearVerificacionClub"
           @submit="handleSubmit"
         />
       </div>
