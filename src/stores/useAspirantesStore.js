@@ -4,9 +4,19 @@ import { useCollection } from 'vuefire'
 import { collection, query, where, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '@/config/firebase'
 import { actualizarPersona } from '@/services/firebaseService'
+import { useSesionStore } from './useSesionStore'
 
 export const useAspirantesStore = defineStore('aspirantes', () => {
-  const aspirantesRaw = useCollection(query(collection(db, 'persona'), where('estatus', '==', 'Aspirantes')))
+  const sesionStore = useSesionStore()
+
+  const aspirantesRaw = useCollection(() => {
+    const userClub = sesionStore.club || 'Isla de Margarita'
+    return query(
+      collection(db, 'persona'),
+      where('estatus', '==', 'Aspirantes'),
+      where('club', '==', userClub)
+    )
+  })
 
   const aspirantes = computed(() => {
     let list = [...(aspirantesRaw.value || [])]

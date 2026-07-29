@@ -20,7 +20,7 @@ const {
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-sm"
     @click.self="cerrar"
   >
     <div

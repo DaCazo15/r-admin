@@ -1,4 +1,4 @@
-import { db } from '@/config/firebase'
+import { db, firebaseApp } from '@/config/firebase'
 import {
   collection,
   addDoc,
@@ -9,7 +9,10 @@ import {
   doc,
   writeBatch,
   runTransaction,
+  setDoc,
 } from 'firebase/firestore'
+import { initializeApp, deleteApp } from 'firebase/app'
+import { getAuth, createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth'
 
 export const firebaseService = {
   async crearPersona(datosSocio) {
@@ -54,6 +57,7 @@ export const guardarMovimiento = async (movimiento, datos, isSaving) => {
       referencia: datos.referencia || 'N/A',
       fechaPago: datos.fechaPago,
       metodoPago: datos.tipoPago,
+      club: datos.club || 'Isla de Margarita',
       createdAt: new Date(),
     }
 
@@ -81,7 +85,18 @@ export const guardarPersona = async (persona, isSaving) => {
   isSaving.value = true
 
   try {
+    if (persona.estatus === 'Socios') {
+      persona.rol = 'socio'
+    } else {
+      persona.rol = 'aspirante'
+    }
+
     await firebaseService.crearPersona(persona)
+
+    if (persona.estatus === 'Socios') {
+      await crearCuentaAuthSocioSiNoExiste(persona.nombre, persona.correo, persona.club || 'Isla de Margarita')
+    }
+
     return { ok: true }
   } catch (error) {
     console.error(error)
@@ -118,11 +133,11 @@ export const guardarPassEstandar = async (pass, isSaving, nombreClub = 'Isla de 
 export const actualizarEstadoClub = async (nombreClub = 'Isla de Margarita') => {
   try {
     const [sociosSnap, aspirantesSnap, tesoreriaSnap, clubSnap, eventosSnap] = await Promise.all([
-      getDocs(query(collection(db, 'persona'), where('estatus', '==', 'Socios'))),
-      getDocs(query(collection(db, 'persona'), where('estatus', '==', 'Aspirantes'))),
-      getDocs(collection(db, 'tesoreria')),
+      getDocs(query(collection(db, 'persona'), where('estatus', '==', 'Socios'), where('club', '==', nombreClub))),
+      getDocs(query(collection(db, 'persona'), where('estatus', '==', 'Aspirantes'), where('club', '==', nombreClub))),
+      getDocs(query(collection(db, 'tesoreria'), where('club', '==', nombreClub))),
       getDocs(collection(db, 'club')),
-      getDocs(query(collection(db, 'eventos'), where('estatus', '==', 'activo'))),
+      getDocs(query(collection(db, 'eventos'), where('estatus', '==', 'activo'), where('club', '==', nombreClub))),
     ])
 
     const st = sociosSnap.size
@@ -169,8 +184,19 @@ export const actualizarPersona = async (id, datosPersona, isSaving) => {
   isSaving.value = true
 
   try {
+    if (datosPersona.estatus === 'Socios') {
+      datosPersona.rol = 'socio'
+    } else if (datosPersona.estatus === 'Aspirantes') {
+      datosPersona.rol = 'aspirante'
+    }
+
     const docRef = doc(db, 'persona', id)
     await updateDoc(docRef, datosPersona)
+
+    if (datosPersona.estatus === 'Socios') {
+      await crearCuentaAuthSocioSiNoExiste(datosPersona.nombre, datosPersona.correo, datosPersona.club || 'Isla de Margarita')
+    }
+
     return { ok: true }
   } catch (error) {
     console.error(error)
@@ -190,6 +216,44 @@ export const extraerPassEstandarClub = async (nombreClub = 'Isla de Margarita') 
   } catch (error) {
     console.error(error)
     return ''
+  }
+}
+
+export async function crearCuentaAuthSocioSiNoExiste(nombre, correo, club = 'Isla de Margarita') {
+  if (!correo) return
+
+  try {
+    const passEstandar = await extraerPassEstandarClub(club)
+    if (!passEstandar) {
+      console.warn('No hay contraseña estándar configurada para el club.')
+      return
+    }
+
+    const secondaryApp = initializeApp(firebaseApp.options, 'SecondaryRegistration')
+    const secondaryAuth = getAuth(secondaryApp)
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, correo, passEstandar)
+      await updateProfile(userCredential.user, { displayName: nombre })
+      await signOut(secondaryAuth)
+
+      // Guardar el registro en la colección única 'usuarios'
+      await setDoc(doc(db, 'usuarios', correo.toLowerCase().trim()), {
+        nombre: nombre,
+        correo: correo.toLowerCase().trim(),
+        rol: 'socio',
+        club: club,
+        createdAt: new Date(),
+      })
+    } catch (authError) {
+      if (authError.code !== 'auth/email-already-in-use') {
+        console.error('Error al crear credenciales de Auth:', authError)
+      }
+    } finally {
+      await deleteApp(secondaryApp)
+    }
+  } catch (error) {
+    console.error('Error general al crear cuenta secundaria:', error)
   }
 }
 
@@ -240,7 +304,7 @@ export const actualizarAlianza = async (id, datosAlianza, isSaving) => {
 // de las dos escrituras.
 // ---------------------------------------------------------------------------
 
-export const crearEvento = async (evento, isSaving) => {
+export const crearEvento = async (evento, isSaving, c = 'Isla de Margarita') => {
   if (isSaving.value) return
   isSaving.value = true
 
@@ -250,6 +314,7 @@ export const crearEvento = async (evento, isSaving) => {
       totalGastado: 0,
       estatus: 'activo',
       createdAt: new Date(),
+      club: c,
     })
     return { ok: true }
   } catch (error) {

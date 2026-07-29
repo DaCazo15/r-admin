@@ -7,6 +7,8 @@ import { meses, form } from '@/helpers/list'
 import { guardarMovimiento } from '@/services/firebaseService'
 import { useEdicion } from '@/composable/useEdicion'
 import { useTesoreriaStore } from '@/stores/useTesoreriaStore'
+import { useSesionStore } from '@/stores/useSesionStore'
+import { storeToRefs } from 'pinia'
 
 const props = defineProps({
   transaccion: Object,
@@ -20,13 +22,23 @@ const tipoMovimiento = ref('mensualidad')
 const { modoEdicion, cancelarEdicion } = useEdicion()
 const tesoreriaStore = useTesoreriaStore()
 
-const querySocios = computed(() => {
-  if (!db) return null
-  return query(collection(db, 'persona'), where('estatus', 'in', ['Socios']))
-})
-const socios = useCollection(querySocios)
+const sesionStore = useSesionStore()
+const { rol } = storeToRefs(sesionStore)
 
-const metodosPagoRaw = useCollection(collection(db, 'metodos_pago'))
+const puedeGuardarTesoreria = computed(() => {
+  return ['tesorero', 'vicepresidente', 'presidente'].includes(rol.value)
+})
+
+const socios = useCollection(() => {
+  if (!db) return null
+  const userClub = sesionStore.club || 'Isla de Margarita'
+  return query(collection(db, 'persona'), where('estatus', '==', 'Socios'), where('club', '==', userClub))
+})
+
+const metodosPagoRaw = useCollection(() => {
+  const userClub = sesionStore.club || 'Isla de Margarita'
+  return query(collection(db, 'metodos_pago'), where('club', '==', userClub))
+})
 
 const metodosDisponibles = computed(() => {
   const list = []
@@ -109,6 +121,7 @@ const guardarDatos = async () => {
       fechaPago: form.value.fechaPago,
       metodoPago: form.value.tipoPago,
       estatus: 'revisado',
+      club: sesionStore.club || 'Isla de Margarita',
     }
     if (tipoMovimiento.value === 'mensualidad') {
       datosActualizados.nombre = form.value.nombre
@@ -118,9 +131,10 @@ const guardarDatos = async () => {
     }
     res = await tesoreriaStore.editarTransaccion(props.transaccion.id, datosActualizados)
   } else {
+    const datos = { ...form.value, club: sesionStore.club || 'Isla de Margarita' }
     res = await guardarMovimiento(
       pagoDistrital.value ? 'cuota distrital' : tipoMovimiento.value,
-      form.value,
+      datos,
       isSaving,
     )
   }
@@ -142,7 +156,7 @@ const tipoPago = computed(() => {
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-sm"
     @click.self="modal"
   >
     <!-- Contenedor del Modal -->
@@ -325,8 +339,18 @@ const tipoPago = computed(() => {
           </div>
         </div>
 
-        <div v-if="errorMsg" class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium">
+        <div
+          v-if="errorMsg"
+          class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium"
+        >
           {{ errorMsg }}
+        </div>
+
+        <div
+          v-if="!puedeGuardarTesoreria"
+          class="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg font-medium text-center animate-pulse"
+        >
+          No tienes permisos para registrar o modificar transacciones de Tesorería.
         </div>
 
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
@@ -340,7 +364,7 @@ const tipoPago = computed(() => {
           </button>
           <button
             type="submit"
-            :disabled="isSaving"
+            :disabled="isSaving || !puedeGuardarTesoreria"
             class="cursor-pointer px-4 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{

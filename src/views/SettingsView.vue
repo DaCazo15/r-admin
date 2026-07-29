@@ -1,10 +1,12 @@
 <script setup>
+import { ref, computed } from 'vue'
 import { useSesionStore } from '../stores/useSesionStore'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import { crearCuentaAuthSocioSiNoExiste } from '@/services/firebaseService'
 
 const sesionStore = useSesionStore()
-const { usuario } = storeToRefs(sesionStore)
+const { usuario, rol, club } = storeToRefs(sesionStore)
 const router = useRouter()
 
 // Agrupamos las opciones en datos en vez de repetir el mismo bloque de
@@ -16,15 +18,11 @@ const grupos = [
     opciones: [
       { label: 'Visibilidad del perfil', icon: 'bi-eye' },
       { label: 'Networking', icon: 'bi-people' },
-      { label: 'Tema', icon: 'bi-palette' },
     ],
   },
   {
     titulo: 'Cuenta y datos',
-    opciones: [
-      { label: 'Cuenta y datos', icon: 'bi-person-vcard' },
-      { label: 'Seguridad', icon: 'bi-shield-lock' },
-    ],
+    opciones: [{ label: 'Cuenta y datos', icon: 'bi-person-vcard' }],
   },
   {
     titulo: 'Iniciar sesión',
@@ -49,14 +47,65 @@ const cerrarSesion = async () => {
   router.push({ name: 'auth' })
 }
 
+const gruposFiltrados = computed(() => {
+  const list = [...grupos]
+  if (['presidente', 'vicepresidente'].includes(rol.value)) {
+    list.push({
+      titulo: 'Herramientas administrativas',
+      opciones: [
+        { label: 'Sincronizar Socios en Auth', icon: 'bi-arrow-repeat' }
+      ]
+    })
+  }
+  return list
+})
+
+const isSincronizando = ref(false)
+const mensajeSincronizacion = ref('')
+
+const sincronizarSocios = async () => {
+  if (isSincronizando.value) return
+  isSincronizando.value = true
+  mensajeSincronizacion.value = 'Sincronizando socios con Firebase Auth...'
+  
+  try {
+    const { db } = await import('@/config/firebase')
+    const { collection, getDocs, query, where } = await import('firebase/firestore')
+    
+    const q = query(collection(db, 'persona'), where('estatus', '==', 'Socios'))
+    const snapshot = await getDocs(q)
+    let creados = 0
+    let omitidos = 0
+    
+    for (const doc of snapshot.docs) {
+      const socio = doc.data()
+      if (socio.correo && socio.correo.trim() && socio.correo !== 'correo@correo.com') {
+        await crearCuentaAuthSocioSiNoExiste(socio.nombre, socio.correo, socio.club || club.value || 'Isla de Margarita')
+        creados++
+      } else {
+        omitidos++
+      }
+    }
+    
+    mensajeSincronizacion.value = `Sincronización completada. Se procesaron ${creados} socios con correo único (los correos duplicados o vacíos fueron omitidos).`
+  } catch (error) {
+    console.error('Error al sincronizar:', error)
+    mensajeSincronizacion.value = 'Ocurrió un error al sincronizar las cuentas.'
+  } finally {
+    isSincronizando.value = false
+  }
+}
+
 const clickCheck = (name, check) => {
   if (name === 'Cerrar sesión') {
     cerrarSesion()
   } else {
+    if (name === 'Cuenta y datos') router.push({ name: 'cuenta-datos' })
     if (name === 'Centro de ayuda') router.push({ name: 'help' })
     if (name === 'Condiciones del servicio') router.push({ name: 'conditions' })
     if (name === 'Política de privacidad') router.push({ name: 'policies' })
     if (name === 'Información') router.push({ name: 'info' })
+    if (name === 'Sincronizar Socios en Auth') sincronizarSocios()
   }
 }
 </script>
@@ -92,7 +141,7 @@ const clickCheck = (name, check) => {
       </div>
 
       <!-- Grupos de opciones -->
-      <div v-for="(grupo, i) in grupos" :key="grupo.titulo" class="px-2 py-3">
+      <div v-for="(grupo, i) in gruposFiltrados" :key="grupo.titulo" class="px-2 py-3">
         <span
           class="text-[10px] font-semibold tracking-wider text-gray-400 uppercase px-3.5 mb-1 block"
         >
@@ -126,8 +175,22 @@ const clickCheck = (name, check) => {
           ></i>
         </button>
 
-        <div v-if="i < grupos.length - 1" class="h-px bg-gray-100 mx-3.5 mt-2"></div>
+        <div v-if="i < gruposFiltrados.length - 1" class="h-px bg-gray-100 mx-3.5 mt-2"></div>
       </div>
+    </div>
+
+    <!-- Mensaje de sincronización -->
+    <div
+      v-if="mensajeSincronizacion"
+      class="mt-4 p-4 rounded-xl text-center text-sm font-medium border"
+      :class="
+        isSincronizando
+          ? 'bg-blue-50 border-blue-100 text-blue-700'
+          : 'bg-emerald-50 border-emerald-100 text-emerald-700'
+      "
+    >
+      <i v-if="isSincronizando" class="bi bi-arrow-clockwise animate-spin mr-2"></i>
+      {{ mensajeSincronizacion }}
     </div>
   </div>
 </template>

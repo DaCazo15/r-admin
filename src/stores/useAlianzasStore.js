@@ -1,12 +1,18 @@
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
 import { useCollection } from 'vuefire'
-import { collection, deleteDoc, doc } from 'firebase/firestore'
+import { collection, query, where, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '@/config/firebase'
 import { actualizarAlianza } from '@/services/firebaseService'
+import { useSesionStore } from './useSesionStore'
 
 export const useAlianzasStore = defineStore('alianzas', () => {
-  const alianzasRaw = useCollection(collection(db, 'alianzas'))
+  const sesionStore = useSesionStore()
+
+  const alianzasRaw = useCollection(() => {
+    const userClub = sesionStore.club || 'Isla de Margarita'
+    return query(collection(db, 'alianzas'), where('club', '==', userClub))
+  })
 
   const alianzas = computed(() => {
     let list = [...(alianzasRaw.value || [])]

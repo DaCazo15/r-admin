@@ -3,6 +3,11 @@ import { computed } from 'vue'
 import { useCollection } from 'vuefire'
 import { collection, query, orderBy } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { useSesionStore } from '@/stores/useSesionStore'
+import { storeToRefs } from 'pinia'
+
+const sesionStore = useSesionStore()
+const { rol } = storeToRefs(sesionStore)
 
 const props = defineProps({
   evento: { type: Object, required: true },
@@ -43,7 +48,7 @@ const formatoFecha = (fecha) => {
       <div class="flex items-center gap-3 shrink-0">
         <span class="text-sm font-bold text-gray-800">${{ Number(gasto.monto).toFixed(2) }}</span>
         <button
-          v-if="evento.estatus !== 'finalizado'"
+          v-if="evento.estatus !== 'finalizado' && !['socio', 'macero'].includes(rol)"
           @click="emit('eliminarGasto', gasto.id)"
           class="cursor-pointer text-gray-400 hover:text-red-600 transition-colors"
           title="Eliminar gasto"

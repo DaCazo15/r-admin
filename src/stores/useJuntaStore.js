@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { useCollection } from 'vuefire'
-import { collection, doc, setDoc } from 'firebase/firestore'
+import { useDocument } from 'vuefire'
+import { doc, setDoc } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { useSesionStore } from './useSesionStore'
 
 export const cargosDefinidos = [
   {
@@ -78,13 +79,16 @@ export const cargosDefinidos = [
 ]
 
 export const useJuntaStore = defineStore('junta', () => {
-  const juntaRaw = useCollection(collection(db, 'junta'))
+  const sesionStore = useSesionStore()
+
+  const juntaActualRaw = useDocument(() => {
+    const userClub = sesionStore.club || 'Isla de Margarita'
+    const juntaDocId = userClub === 'Isla de Margarita' ? 'junta_directiva' : userClub
+    return doc(db, 'junta', juntaDocId)
+  })
   const isSaving = ref(false)
 
-  const juntaActual = computed(() => {
-    const lista = juntaRaw.value || []
-    return lista.length > 0 ? lista[0] : null
-  })
+  const juntaActual = computed(() => juntaActualRaw.value || null)
 
   const juntaConfirmada = computed(() => {
     if (!juntaActual.value) return false
@@ -94,7 +98,9 @@ export const useJuntaStore = defineStore('junta', () => {
   const guardarJunta = async (datosJunta) => {
     isSaving.value = true
     try {
-      const docRef = doc(db, 'junta', 'junta_directiva')
+      const userClub = sesionStore.club || 'Isla de Margarita'
+      const juntaDocId = userClub === 'Isla de Margarita' ? 'junta_directiva' : userClub
+      const docRef = doc(db, 'junta', juntaDocId)
       await setDoc(docRef, {
         ...datosJunta,
         updatedAt: new Date(),

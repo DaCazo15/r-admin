@@ -4,6 +4,7 @@ import { alianza } from '@/helpers/list.js'
 import { guardarAlianza } from '@/services/firebaseService.js'
 import { useEdicion } from '@/composable/useEdicion.js'
 import { useAlianzasStore } from '@/stores/useAlianzasStore'
+import { useSesionStore } from '@/stores/useSesionStore'
 
 const emit = defineEmits(['close'])
 const isSaving = ref(false)
@@ -14,6 +15,7 @@ const props = defineProps({
 
 const { modoEdicion, cancelarEdicion } = useEdicion()
 const alianzasStore = useAlianzasStore()
+const sesionStore = useSesionStore()
 
 const tipos = ['Empresa', 'ONG / Fundación', 'Institución educativa', 'Club rotario', 'Otro']
 
@@ -60,7 +62,7 @@ const modal = () => {
 const guardar = async () => {
   errorMsg.value = ''
   const id = props.registro?.id
-  const datosAlianza = { ...alianza.value, club: 'Isla de Margarita' }
+  const datosAlianza = { ...alianza.value, club: sesionStore.club || 'Isla de Margarita' }
 
   let res = { ok: true }
   if (modoEdicion.value && id) {
@@ -79,7 +81,7 @@ const guardar = async () => {
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-sm p-4"
     @click.self="modal"
   >
     <!-- Contenedor del Modal -->
@@ -183,7 +185,10 @@ const guardar = async () => {
           />
         </div>
 
-        <div v-if="errorMsg" class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium">
+        <div
+          v-if="errorMsg"
+          class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium"
+        >
           {{ errorMsg }}
         </div>
 

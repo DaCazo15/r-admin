@@ -1,13 +1,21 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useJuntaStore, cargosDefinidos } from '@/stores/useJuntaStore'
 import ModalJunta from './form/ModalJunta.vue'
+import { useSesionStore } from '@/stores/useSesionStore'
 
 const juntaStore = useJuntaStore()
 const { juntaActual, juntaConfirmada } = storeToRefs(juntaStore)
 
 const showModal = ref(false)
+
+const sesionStore = useSesionStore()
+const { rol } = storeToRefs(sesionStore)
+
+const puedeModificarJunta = computed(() => {
+  return rol.value === 'presidente'
+})
 
 const getCargoInfo = (key) => {
   return cargosDefinidos.find((c) => c.key === key) || {}
@@ -42,12 +50,16 @@ const getMiembroCargo = (key) => {
         </p>
       </div>
       <button
+        v-if="puedeModificarJunta"
         @click="showModal = true"
         class="mt-2 cursor-pointer px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-md ease-in-out duration-300 transition-all flex items-center gap-2 uppercase tracking-wide text-sm"
       >
         <i class="bi bi-plus-circle-fill text-lg"></i>
         <span>Conformar Junta Directiva</span>
       </button>
+      <p v-else class="text-xs text-gray-400 italic mt-2">
+        La Junta Directiva debe ser conformada por el Presidente del club.
+      </p>
     </div>
 
     <!-- ESTADO CONFIRMADO (Organigrama y Tarjetas) -->
@@ -70,6 +82,7 @@ const getMiembroCargo = (key) => {
           </div>
         </div>
         <button
+          v-if="puedeModificarJunta"
           @click="showModal = true"
           class="cursor-pointer px-4 py-2 bg-primary-50 hover:bg-primary-600 text-primary-600 hover:text-white border-2 border-primary-600 font-semibold rounded-lg ease-in-out duration-200 transition-all text-xs flex items-center gap-2"
         >

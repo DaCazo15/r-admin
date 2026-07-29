@@ -1,17 +1,26 @@
 import { defineStore, storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useCollection } from 'vuefire'
-import { collection, deleteDoc, doc, updateDoc } from 'firebase/firestore'
+import { collection, deleteDoc, doc, updateDoc, query, where } from 'firebase/firestore'
 import { db } from '@/config/firebase'
 import { useFiltrosStore } from './useFiltrosStore'
 import { actualizarEstadoClub } from '@/services/firebaseService'
+import { useSesionStore } from './useSesionStore'
 
 export const useTesoreriaStore = defineStore('tesoreria', () => {
   const filtrosStore = useFiltrosStore()
   const { filtros } = storeToRefs(filtrosStore)
+  const sesionStore = useSesionStore()
 
-  const tesoreriaRaw = useCollection(collection(db, 'tesoreria'))
-  const eventosRaw = useCollection(collection(db, 'eventos'))
+  const tesoreriaRaw = useCollection(() => {
+    const userClub = sesionStore.club || 'Isla de Margarita'
+    return query(collection(db, 'tesoreria'), where('club', '==', userClub))
+  })
+
+  const eventosRaw = useCollection(() => {
+    const userClub = sesionStore.club || 'Isla de Margarita'
+    return query(collection(db, 'eventos'), where('club', '==', userClub))
+  })
 
   const tesoreriaRawList = computed(() => tesoreriaRaw.value || [])
 
@@ -216,8 +225,9 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
     }
   }
 
-  const syncEstadoClub = async (nombreClub = 'Isla de Margarita') => {
-    await actualizarEstadoClub(nombreClub)
+  const syncEstadoClub = async () => {
+    const userClub = sesionStore.club || 'Isla de Margarita'
+    await actualizarEstadoClub(userClub)
   }
 
   return {

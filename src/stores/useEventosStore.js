@@ -1,9 +1,10 @@
 import { defineStore, storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useCollection } from 'vuefire'
-import { collection } from 'firebase/firestore'
+import { collection, query, where } from 'firebase/firestore'
 import { db } from '@/config/firebase'
 import { useTesoreriaStore } from './useTesoreriaStore'
+import { useSesionStore } from './useSesionStore'
 import {
   crearEvento,
   actualizarEvento,
@@ -16,8 +17,12 @@ import {
 export const useEventosStore = defineStore('eventos', () => {
   const tesoreriaStore = useTesoreriaStore()
   const { balance } = storeToRefs(tesoreriaStore)
+  const sesionStore = useSesionStore()
 
-  const eventosRaw = useCollection(collection(db, 'eventos'))
+  const eventosRaw = useCollection(() => {
+    const userClub = sesionStore.club || 'Isla de Margarita'
+    return query(collection(db, 'eventos'), where('club', '==', userClub))
+  })
 
   const eventos = computed(() => {
     let list = [...(eventosRaw.value || [])]
@@ -101,6 +106,7 @@ export const useEventosStore = defineStore('eventos', () => {
       }
     }
 
+    const userClub = sesionStore.club || 'Isla de Margarita'
     await crearEvento(
       {
         nombre: datosForm.nombre,
@@ -109,6 +115,7 @@ export const useEventosStore = defineStore('eventos', () => {
         presupuesto,
       },
       isSaving,
+      userClub,
     )
     return { ok: true }
   }

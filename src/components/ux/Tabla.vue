@@ -1,9 +1,13 @@
 <script setup>
+import { ref, watchEffect } from 'vue'
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSociosStore } from '@/stores/useSociosStore'
 import { useAspirantesStore } from '@/stores/useAspirantesStore'
 import { useTesoreriaStore } from '@/stores/useTesoreriaStore'
+import { useSesionStore } from '@/stores/useSesionStore'
+import { db } from '@/config/firebase'
+import { query, where, collection, getDocs } from 'firebase/firestore'
 
 const props = defineProps({
   encabezados: { type: Array, required: true },
@@ -20,6 +24,46 @@ const tesoreriaStore = useTesoreriaStore()
 const { socios } = storeToRefs(sociosStore)
 const { aspirantes } = storeToRefs(aspirantesStore)
 const { transacciones } = storeToRefs(tesoreriaStore)
+
+const sesionStore = useSesionStore()
+const { rol, usuario } = storeToRefs(sesionStore)
+
+const nombreUser = ref('')
+
+watchEffect(async () => {
+  if (usuario.value?.email) {
+    const snapshot = await getDocs(
+      query(
+        collection(db, 'persona'),
+        where('correo', '==', usuario.value.email),
+        where('club', '==', sesionStore.club),
+      ),
+    )
+    if (!snapshot.empty) {
+      nombreUser.value = snapshot.docs[0].data().nombre
+    }
+  }
+})
+
+const puedeEditarOEliminar = computed(() => {
+  if (props.estatus === 'Socios') {
+    return ['vicepresidente', 'presidente'].includes(rol.value)
+  }
+  if (props.estatus === 'Aspirantes') {
+    return ['secretario', 'vicepresidente', 'presidente'].includes(rol.value)
+  }
+  if (props.estatus === 'Tesoreria') {
+    return ['tesorero', 'vicepresidente', 'presidente'].includes(rol.value)
+  }
+  return false
+})
+
+const headersFiltrados = computed(() => {
+  if (!puedeEditarOEliminar.value) {
+    return props.encabezados.filter((h) => h !== 'Acciones')
+  }
+  return props.encabezados
+})
 
 const registros = computed(() => {
   if (props.estatus === 'Socios') return socios.value
@@ -66,7 +110,7 @@ const editarPersona = async (id) => {
       <thead>
         <tr class="bg-primary-600 text-white font-bold text-left">
           <th
-            v-for="encabezado in encabezados"
+            v-for="encabezado in headersFiltrados"
             :key="encabezado"
             class="px-4 py-3"
             :class="{ 'text-center': encabezado === 'Acciones' }"
@@ -101,7 +145,10 @@ const editarPersona = async (id) => {
               {{ item.correo }}
             </td>
             <td class="px-4 py-3 text-gray-700">{{ item.ubicacion }}</td>
-            <td class="px-4 py-3 flex items-center justify-center gap-8">
+            <td
+              v-if="puedeEditarOEliminar"
+              class="px-4 py-3 flex items-center justify-center gap-8"
+            >
               <button
                 @click="editarPersona(item.id)"
                 class="text-green-600 hover:text-green-800 transition-all cursor-pointer active:scale-75"
@@ -110,6 +157,7 @@ const editarPersona = async (id) => {
                 <i class="bi bi-pencil-square text-lg"></i>
               </button>
               <button
+                v-if="item.nombre.toLowerCase() !== nombreUser.toLowerCase()"
                 @click="eliminarRegistro(item.id)"
                 class="text-red-600 hover:text-red-800 transition-all cursor-pointer active:scale-75"
                 title="Eliminar"
@@ -187,7 +235,10 @@ const editarPersona = async (id) => {
               </span>
             </td>
             <!-- Acciones -->
-            <td class="px-4 py-3 flex items-center justify-center gap-8">
+            <td
+              v-if="puedeEditarOEliminar"
+              class="px-4 py-3 flex items-center justify-center gap-8"
+            >
               <button
                 @click="editarPersona(item.id)"
                 class="text-green-600 hover:text-green-800 transition-all cursor-pointer active:scale-75"

@@ -7,11 +7,18 @@ import Filtros from '../components/ux/Filtros.vue'
 import OpcionesTesoreria from '@/components/OpcionesTesoreria.vue'
 import MetricasComponent from '@/components/MetricasComponent.vue'
 import JuntaComponent from '@/components/JuntaComponent.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useEncabezado } from '../composable/useEncabezado.js'
 
 import ModalTesoreria from '../components/form/ModalTesoreria.vue'
 import { useEdicion } from '../composable/useEdicion.js'
+import { useSesionStore } from '@/stores/useSesionStore'
+import { storeToRefs } from 'pinia'
+import { useTesoreriaStore } from '@/stores/useTesoreriaStore'
+
+// Subcomponentes modulares de presentación
+import HomeNavTabs from '@/components/home/HomeNavTabs.vue'
+import HomeActionsBar from '@/components/home/HomeActionsBar.vue'
 
 const { iniciarEdicion, cancelarEdicion } = useEdicion()
 
@@ -24,6 +31,33 @@ const buscador = ref('')
 const terminoAplicado = ref('')
 const metricasOn = ref(false)
 const { estatus, encabezados } = useEncabezado()
+
+const sesionStore = useSesionStore()
+const { rol, club } = storeToRefs(sesionStore)
+
+const puedeAccederTesoreria = computed(() => {
+  return ['tesorero', 'vicepresidente', 'presidente'].includes(rol.value)
+})
+
+const puedeAgregarPersona = computed(() => {
+  if (estatus.value === 'Socios') {
+    return ['secretario', 'vicepresidente', 'presidente'].includes(rol.value)
+  }
+  if (estatus.value === 'Aspirantes') {
+    return ['membresia', 'secretario', 'vicepresidente', 'presidente'].includes(rol.value)
+  }
+  return false
+})
+
+const puedeModificarPassEstandar = computed(() => {
+  return rol.value === 'presidente'
+})
+
+watch([estatus, puedeAccederTesoreria], () => {
+  if (estatus.value === 'Tesoreria' && !puedeAccederTesoreria.value) {
+    estatus.value = 'Socios'
+  }
+})
 
 const modal = (persona = null) => {
   if (persona && persona.id) {
@@ -53,7 +87,6 @@ const addOn = computed(() => {
 const filtrosOn = computed(() => {
   return estatus.value === 'Tesoreria' && filtro.value
 })
-import { useTesoreriaStore } from '@/stores/useTesoreriaStore'
 
 const tesoreriaStore = useTesoreriaStore()
 const isUpdating = ref(false)
@@ -73,7 +106,7 @@ const actualizarClub = async () => {
   mensajeExito.value = false
 
   try {
-    await tesoreriaStore.syncEstadoClub('Isla de Margarita')
+    await tesoreriaStore.syncEstadoClub(club.value || 'Isla de Margarita')
     mensajeExito.value = true
     setTimeout(() => {
       mensajeExito.value = false
@@ -90,140 +123,47 @@ const actualizarClub = async () => {
   <Modal v-if="isOpen" @close="modal" :estatus="estatus" :persona="personaActual" />
   <ModalTesoreria v-if="isOpenTesoreria" @close="modalTesoreria" :transaccion="personaActual" />
   <ModalPassEstandarClub v-if="isOpenModalPass" @close="isOpenModalPass = false" />
+  
   <main>
     <!-- Logo -->
-    <Logo v-if="estatus !== 'Tesoreria'" />
+    <Logo v-if="estatus !== 'Tesoreria'" :club="club" />
 
     <!-- Botones de Navegación -->
-    <div
-      class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2"
-      :class="{ 'mt-15 sm:mt-20': estatus === 'Tesoreria' }"
-    >
-      <button
-        @click="(cambioEstatus('Socios'), (metricasOn = false))"
-        :class="{ 'bg-primary-600 text-white': estatus === 'Socios' }"
-        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 active:scale-95 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
-      >
-        Socios
-      </button>
-      <button
-        @click="(cambioEstatus('Aspirantes'), (metricasOn = false))"
-        :class="{ 'bg-primary-600 text-white': estatus === 'Aspirantes' }"
-        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 active:scale-95 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
-      >
-        Aspirantes
-      </button>
-      <button
-        @click="cambioEstatus('Tesoreria')"
-        :class="{ 'bg-primary-600 text-white': estatus === 'Tesoreria' }"
-        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 active:scale-95 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
-      >
-        Tesorería
-      </button>
-      <button
-        @click="(cambioEstatus('Junta'), (metricasOn = false))"
-        :class="{ 'bg-primary-600 text-white': estatus === 'Junta' }"
-        class="cursor-pointer px-2 py-2.5 w-full hover:bg-primary-600 ease-in-out duration-300 active:scale-95 transition-all font-medium text-xs sm:text-sm text-primary-600 hover:text-white border-2 rounded-lg border-primary-600 uppercase tracking-wider shadow-2xs text-center"
-      >
-        Junta Directiva
-      </button>
-    </div>
+    <HomeNavTabs
+      :estatus="estatus"
+      :puede-acceder-tesoreria="puedeAccederTesoreria"
+      @cambioEstatus="cambioEstatus"
+    />
+
+    <!-- Opciones de Tesoreria -->
     <OpcionesTesoreria
       v-if="estatus === 'Tesoreria'"
       @metricas="verMetricas"
       :metricasOn="metricasOn"
     />
 
-    <!-- Buscador -->
-    <div
+    <!-- Barra de Búsqueda y Acciones Rápidas -->
+    <HomeActionsBar
       v-if="addOn"
-      class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-3 flex flex-col sm:flex-row justify-center items-center gap-2"
-    >
-      <!-- Agregar Persona -->
-      <button
-        @click="modal"
-        v-if="addOn && estatus !== 'Tesoreria'"
-        class="cursor-pointer px-3 py-2 w-full gap-2 flex flex-row justify-center items-center text-primary-600 hover:text-white font-medium border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-95 transition-all"
-      >
-        <i class="bi bi-plus-lg"></i>
-        Agregar Persona
-      </button>
+      v-model:buscador="buscador"
+      :estatus="estatus"
+      :puede-agregar-persona="puedeAgregarPersona"
+      :puede-modificar-pass-estandar="puedeModificarPassEstandar"
+      :filtro="filtro"
+      :metricas-on="metricasOn"
+      :is-updating="isUpdating"
+      :mensaje-exito="mensajeExito"
+      @addPersona="modal(null)"
+      @openModalPass="isOpenModalPass = true"
+      @search="aplicarBusqueda"
+      @toggleFiltro="aplicarFiltro"
+      @actualizarClub="actualizarClub"
+    />
 
-      <!-- Password Estandar -->
-      <button
-        @click="isOpenModalPass = true"
-        v-if="estatus === 'Socios'"
-        class="cursor-pointer px-3 py-2 w-full gap-2 flex flex-row justify-center items-center text-primary-600 hover:text-white font-medium border-2 border-primary-600 hover:bg-primary-600 rounded-lg ease-in-out duration-300 active:scale-95 transition-all"
-      >
-        <i class="bi bi-shield-lock-fill"></i>
-        Password Estandar
-      </button>
-
-      <!-- Buscador -->
-      <div v-if="!metricasOn" class="flex justify-center items-center gap-2 w-full">
-        <input
-          v-model="buscador"
-          type="text"
-          placeholder="Buscar"
-          class="w-full px-5 py-2 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
-        />
-        <button
-          @click="aplicarBusqueda"
-          class="cursor-pointer px-2.5 py-1.5 text-white font-bold border-primary-600 border-2 bg-primary-600 rounded-lg ease-in-out duration-200 active:scale-90 transition-all"
-        >
-          <i class="bi bi-search"></i>
-        </button>
-        <button
-          v-if="estatus === 'Tesoreria'"
-          @click="aplicarFiltro"
-          :class="{
-            'bg-primary-600/80 text-white': filtro,
-            'text-white': !filtro,
-          }"
-          class="cursor-pointer px-2.5 py-1.5 border-primary-600 border-2 font-bold bg-primary-600 rounded-lg ease-in-out duration-200 active:scale-90 transition-all"
-        >
-          <i class="bi bi-funnel-fill"></i>
-        </button>
-      </div>
-
-      <div v-if="metricasOn" class="flex flex-col items-center gap-2 w-full">
-        <button
-          @click="actualizarClub"
-          :disabled="isUpdating"
-          class="cursor-pointer px-3 py-3 w-full flex flex-row justify-center items-center font-medium border-2 rounded-lg ease-in-out duration-300 active:scale-98 transition-all shadow-xs"
-          :class="[
-            mensajeExito
-              ? 'bg-emerald-600 text-white border-emerald-600'
-              : 'text-primary-600 border-primary-600 hover:text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed',
-          ]"
-        >
-          <i
-            class="bi"
-            :class="[
-              isUpdating
-                ? 'bi-arrow-clockwise animate-spin text-lg mr-2'
-                : mensajeExito
-                  ? 'bi-check-circle-fill text-lg mr-2'
-                  : 'bi-arrow-clockwise text-lg mr-2',
-            ]"
-          ></i>
-          <span>
-            {{
-              isUpdating
-                ? 'Actualizando estado del club...'
-                : mensajeExito
-                  ? '¡Estado actualizado correctamente!'
-                  : 'Actualizar Estado del Club'
-            }}
-          </span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Filtros -->
+    <!-- Filtros de Tesorería -->
     <Filtros v-if="filtrosOn" />
 
-    <!-- Tabla -->
+    <!-- Tabla principal -->
     <Tabla
       v-if="addOn && !metricasOn"
       :encabezados="encabezados"
@@ -233,7 +173,7 @@ const actualizarClub = async () => {
       @modalTesoreria="modalTesoreria"
     />
 
-    <!-- Metricas -->
+    <!-- Métricas -->
     <MetricasComponent v-if="metricasOn && estatus === 'Tesoreria'" />
 
     <!-- Junta Directiva -->

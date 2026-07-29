@@ -2,13 +2,17 @@
 import { ref, computed, onMounted } from 'vue'
 import { guardarPassEstandar, extraerPassEstandarClub } from '@/services/firebaseService.js'
 
+import { useSesionStore } from '@/stores/useSesionStore.js'
+
 const emit = defineEmits(['close'])
 const pass = ref('')
 const isSaving = ref(false)
 const passView = ref(false)
+const sesionStore = useSesionStore()
 
 onMounted(async () => {
-  pass.value = await extraerPassEstandarClub()
+  const userClub = sesionStore.club || 'Isla de Margarita'
+  pass.value = await extraerPassEstandarClub(userClub)
 })
 
 const errorMsg = ref('')
@@ -19,7 +23,8 @@ const cerrar = () => {
 }
 const guardar = async () => {
   errorMsg.value = ''
-  const res = await guardarPassEstandar(pass.value, isSaving)
+  const userClub = sesionStore.club || 'Isla de Margarita'
+  const res = await guardarPassEstandar(pass.value, isSaving, userClub)
   if (res && !res.ok) {
     errorMsg.value = res.mensaje || 'Error al guardar.'
   } else {
@@ -32,7 +37,7 @@ const cambioEstado = computed(() => {
 </script>
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-sm"
     @click.self="cerrar"
   >
     <div
@@ -77,7 +82,10 @@ const cambioEstado = computed(() => {
             @click="passView = !passView"
           ></i>
         </div>
-        <div v-if="errorMsg" class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium text-center">
+        <div
+          v-if="errorMsg"
+          class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium text-center"
+        >
           {{ errorMsg }}
         </div>
 

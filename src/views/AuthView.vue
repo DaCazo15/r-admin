@@ -1,16 +1,19 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useSesionStore } from '../stores/useSesionStore' // Ajusta tu ruta si es necesario
+import { useSesionStore } from '../stores/useSesionStore'
+import { db } from '@/config/firebase'
+import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore'
 
-// Instancias de router y store
+// Subcomponentes modulares de presentación
+import AuthHeader from '@/components/auth/AuthHeader.vue'
+import LoginForm from '@/components/auth/LoginForm.vue'
+import RegisterForm from '@/components/auth/RegisterForm.vue'
+
 const router = useRouter()
 const sesionStore = useSesionStore()
 
-// Estado para alternar entre 'login' y 'signup'
 const tipoAuth = ref('login') // 'login' | 'signup'
-
-// Formulario reactivo único para ambos estados
 const form = ref({
   nombre: '',
   email: '',
@@ -18,12 +21,54 @@ const form = ref({
   confirmPassword: '',
 })
 
+const clubName = ref('')
+const clubExiste = ref(null) // null, true, false
+const errorMsg = ref('')
 const isSubmitting = ref(false)
 
-// Función handleSubmit única y unificada
+watch(tipoAuth, () => {
+  clubExiste.value = null
+  clubName.value = ''
+  errorMsg.value = ''
+  form.value = {
+    nombre: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  }
+})
+
+const verificarClub = async () => {
+  if (!clubName.value.trim()) {
+    errorMsg.value = 'Por favor ingresa el nombre del club.'
+    return
+  }
+  errorMsg.value = ''
+  isSubmitting.value = true
+  try {
+    const allClubsSnap = await getDocs(collection(db, 'club'))
+    const exists = allClubsSnap.docs.some(
+      (doc) => doc.data().club?.toLowerCase().trim() === clubName.value.trim().toLowerCase()
+    )
+
+    if (exists) {
+      clubExiste.value = true
+      errorMsg.value = `El club "${clubName.value}" ya está registrado. Por favor, elige otro nombre o inicia sesión.`
+    } else {
+      clubExiste.value = false
+    }
+  } catch (error) {
+    console.error('Error al verificar club:', error)
+    errorMsg.value = 'Error al verificar el club. Intenta nuevamente.'
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
 const handleSubmit = async () => {
   if (isSubmitting.value) return
   isSubmitting.value = true
+  errorMsg.value = ''
 
   try {
     if (tipoAuth.value === 'login') {
@@ -31,22 +76,74 @@ const handleSubmit = async () => {
       if (resultado.success) {
         router.push({ name: 'home' })
       } else {
-        alert('Credenciales incorrectas: ' + resultado.error)
+        errorMsg.value = 'Credenciales incorrectas: ' + (resultado.error || 'Verifica tus datos')
       }
     } else {
-      if (form.value.password !== form.value.confirmPassword) {
-        alert('Las contraseñas no coinciden')
+      if (!form.value.nombre.trim()) {
+        errorMsg.value = 'Por favor ingresa tu nombre completo.'
+        isSubmitting.value = false
         return
       }
-      const resultado = await sesionStore.registrarUsuario(form.value.email, form.value.password)
+      if (form.value.password !== form.value.confirmPassword) {
+        errorMsg.value = 'Las contraseñas no coinciden.'
+        isSubmitting.value = false
+        return
+      }
+
+      const resultado = await sesionStore.registrarUsuario(
+        form.value.email,
+        form.value.password,
+        form.value.nombre.trim()
+      )
       if (resultado.success) {
-        router.push('/')
+        const normalizedClub = clubName.value.trim()
+        const userEmail = form.value.email.toLowerCase().trim()
+
+        await addDoc(collection(db, 'club'), {
+          club: normalizedClub,
+          mensualidad: 0,
+          passEstandar: '',
+        })
+
+        // Guardar la persona en la lista de miembros
+        await addDoc(collection(db, 'persona'), {
+          nombre: form.value.nombre.trim(),
+          correo: userEmail,
+          rol: 'presidente',
+          club: normalizedClub,
+          estatus: 'Socios',
+          fecha: new Date().toISOString().split('T')[0],
+          createdAt: new Date(),
+          edad: '',
+          telefono: '',
+          ubicacion: '',
+        })
+
+        // Guardar la cuenta en la colección de usuarios
+        await setDoc(doc(db, 'usuarios', userEmail), {
+          nombre: form.value.nombre.trim(),
+          correo: userEmail,
+          rol: 'presidente',
+          club: normalizedClub,
+          createdAt: new Date(),
+        })
+
+        // Actualizar sesión
+        if (sesionStore.setClubYRol && typeof sesionStore.setClubYRol === 'function') {
+          sesionStore.setClubYRol(normalizedClub, 'presidente')
+        } else {
+          sesionStore.club = normalizedClub
+          sesionStore.rol = 'presidente'
+        }
+
+        router.push({ name: 'home' })
       } else {
-        alert('Error al registrar: ' + resultado.error)
+        errorMsg.value = 'Error al registrar: ' + (resultado.error || 'Intenta de nuevo')
       }
     }
   } catch (error) {
     console.error('Error en autenticación:', error)
+    errorMsg.value = 'Ocurrió un error inesperado.'
   } finally {
     isSubmitting.value = false
   }
@@ -55,124 +152,35 @@ const handleSubmit = async () => {
 
 <template>
   <div class="min-h-[calc(100vh-2rem)] w-full flex flex-col justify-center items-center py-6 px-4">
-    <div class="mb-6 flex justify-center">
-      <img src="../assets/img/logotipo-1.svg" alt="Inicio" class="h-16 w-auto" />
-    </div>
-
     <!-- Contenedor principal de la tarjeta -->
     <div class="w-full max-w-md">
       <div
         class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100"
       >
         <!-- Cabecera / Pestañas de Navegación -->
-        <div class="grid grid-cols-2 bg-gray-50 border-b border-gray-200">
-          <button
-            type="button"
-            @click="tipoAuth = 'login'"
-            :class="
-              tipoAuth === 'login'
-                ? 'bg-white text-primary-600 font-bold border-b-2 border-primary-600'
-                : 'text-gray-500 hover:text-gray-700'
-            "
-            class="py-4 text-sm font-semibold transition-all cursor-pointer"
-          >
-            Iniciar Sesión
-          </button>
-          <button
-            type="button"
-            @click="tipoAuth = 'signup'"
-            :class="
-              tipoAuth === 'signup'
-                ? 'bg-white text-primary-600 font-bold border-b-2 border-primary-600'
-                : 'text-gray-500 hover:text-gray-700'
-            "
-            class="py-4 text-sm font-semibold transition-all cursor-pointer"
-          >
-            Registrarse
-          </button>
-        </div>
+        <AuthHeader v-model:tipoAuth="tipoAuth" />
 
-        <!-- Formulario -->
-        <form @submit.prevent="handleSubmit" class="p-8 space-y-5">
-          <!-- Título dinámico -->
-          <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">
-              {{ tipoAuth === 'login' ? '¡Bienvenido de nuevo!' : 'Crea tu cuenta' }}
-            </h2>
-            <p class="text-xs text-gray-500 mt-1">
-              {{
-                tipoAuth === 'login'
-                  ? 'Ingresa tus datos para acceder al sistema'
-                  : 'Completa los campos para registrarte'
-              }}
-            </p>
-          </div>
+        <!-- Formulario de Entrada (Login) -->
+        <LoginForm
+          v-if="tipoAuth === 'login'"
+          :form="form"
+          :error-msg="errorMsg"
+          :is-submitting="isSubmitting"
+          @submit="handleSubmit"
+        />
 
-          <!-- Campo Nombre (Solo visible en Registro) -->
-          <div v-if="tipoAuth === 'signup'" class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
-              >Nombre del club</label
-            >
-            <input
-              type="text"
-              v-model="form.nombre"
-              required
-              placeholder="Nombre del club"
-              class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
-            />
-          </div>
-
-          <!-- Campo Email -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
-              >Correo electrónico</label
-            >
-            <input
-              type="email"
-              v-model="form.email"
-              required
-              placeholder="correo@correo.com"
-              class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
-            />
-          </div>
-
-          <!-- Campo Contraseña -->
-          <div class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
-              >Contraseña</label
-            >
-            <input
-              type="password"
-              v-model="form.password"
-              required
-              placeholder="••••••••"
-              class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
-            />
-          </div>
-
-          <!-- Campo Confirmar Contraseña (Solo visible en Registro) -->
-          <div v-if="tipoAuth === 'signup'" class="space-y-1.5">
-            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider"
-              >Confirmar contraseña</label
-            >
-            <input
-              type="password"
-              v-model="form.confirmPassword"
-              required
-              placeholder="••••••••"
-              class="w-full px-4 py-2.5 bg-gray-100 border border-transparent rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-600 transition-all"
-            />
-          </div>
-
-          <!-- Botón de Envío -->
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="w-full mt-2 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg shadow-md transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ isSubmitting ? 'Procesando...' : tipoAuth === 'login' ? 'Entrar' : 'Registrarse' }}
-          </button>
-        </form>
+        <!-- Formulario de Registro (Signup) -->
+        <RegisterForm
+          v-else
+          v-model:clubName="clubName"
+          :form="form"
+          :club-existe="clubExiste"
+          :error-msg="errorMsg"
+          :is-submitting="isSubmitting"
+          @verifyClub="verificarClub"
+          @changeClub="clubExiste = null; errorMsg = ''"
+          @submit="handleSubmit"
+        />
       </div>
     </div>
   </div>

@@ -188,9 +188,9 @@ const descargarPDF = async () => {
         head: [['Fecha', 'Concepto', 'Tipo', 'Monto']],
         body: props.reporte.movimientos.map((mov) => [
           mov.fechaPago || '',
-          (mov.tipoMovimiento === 'mensualidad' ? mov.nombre : mov.descripcion) || '',
+          (['mensualidad', 'cuota distrital'].includes(mov.tipoMovimiento?.toLowerCase()) ? (mov.nombre || mov.descripcion) : mov.descripcion) || '',
           mov.tipoMovimiento,
-          `${mov.tipoMovimiento === 'egreso' ? '-' : '+'}${formatoMonto(mov.monto)}`,
+          `${mov.tipoMovimiento?.toLowerCase() === 'egreso' ? '-' : '+'}${formatoMonto(mov.monto)}`,
         ]),
         theme: 'striped',
         headStyles: { fillColor: [224, 27, 109] },
@@ -249,7 +249,7 @@ const descargarPDF = async () => {
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-sm"
     @click.self="cerrar"
   >
     <div
@@ -353,15 +353,15 @@ const descargarPDF = async () => {
                   <tr v-for="mov in reporte.movimientos" :key="mov.id" class="hover:bg-gray-50">
                     <td class="px-3 py-2 text-gray-700">{{ mov.fechaPago }}</td>
                     <td class="px-3 py-2 text-gray-900 font-medium">
-                      {{ mov.tipoMovimiento === 'mensualidad' ? mov.nombre : mov.descripcion }}
+                      {{ ['mensualidad', 'cuota distrital'].includes(mov.tipoMovimiento?.toLowerCase()) ? (mov.nombre || mov.descripcion) : mov.descripcion }}
                     </td>
                     <td class="px-3 py-2">
                       <span
                         class="px-2 py-0.5 text-xs font-semibold uppercase rounded"
                         :class="{
-                          'bg-emerald-50 text-emerald-700': mov.tipoMovimiento === 'ingreso',
-                          'bg-rose-50 text-rose-700': mov.tipoMovimiento === 'egreso',
-                          'bg-blue-50 text-blue-700': mov.tipoMovimiento === 'mensualidad',
+                          'bg-emerald-50 text-emerald-700': mov.tipoMovimiento?.toLowerCase() === 'ingreso',
+                          'bg-rose-50 text-rose-700': mov.tipoMovimiento?.toLowerCase() === 'egreso',
+                          'bg-blue-50 text-blue-700': ['mensualidad', 'cuota distrital'].includes(mov.tipoMovimiento?.toLowerCase()),
                         }"
                       >
                         {{ mov.tipoMovimiento }}
@@ -370,10 +370,10 @@ const descargarPDF = async () => {
                     <td
                       class="px-3 py-2 text-right font-bold"
                       :class="
-                        mov.tipoMovimiento === 'egreso' ? 'text-rose-600' : 'text-emerald-600'
+                        mov.tipoMovimiento?.toLowerCase() === 'egreso' ? 'text-rose-600' : 'text-emerald-600'
                       "
                     >
-                      {{ mov.tipoMovimiento === 'egreso' ? '-' : '+' }}{{ formatoMonto(mov.monto) }}
+                      {{ mov.tipoMovimiento?.toLowerCase() === 'egreso' ? '-' : '+' }}{{ formatoMonto(mov.monto) }}
                     </td>
                   </tr>
                 </tbody>

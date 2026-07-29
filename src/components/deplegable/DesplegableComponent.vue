@@ -1,9 +1,29 @@
 <script setup>
 import { useSesionStore } from '../../stores/useSesionStore'
 import { storeToRefs } from 'pinia'
+import { query, where, collection, getDocs } from 'firebase/firestore'
+import { db } from '@/config/firebase'
+import { ref, watchEffect } from 'vue'
 
 const sesionStore = useSesionStore()
-const { usuario } = storeToRefs(sesionStore)
+const { usuario, rol } = storeToRefs(sesionStore)
+
+const nombreUser = ref('')
+
+watchEffect(async () => {
+  if (usuario.value?.email) {
+    const snapshot = await getDocs(
+      query(
+        collection(db, 'persona'),
+        where('correo', '==', usuario.value.email),
+        where('club', '==', sesionStore.club),
+      ),
+    )
+    if (!snapshot.empty) {
+      nombreUser.value = snapshot.docs[0].data().nombre
+    }
+  }
+})
 
 const emit = defineEmits(['cerrarSesion', 'cerrar'])
 </script>
@@ -25,12 +45,18 @@ const emit = defineEmits(['cerrarSesion', 'cerrar'])
         ></span>
       </div>
       <div class="overflow-hidden">
-        <h2 class="font-bold text-base tracking-wide truncate text-white leading-tight">
-          {{ usuario?.nombre || 'Usuario' }}
+        <h2 class="font-bold text-base tracking-wide truncate capitalize text-white leading-tight">
+          {{ nombreUser || 'Usuario' }}
         </h2>
         <p class="text-xs text-primary-200/90 truncate font-light mt-0.5">
           {{ usuario?.email || 'correo@domain.com' }}
         </p>
+        <span
+          v-if="rol"
+          class="inline-block text-[9px] font-bold uppercase tracking-wider bg-white/20 text-white px-2 py-0.5 rounded-sm mt-1"
+        >
+          {{ rol }}
+        </span>
       </div>
     </div>
 
@@ -42,7 +68,7 @@ const emit = defineEmits(['cerrarSesion', 'cerrar'])
         Menú Principal
       </span>
       <router-link
-        :to="{ name: 'error' }"
+        :to="{ name: 'perfil' }"
         class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/15 active:scale-[0.98] transition-all text-sm font-medium group"
       >
         <i

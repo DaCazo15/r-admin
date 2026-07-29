@@ -5,6 +5,8 @@ import { guardarPersona } from '@/services/firebaseService.js'
 import { useEdicion } from '@/composable/useEdicion.js'
 import { useSociosStore } from '@/stores/useSociosStore'
 import { useAspirantesStore } from '@/stores/useAspirantesStore'
+import { useSesionStore } from '@/stores/useSesionStore'
+import { storeToRefs } from 'pinia'
 
 const emit = defineEmits(['close'])
 const isSaving = ref(false)
@@ -18,6 +20,37 @@ const props = defineProps({
 const { modoEdicion, cancelarEdicion } = useEdicion()
 const sociosStore = useSociosStore()
 const aspirantesStore = useAspirantesStore()
+
+const sesionStore = useSesionStore()
+const { rol } = storeToRefs(sesionStore)
+
+const puedeGuardar = computed(() => {
+  const isSocio = props.estatus === 'Socios'
+  const isAspirante = props.estatus === 'Aspirantes'
+  
+  if (cambioEstatus.value) {
+    if (!['secretario', 'vicepresidente', 'presidente'].includes(rol.value)) {
+      return false
+    }
+  }
+
+  if (modoEdicion.value) {
+    if (isSocio) {
+      return ['vicepresidente', 'presidente'].includes(rol.value)
+    }
+    if (isAspirante) {
+      return ['secretario', 'vicepresidente', 'presidente'].includes(rol.value)
+    }
+  } else {
+    if (isSocio) {
+      return ['secretario', 'vicepresidente', 'presidente'].includes(rol.value)
+    }
+    if (isAspirante) {
+      return ['membresia', 'secretario', 'vicepresidente', 'presidente'].includes(rol.value)
+    }
+  }
+  return false
+})
 
 const resetPersonaForm = () => {
   Object.keys(persona.value).forEach((key) => {
@@ -61,13 +94,13 @@ const modal = () => {
 const guardar = async () => {
   errorMsg.value = ''
   const id = props.persona?.id
+  const userClub = sesionStore.club || 'Isla de Margarita'
   let datosSocio
   if (cambioEstatus.value) {
-    datosSocio = { ...persona.value, estatus: 'Socios' }
+    datosSocio = { ...persona.value, estatus: 'Socios', club: userClub }
   } else {
-    datosSocio = { ...persona.value, estatus: props.estatus }
+    datosSocio = { ...persona.value, estatus: props.estatus, club: userClub }
   }
-
   let res = { ok: true }
   if (modoEdicion.value && id) {
     if (props.estatus === 'Socios') {
@@ -94,7 +127,7 @@ const estadoEstatus = computed(() => {
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-sm"
     @click.self="modal"
   >
     <div
@@ -129,11 +162,11 @@ const estadoEstatus = computed(() => {
           />
         </div>
 
-        <div class="flex gap-2 justify-start items-center w-full" v-if="modoEdicion">
+        <div class="flex gap-2 justify-start items-center w-full" v-if="modoEdicion && props.estatus === 'Aspirantes'">
           <label for="estatusCambio" class="block text-sm font-medium text-gray-700 mb-1"
-            >Combertir en Socio</label
+            >Convertir en Socio</label
           >
-          <input type="checkbox" @change="cambioEstatus = !pagoDistrital" id="estatusCambio" />
+          <input type="checkbox" v-model="cambioEstatus" id="estatusCambio" />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -192,8 +225,18 @@ const estadoEstatus = computed(() => {
           />
         </div>
 
-        <div v-if="errorMsg" class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium">
+        <div
+          v-if="errorMsg"
+          class="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg font-medium"
+        >
           {{ errorMsg }}
+        </div>
+
+        <div
+          v-if="!puedeGuardar"
+          class="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg font-medium text-center animate-pulse"
+        >
+          No tienes permisos para guardar o editar en esta sección.
         </div>
 
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
@@ -207,7 +250,7 @@ const estadoEstatus = computed(() => {
           </button>
           <button
             type="submit"
-            :disabled="isSaving"
+            :disabled="isSaving || !puedeGuardar"
             class="cursor-pointer px-4 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{

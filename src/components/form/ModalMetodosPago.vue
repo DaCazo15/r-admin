@@ -1,12 +1,18 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useCollection } from 'vuefire'
-import { collection, addDoc, deleteDoc, doc } from 'firebase/firestore'
+import { collection, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { useSesionStore } from '@/stores/useSesionStore'
 
 const emit = defineEmits(['close'])
 
-const metodos = useCollection(collection(db, 'metodos_pago'))
+const sesionStore = useSesionStore()
+
+const metodos = useCollection(() => {
+  const userClub = sesionStore.club || 'Isla de Margarita'
+  return query(collection(db, 'metodos_pago'), where('club', '==', userClub))
+})
 
 const tipoSeleccionado = ref('pago_movil')
 const isSaving = ref(false)
@@ -72,8 +78,8 @@ const guardarMetodo = async () => {
       }
       data.url = formulario.value.url.trim()
     }
-
-    await addDoc(collection(db, 'metodos_pago'), data)
+    const newData = { ...data, club: sesionStore.club || 'Isla de Margarita' }
+    await addDoc(collection(db, 'metodos_pago'), newData)
     resetFormulario()
   } catch (error) {
     console.error(error)
@@ -96,7 +102,7 @@ const eliminarMetodo = async (id) => {
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-xs p-4"
     @click.self="emit('close')"
   >
     <div

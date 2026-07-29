@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia'
 import { useSociosStore } from '@/stores/useSociosStore'
 import { useClubStore } from '@/stores/useClubStore'
 import { plantillasMensaje } from '@/helpers/plantillas'
+import { useSesionStore } from '@/stores/useSesionStore'
 
 export const useModalWhatsapp = (cerrarCallback) => {
   const sociosStore = useSociosStore()
@@ -10,6 +11,9 @@ export const useModalWhatsapp = (cerrarCallback) => {
 
   const clubStore = useClubStore()
   const { mensualidadMargarita } = storeToRefs(clubStore)
+
+  const sesionStore = useSesionStore()
+  const { club } = storeToRefs(sesionStore)
 
   const tiposMensaje = [
     { value: 'aviso', label: 'Aviso', icono: 'bi-megaphone-fill' },
@@ -53,12 +57,13 @@ export const useModalWhatsapp = (cerrarCallback) => {
     const nombre = socioSeleccionado.value?.nombre?.split(' ')[0] || ''
     const saludo = nombre ? `Hola ${nombre},` : 'Hola,'
     const tipo = tipoMensaje.value
+    const activeClub = club.value || 'Isla de Margarita'
 
     if (tipo === 'cobro') {
-      return plantillasMensaje.cobro(saludo, montoCobro.value)
+      return plantillasMensaje.cobro(saludo, montoCobro.value, activeClub)
     }
     if (plantillasMensaje[tipo]) {
-      return plantillasMensaje[tipo](saludo)
+      return plantillasMensaje[tipo](saludo, activeClub)
     }
     return ''
   }

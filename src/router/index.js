@@ -10,8 +10,10 @@ import TerminosCondiciones from '@/views/soporte/TerminosView.vue'
 import Politicas from '@/views/soporte/PrivacidadView.vue'
 import CentroAyuda from '@/views/soporte/AyudaView.vue'
 import Informacion from '@/views/soporte/InformacionView.vue'
+import CuentaDatos from '@/views/soporte/CuentaDatosView.vue'
 import CalendarView from '@/views/CalendarView.vue'
 import PagarView from '@/views/PagarView.vue'
+import PerfilUser from '@/views/PerfilView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -89,6 +91,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/cuenta-datos.4370',
+      name: 'cuenta-datos',
+      component: CuentaDatos,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
       path: '/error',
       name: 'error',
       component: ErrorView,
@@ -108,6 +118,14 @@ const router = createRouter({
       path: '/pagar.4370',
       name: 'pagar',
       component: PagarView,
+      meta: {
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/perfil.4370',
+      name: 'perfil',
+      component: PerfilUser,
       meta: {
         requiresAuth: true,
       },

@@ -53,7 +53,7 @@ const clearForm = async () => {
 
 <template>
   <div
-    class="fixed inset-0 bg-black/60 backdrop-blur-xs flex justify-center items-center z-50 p-4 overflow-y-auto"
+    class="fixed inset-0 h-screen w-screen h-screen w-screen bg-black/60 backdrop-blur-xs flex justify-center items-center z-50 p-4 overflow-y-auto"
   >
     <div
       class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden my-8 border border-gray-100"
@@ -189,7 +189,7 @@ const clearForm = async () => {
             class="px-6 py-2.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-bold transition-all shadow-md cursor-pointer disabled:opacity-50 text-sm flex items-center gap-2"
           >
             <i v-if="isSaving" class="bi bi-arrow-clockwise animate-spin"></i>
-            <span>{{ isSaving ? 'Guardando...' : 'Guardar Junta Directiva' }}</span>
+            <span>{{ isSaving ? 'Guardando...' : 'Guardar' }}</span>
           </button>
         </div>
       </form>

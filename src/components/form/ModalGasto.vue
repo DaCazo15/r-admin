@@ -43,12 +43,16 @@ const guardar = async () => {
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-sm p-4"
     @click.self="modal"
   >
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+    <div
+      class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all"
+    >
       <!-- Cabecera -->
-      <div class="bg-primary-600 px-6 py-4 flex justify-between items-center border-b border-gray-100">
+      <div
+        class="bg-primary-600 px-6 py-4 flex justify-between items-center border-b border-gray-100"
+      >
         <div class="flex items-center gap-3 min-w-0">
           <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
             <i class="bi bi-receipt text-xl text-white"></i>
@@ -64,7 +68,9 @@ const guardar = async () => {
       </div>
 
       <!-- Resumen del presupuesto -->
-      <div class="px-6 py-3 bg-primary-50 border-b border-primary-100 flex justify-between text-xs font-medium text-primary-700">
+      <div
+        class="px-6 py-3 bg-primary-50 border-b border-primary-100 flex justify-between text-xs font-medium text-primary-700"
+      >
         <span>Gastado: ${{ gastado.toFixed(2) }}</span>
         <span>Restante: ${{ restante.toFixed(2) }}</span>
       </div>
