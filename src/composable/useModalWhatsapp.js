@@ -58,7 +58,17 @@ export const useModalWhatsapp = (cerrarCallback) => {
     const nombre = socioSeleccionado.value?.nombre?.split(' ')[0] || ''
     const saludo = nombre ? `Hola ${nombre},` : 'Hola,'
     const tipo = tipoMensaje.value
-    const activeClub = club.value || CLUB_POR_DEFECTO
+    const palabras = (club.value || '').toLowerCase().split(' ')
+    let activeClub = palabras.includes('rotaract')
+      ? palabras.slice(1).join(' ').toCapitalize()
+      : club.value || ''
+
+    if (activeClub.length > 25) {
+      const palabrasLargas = activeClub.split(' ').filter((part) => part.length > 3)
+      const iniciales = palabrasLargas.map((part) => part[0].toUpperCase())
+
+      activeClub = iniciales.join('')
+    }
 
     if (tipo === 'cobro') {
       return plantillasMensaje.cobro(saludo, montoCobro.value, activeClub)
