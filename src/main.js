@@ -3,6 +3,9 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
+// Vercel
+import { injectSpeedInsights } from '@vercel/speed-insights/vue'
+
 // firabase
 import { VueFire, VueFireAuth } from 'vuefire'
 import { firebaseApp } from './config/firebase'
@@ -17,6 +20,8 @@ app.use(VueFire, {
   firebaseApp,
   modules: [VueFireAuth()],
 })
+
+injectSpeedInsights()
 
 app.use(createPinia())
 app.use(router)

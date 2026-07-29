@@ -1,5 +1,4 @@
 <script setup>
-import { SpeedInsights } from '@vercel/speed-insights/vue'
 import { RouterView, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useSesionStore } from './stores/useSesionStore'
