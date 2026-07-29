@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { guardarPassEstandar, extraerPassEstandarClub } from '@/services/firebaseService.js'
 
 import { useSesionStore } from '@/stores/useSesionStore.js'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 
 const emit = defineEmits(['close'])
 const pass = ref('')
@@ -11,7 +12,7 @@ const passView = ref(false)
 const sesionStore = useSesionStore()
 
 onMounted(async () => {
-  const userClub = sesionStore.club || 'Isla de Margarita'
+  const userClub = sesionStore.club || CLUB_POR_DEFECTO
   pass.value = await extraerPassEstandarClub(userClub)
 })
 
@@ -23,7 +24,7 @@ const cerrar = () => {
 }
 const guardar = async () => {
   errorMsg.value = ''
-  const userClub = sesionStore.club || 'Isla de Margarita'
+  const userClub = sesionStore.club || CLUB_POR_DEFECTO
   const res = await guardarPassEstandar(pass.value, isSaving, userClub)
   if (res && !res.ok) {
     errorMsg.value = res.mensaje || 'Error al guardar.'

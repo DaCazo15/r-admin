@@ -8,7 +8,9 @@ import {
   updateProfile,
 } from 'firebase/auth'
 import { auth, db } from '@/config/firebase'
-import { collection, query, where, getDocs, doc, getDoc, setDoc } from 'firebase/firestore'
+import { CLUB_POR_DEFECTO, JUNTA_DOC_ID_POR_DEFECTO, ROL_POR_DEFECTO, NOMBRE_POR_DEFECTO } from '@/config/constants'
+import { doc, getDoc } from 'firebase/firestore'
+import { getFunctions, httpsCallable } from 'firebase/functions'
 
 export const useSesionStore = defineStore('sesion', () => {
   const usuario = ref(null)
@@ -22,8 +24,8 @@ export const useSesionStore = defineStore('sesion', () => {
     if (user) {
       try {
         let userRol = null
-        let userClub = 'Isla de Margarita'
-        let userNombre = 'Usuario'
+        let userClub = CLUB_POR_DEFECTO
+        let userNombre = NOMBRE_POR_DEFECTO
 
         const emailKey = user.email.toLowerCase().trim()
         const userDocRef = doc(db, 'usuarios', emailKey)
@@ -31,41 +33,43 @@ export const useSesionStore = defineStore('sesion', () => {
 
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data()
-          userClub = userData.club || 'Isla de Margarita'
-          userRol = userData.rol?.toLowerCase() || 'socio'
-          userNombre = userData.nombre || 'Usuario'
+          userClub = userData.club || CLUB_POR_DEFECTO
+          userRol = userData.rol?.toLowerCase() || ROL_POR_DEFECTO
+          userNombre = userData.nombre || NOMBRE_POR_DEFECTO
         } else {
-          // Fallback retroactivo: Buscar en la colección de persona por correo
-          const q = query(collection(db, 'persona'), where('correo', '==', user.email))
-          const snapshot = await getDocs(q)
-          if (!snapshot.empty) {
-            const docData = snapshot.docs[0].data()
-            userClub = docData.club || 'Isla de Margarita'
-            userRol = docData.rol?.toLowerCase() || 'socio'
-            userNombre = docData.nombre || 'Usuario'
-
-            // Migración automática a la colección 'usuarios'
-            await setDoc(userDocRef, {
-              nombre: userNombre,
-              correo: emailKey,
-              rol: userRol,
-              club: userClub,
-              createdAt: new Date(),
-            })
-          } else {
-            // Fallback de último recurso
-            userRol = 'socio'
-            userClub = 'Isla de Margarita'
+          const functions = getFunctions()
+          const migrateUser = httpsCallable(functions, 'migrateUser')
+          try {
+            const result = await migrateUser()
+            if (result.data.migrated) {
+              userRol = result.data.rol || ROL_POR_DEFECTO
+              userClub = result.data.club || CLUB_POR_DEFECTO
+              userNombre = result.data.nombre || NOMBRE_POR_DEFECTO
+            } else {
+              userRol = ROL_POR_DEFECTO
+              userClub = CLUB_POR_DEFECTO
+            }
+          } catch (migrationError) {
+            console.error('Error en migración de usuario:', migrationError)
+            userRol = ROL_POR_DEFECTO
+            userClub = CLUB_POR_DEFECTO
           }
         }
 
         // 2. Intentar buscar si está asignado a un cargo en la Junta Directiva de SU club
-        const juntaDocId = userClub === 'Isla de Margarita' ? 'junta_directiva' : userClub
+        const juntaDocId = userClub === CLUB_POR_DEFECTO ? JUNTA_DOC_ID_POR_DEFECTO : userClub
         const juntaRef = doc(db, 'junta', juntaDocId)
         const juntaSnap = await getDoc(juntaRef)
         if (juntaSnap.exists()) {
           const juntaData = juntaSnap.data()
-          const cargos = ['presidente', 'vicepresidente', 'secretario', 'tesorero', 'macero', 'membresia']
+          const cargos = [
+            'presidente',
+            'vicepresidente',
+            'secretario',
+            'tesorero',
+            'macero',
+            'membresia',
+          ]
           for (const cargo of cargos) {
             if (juntaData[cargo] && juntaData[cargo].correo?.toLowerCase().trim() === emailKey) {
               userRol = cargo
@@ -76,11 +80,10 @@ export const useSesionStore = defineStore('sesion', () => {
 
         rol.value = userRol
         club.value = userClub
-        console.log(`Rol cargado para el usuario ${user.email}: ${rol.value} (Club: ${club.value})`)
       } catch (error) {
         console.error('Error al obtener el rol del usuario:', error)
-        rol.value = 'socio'
-        club.value = 'Isla de Margarita'
+        rol.value = ROL_POR_DEFECTO
+        club.value = CLUB_POR_DEFECTO
       }
     } else {
       rol.value = null

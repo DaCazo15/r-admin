@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useCollection } from 'vuefire'
 import { collection, query, where, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 import { actualizarAlianza } from '@/services/firebaseService'
 import { useSesionStore } from './useSesionStore'
 
@@ -10,7 +11,7 @@ export const useAlianzasStore = defineStore('alianzas', () => {
   const sesionStore = useSesionStore()
 
   const alianzasRaw = useCollection(() => {
-    const userClub = sesionStore.club || 'Isla de Margarita'
+    const userClub = sesionStore.club || CLUB_POR_DEFECTO
     return query(collection(db, 'alianzas'), where('club', '==', userClub))
   })
 

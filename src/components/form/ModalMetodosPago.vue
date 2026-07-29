@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useCollection } from 'vuefire'
-import { collection, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore'
+import { collection, addDoc, deleteDoc, doc, query, where, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 import { useSesionStore } from '@/stores/useSesionStore'
 
 const emit = defineEmits(['close'])
@@ -10,7 +11,7 @@ const emit = defineEmits(['close'])
 const sesionStore = useSesionStore()
 
 const metodos = useCollection(() => {
-  const userClub = sesionStore.club || 'Isla de Margarita'
+  const userClub = sesionStore.club || CLUB_POR_DEFECTO
   return query(collection(db, 'metodos_pago'), where('club', '==', userClub))
 })
 
@@ -43,7 +44,7 @@ const guardarMetodo = async () => {
   try {
     const data = {
       tipo: tipoSeleccionado.value,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
     }
 
     if (tipoSeleccionado.value === 'pago_movil') {
@@ -78,7 +79,7 @@ const guardarMetodo = async () => {
       }
       data.url = formulario.value.url.trim()
     }
-    const newData = { ...data, club: sesionStore.club || 'Isla de Margarita' }
+    const newData = { ...data, club: sesionStore.club || CLUB_POR_DEFECTO }
     await addDoc(collection(db, 'metodos_pago'), newData)
     resetFormulario()
   } catch (error) {

@@ -5,6 +5,7 @@ import { useSesionStore } from '@/stores/useSesionStore'
 import { storeToRefs } from 'pinia'
 import { query, where, collection, getDocs, doc, updateDoc } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 
 const router = useRouter()
 const sesionStore = useSesionStore()
@@ -12,7 +13,7 @@ const { usuario } = storeToRefs(sesionStore)
 
 const docId = ref('')
 const nombreSocio = ref('Nombre Socio')
-const clubSocio = ref('Isla de Margarita')
+const clubSocio = ref(CLUB_POR_DEFECTO)
 const estiloSeleccionado = ref('classic') // 'classic' | 'glass' | 'neon'
 const isSaving = ref(false)
 const errorMsg = ref('')
@@ -34,7 +35,7 @@ const cargarEstilo = async () => {
       const data = docData.data()
       estiloSeleccionado.value = data.linktreeStyle || 'classic'
       nombreSocio.value = data.nombre || usuario.value.displayName || 'Miembro'
-      clubSocio.value = data.club || sesionStore.club || 'Isla de Margarita'
+      clubSocio.value = data.club || sesionStore.club || CLUB_POR_DEFECTO
     }
   } catch (error) {
     console.error('Error al cargar estilo:', error)

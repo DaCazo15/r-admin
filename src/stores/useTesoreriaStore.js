@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useCollection } from 'vuefire'
 import { collection, deleteDoc, doc, updateDoc, query, where } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 import { useFiltrosStore } from './useFiltrosStore'
 import { actualizarEstadoClub } from '@/services/firebaseService'
 import { useSesionStore } from './useSesionStore'
@@ -13,12 +14,12 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
   const sesionStore = useSesionStore()
 
   const tesoreriaRaw = useCollection(() => {
-    const userClub = sesionStore.club || 'Isla de Margarita'
+    const userClub = sesionStore.club || CLUB_POR_DEFECTO
     return query(collection(db, 'tesoreria'), where('club', '==', userClub))
   })
 
   const eventosRaw = useCollection(() => {
-    const userClub = sesionStore.club || 'Isla de Margarita'
+    const userClub = sesionStore.club || CLUB_POR_DEFECTO
     return query(collection(db, 'eventos'), where('club', '==', userClub))
   })
 
@@ -226,7 +227,7 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
   }
 
   const syncEstadoClub = async () => {
-    const userClub = sesionStore.club || 'Isla de Margarita'
+    const userClub = sesionStore.club || CLUB_POR_DEFECTO
     await actualizarEstadoClub(userClub)
   }
 

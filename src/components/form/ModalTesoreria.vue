@@ -8,6 +8,7 @@ import { guardarMovimiento } from '@/services/firebaseService'
 import { useEdicion } from '@/composable/useEdicion'
 import { useTesoreriaStore } from '@/stores/useTesoreriaStore'
 import { useSesionStore } from '@/stores/useSesionStore'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 import { storeToRefs } from 'pinia'
 
 const props = defineProps({
@@ -31,12 +32,12 @@ const puedeGuardarTesoreria = computed(() => {
 
 const socios = useCollection(() => {
   if (!db) return null
-  const userClub = sesionStore.club || 'Isla de Margarita'
+  const userClub = sesionStore.club || CLUB_POR_DEFECTO
   return query(collection(db, 'persona'), where('estatus', '==', 'Socios'), where('club', '==', userClub))
 })
 
 const metodosPagoRaw = useCollection(() => {
-  const userClub = sesionStore.club || 'Isla de Margarita'
+  const userClub = sesionStore.club || CLUB_POR_DEFECTO
   return query(collection(db, 'metodos_pago'), where('club', '==', userClub))
 })
 
@@ -121,7 +122,7 @@ const guardarDatos = async () => {
       fechaPago: form.value.fechaPago,
       metodoPago: form.value.tipoPago,
       estatus: 'revisado',
-      club: sesionStore.club || 'Isla de Margarita',
+      club: sesionStore.club || CLUB_POR_DEFECTO,
     }
     if (tipoMovimiento.value === 'mensualidad') {
       datosActualizados.nombre = form.value.nombre
@@ -131,7 +132,7 @@ const guardarDatos = async () => {
     }
     res = await tesoreriaStore.editarTransaccion(props.transaccion.id, datosActualizados)
   } else {
-    const datos = { ...form.value, club: sesionStore.club || 'Isla de Margarita' }
+    const datos = { ...form.value, club: sesionStore.club || CLUB_POR_DEFECTO }
     res = await guardarMovimiento(
       pagoDistrital.value ? 'cuota distrital' : tipoMovimiento.value,
       datos,

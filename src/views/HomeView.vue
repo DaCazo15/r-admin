@@ -106,7 +106,7 @@ const actualizarClub = async () => {
   mensajeExito.value = false
 
   try {
-    await tesoreriaStore.syncEstadoClub(club.value || 'Isla de Margarita')
+    await tesoreriaStore.syncEstadoClub()
     mensajeExito.value = true
     setTimeout(() => {
       mensajeExito.value = false

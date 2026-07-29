@@ -2,8 +2,9 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCollection } from 'vuefire'
-import { collection, addDoc } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 import { useSesionStore } from '@/stores/useSesionStore'
 import { storeToRefs } from 'pinia'
 
@@ -53,9 +54,9 @@ const registrarHerramienta = async (formData) => {
       desarrolladorPrincipal: formData.desarrolladorPrincipal.trim(),
       esEquipo: formData.esEquipo,
       equipoNombres: formData.esEquipo ? formData.equipoNombres.trim() : '',
-      club: sesionStore.club || 'Isla de Margarita',
+      club: sesionStore.club || CLUB_POR_DEFECTO,
       creadorUid: usuario.value?.uid || '',
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
     }
 
     await addDoc(collection(db, 'herramientas'), nuevaHerramienta)

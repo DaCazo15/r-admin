@@ -4,6 +4,7 @@ import { useSociosStore } from '@/stores/useSociosStore'
 import { useClubStore } from '@/stores/useClubStore'
 import { plantillasMensaje } from '@/helpers/plantillas'
 import { useSesionStore } from '@/stores/useSesionStore'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 
 export const useModalWhatsapp = (cerrarCallback) => {
   const sociosStore = useSociosStore()
@@ -57,7 +58,7 @@ export const useModalWhatsapp = (cerrarCallback) => {
     const nombre = socioSeleccionado.value?.nombre?.split(' ')[0] || ''
     const saludo = nombre ? `Hola ${nombre},` : 'Hola,'
     const tipo = tipoMensaje.value
-    const activeClub = club.value || 'Isla de Margarita'
+    const activeClub = club.value || CLUB_POR_DEFECTO
 
     if (tipo === 'cobro') {
       return plantillasMensaje.cobro(saludo, montoCobro.value, activeClub)

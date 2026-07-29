@@ -4,6 +4,7 @@ import { useSesionStore } from '../stores/useSesionStore'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { crearCuentaAuthSocioSiNoExiste } from '@/services/firebaseService'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 
 const sesionStore = useSesionStore()
 const { usuario, rol, club } = storeToRefs(sesionStore)
@@ -80,7 +81,7 @@ const sincronizarSocios = async () => {
     for (const doc of snapshot.docs) {
       const socio = doc.data()
       if (socio.correo && socio.correo.trim() && socio.correo !== 'correo@correo.com') {
-        await crearCuentaAuthSocioSiNoExiste(socio.nombre, socio.correo, socio.club || club.value || 'Isla de Margarita')
+        await crearCuentaAuthSocioSiNoExiste(socio.nombre, socio.correo, socio.club || club.value || CLUB_POR_DEFECTO)
         creados++
       } else {
         omitidos++

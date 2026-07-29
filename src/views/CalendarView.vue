@@ -2,8 +2,9 @@
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useCollection } from 'vuefire'
-import { collection, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore'
+import { collection, addDoc, deleteDoc, doc, query, where, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 import { useSociosStore } from '@/stores/useSociosStore'
 import { useAspirantesStore } from '@/stores/useAspirantesStore'
 import { useEventosStore } from '@/stores/useEventosStore'
@@ -23,7 +24,7 @@ const sesionStore = useSesionStore()
 const { rol } = storeToRefs(sesionStore)
 
 const recordatoriosRaw = useCollection(() => {
-  const userClub = sesionStore.club || 'Isla de Margarita'
+  const userClub = sesionStore.club || CLUB_POR_DEFECTO
   return query(collection(db, 'fechas_personalizadas'), where('club', '==', userClub))
 })
 
@@ -264,8 +265,8 @@ const guardarRecordatorio = async () => {
       titulo: nuevoRecordatorio.value.titulo.trim(),
       descripcion: nuevoRecordatorio.value.descripcion.trim(),
       fecha: fechaSeleccionada.value,
-      club: sesionStore.club || 'Isla de Margarita',
-      createdAt: new Date(),
+      club: sesionStore.club || CLUB_POR_DEFECTO,
+      createdAt: serverTimestamp(),
     })
     nuevoRecordatorio.value.titulo = ''
     nuevoRecordatorio.value.descripcion = ''

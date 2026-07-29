@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useCollection } from 'vuefire'
 import { collection, query, where } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 import { guardarMovimiento } from '@/services/firebaseService'
 import { useSesionStore } from '@/stores/useSesionStore'
 
@@ -14,12 +15,12 @@ import PagarReportForm from '@/components/pagar/PagarReportForm.vue'
 const sesionStore = useSesionStore()
 
 const metodos = useCollection(() => {
-  const userClub = sesionStore.club || 'Isla de Margarita'
+  const userClub = sesionStore.club || CLUB_POR_DEFECTO
   return query(collection(db, 'metodos_pago'), where('club', '==', userClub))
 })
 
 const socios = useCollection(() => {
-  const userClub = sesionStore.club || 'Isla de Margarita'
+  const userClub = sesionStore.club || CLUB_POR_DEFECTO
   return query(
     collection(db, 'persona'),
     where('estatus', 'in', ['Socios', 'Aspirantes']),
@@ -90,7 +91,7 @@ const enviarReporte = async () => {
     referencia: formReporte.value.referencia.trim(),
     fechaPago: formReporte.value.fechaPago,
     tipoPago: mapearMetodoPago(metodoSeleccionado.value.tipo),
-    club: sesionStore.club || 'Isla de Margarita',
+    club: sesionStore.club || CLUB_POR_DEFECTO,
   }
 
   const res = await guardarMovimiento('mensualidad', datos, isSaving)

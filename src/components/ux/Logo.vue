@@ -1,8 +1,10 @@
 <script setup>
+import { CLUB_POR_DEFECTO } from '@/config/constants'
+
 defineProps({
   club: {
     type: String,
-    default: 'Isla de Margarita',
+    default: CLUB_POR_DEFECTO,
   },
 })
 </script>

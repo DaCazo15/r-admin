@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useDocument } from 'vuefire'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO, JUNTA_DOC_ID_POR_DEFECTO } from '@/config/constants'
 import { useSesionStore } from './useSesionStore'
 
 export const cargosDefinidos = [
@@ -82,8 +83,8 @@ export const useJuntaStore = defineStore('junta', () => {
   const sesionStore = useSesionStore()
 
   const juntaActualRaw = useDocument(() => {
-    const userClub = sesionStore.club || 'Isla de Margarita'
-    const juntaDocId = userClub === 'Isla de Margarita' ? 'junta_directiva' : userClub
+    const userClub = sesionStore.club || CLUB_POR_DEFECTO
+    const juntaDocId = userClub === CLUB_POR_DEFECTO ? JUNTA_DOC_ID_POR_DEFECTO : userClub
     return doc(db, 'junta', juntaDocId)
   })
   const isSaving = ref(false)
@@ -98,12 +99,12 @@ export const useJuntaStore = defineStore('junta', () => {
   const guardarJunta = async (datosJunta) => {
     isSaving.value = true
     try {
-      const userClub = sesionStore.club || 'Isla de Margarita'
-      const juntaDocId = userClub === 'Isla de Margarita' ? 'junta_directiva' : userClub
+      const userClub = sesionStore.club || CLUB_POR_DEFECTO
+      const juntaDocId = userClub === CLUB_POR_DEFECTO ? JUNTA_DOC_ID_POR_DEFECTO : userClub
       const docRef = doc(db, 'junta', juntaDocId)
       await setDoc(docRef, {
         ...datosJunta,
-        updatedAt: new Date(),
+        updatedAt: serverTimestamp(),
       })
     } catch (error) {
       console.error('Error al guardar junta directiva:', error)

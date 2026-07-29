@@ -1,0 +1,162 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esAutenticado() {
+      return request.auth != null;
+    }
+
+    function emailUsuario() {
+      return request.auth.token.email.lower();
+    }
+
+    function datosUsuario() {
+      return get(/databases/$(database)/documents/usuarios/$(emailUsuario())).data;
+    }
+
+    function rolUsuario() {
+      return datosUsuario().rol;
+    }
+
+    function clubUsuario() {
+      return datosUsuario().club;
+    }
+
+    function esDirectivo() {
+      return rolUsuario() in ['presidente', 'vicepresidente', 'secretario', 'tesorero', 'macero', 'membresia'];
+    }
+
+    function esAdminDeSocios() {
+      return rolUsuario() in ['presidente', 'vicepresidente', 'membresia'];
+    }
+
+    function esPresidente() {
+      return rolUsuario() == 'presidente';
+    }
+
+    function esTesorero() {
+      return rolUsuario() in ['presidente', 'tesorero'];
+    }
+
+    function perteneceAlClub(recursoClub) {
+      return clubUsuario() == recursoClub;
+    }
+
+    match /usuarios/{email} {
+      allow read: if esAutenticado();
+
+      allow create: if esAutenticado()
+        && esAdminDeSocios()
+        && email != emailUsuario()
+        && perteneceAlClub(request.resource.data.club);
+
+      allow create: if esAutenticado()
+        && email == emailUsuario()
+        && !exists(/databases/$(database)/documents/usuarios/$(email))
+        && request.resource.data.rol == 'presidente';
+
+      allow update: if esAutenticado()
+        && esAdminDeSocios()
+        && email != emailUsuario()
+        && perteneceAlClub(resource.data.club);
+
+      allow update: if esAutenticado()
+        && email == emailUsuario()
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol', 'club', 'correo', 'createdAt']));
+
+      allow delete: if esAutenticado() && email == emailUsuario();
+    }
+
+    match /persona/{personaId} {
+      allow read: if esAutenticado() && perteneceAlClub(resource.data.club);
+      allow create: if esAutenticado() && esDirectivo() && perteneceAlClub(request.resource.data.club);
+      allow update: if esAutenticado() && esDirectivo() && perteneceAlClub(resource.data.club);
+      allow delete: if esAutenticado() && esPresidente() && perteneceAlClub(resource.data.club);
+    }
+
+    match /tesoreria/{transaccionId} {
+      allow read: if esAutenticado() && perteneceAlClub(resource.data.club);
+      allow create: if esAutenticado()
+                    && esTesorero()
+                    && perteneceAlClub(request.resource.data.club)
+                    && request.resource.data.monto is number
+                    && request.resource.data.monto > 0;
+      allow update: if esAutenticado()
+                    && esTesorero()
+                    && perteneceAlClub(resource.data.club)
+                    && (!('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt);
+      allow delete: if esAutenticado() && esTesorero() && perteneceAlClub(resource.data.club);
+    }
+
+    match /eventos/{eventoId} {
+      allow read: if esAutenticado() && perteneceAlClub(resource.data.club);
+      allow create: if esAutenticado()
+                    && rolUsuario() in ['presidente', 'vicepresidente', 'secretario']
+                    && perteneceAlClub(request.resource.data.club);
+      allow update: if esAutenticado()
+                    && rolUsuario() in ['presidente', 'vicepresidente', 'secretario']
+                    && perteneceAlClub(resource.data.club);
+      allow delete: if esAutenticado() && esPresidente() && perteneceAlClub(resource.data.club);
+
+      match /gastos/{gastoId} {
+        allow read: if esAutenticado();
+        allow create: if esAutenticado()
+                      && rolUsuario() in ['presidente', 'vicepresidente', 'secretario', 'tesorero'];
+        allow update: if esAutenticado()
+                      && rolUsuario() in ['presidente', 'vicepresidente', 'secretario', 'tesorero'];
+        allow delete: if esAutenticado()
+                      && rolUsuario() in ['presidente', 'vicepresidente', 'secretario', 'tesorero'];
+      }
+    }
+
+    match /club/{clubId} {
+      allow read: if esAutenticado();
+      allow create: if esAutenticado();
+      allow update: if esAutenticado() && esTesorero();
+      allow delete: if false;
+    }
+
+    match /junta/{juntaId} {
+      allow read: if esAutenticado();
+      allow write: if esAutenticado() && esPresidente();
+    }
+
+    match /alianzas/{alianzaId} {
+      allow read: if esAutenticado();
+      allow create: if esAutenticado() && esDirectivo();
+      allow update: if esAutenticado() && esDirectivo();
+      allow delete: if esAutenticado() && esPresidente();
+    }
+
+    match /fechas_personalizadas/{recordatorioId} {
+      allow read: if esAutenticado() && perteneceAlClub(resource.data.club);
+      allow create: if esAutenticado() && esDirectivo() && perteneceAlClub(request.resource.data.club);
+      allow update: if esAutenticado() && esDirectivo() && perteneceAlClub(resource.data.club);
+      allow delete: if esAutenticado() && esDirectivo() && perteneceAlClub(resource.data.club);
+    }
+
+    match /herramientas/{herramientaId} {
+      allow read: if esAutenticado();
+      allow create: if esAutenticado();
+      allow update: if esAutenticado();
+      allow delete: if esAutenticado() && esPresidente();
+    }
+
+    match /metodos_pago/{metodoId} {
+      allow read: if esAutenticado() && perteneceAlClub(resource.data.club);
+      allow create: if esAutenticado() && esTesorero() && perteneceAlClub(request.resource.data.club);
+      allow delete: if esAutenticado() && esTesorero() && perteneceAlClub(resource.data.club);
+    }
+
+    match /reportes/{reporteId} {
+      allow read: if esAutenticado();
+      allow create: if esAutenticado() && esDirectivo();
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

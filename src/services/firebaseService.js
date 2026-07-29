@@ -1,4 +1,5 @@
-import { db, firebaseApp } from '@/config/firebase'
+import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 import {
   collection,
   addDoc,
@@ -9,16 +10,15 @@ import {
   doc,
   writeBatch,
   runTransaction,
-  setDoc,
+  serverTimestamp,
 } from 'firebase/firestore'
-import { initializeApp, deleteApp } from 'firebase/app'
-import { getAuth, createUserWithEmailAndPassword, updateProfile, signOut } from 'firebase/auth'
+import { getFunctions, httpsCallable } from 'firebase/functions'
 
 export const firebaseService = {
   async crearPersona(datosSocio) {
     const datosParaSubir = {
       ...datosSocio,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
     }
     return await addDoc(collection(db, 'persona'), datosParaSubir)
   },
@@ -57,8 +57,8 @@ export const guardarMovimiento = async (movimiento, datos, isSaving) => {
       referencia: datos.referencia || 'N/A',
       fechaPago: datos.fechaPago,
       metodoPago: datos.tipoPago,
-      club: datos.club || 'Isla de Margarita',
-      createdAt: new Date(),
+      club: datos.club || CLUB_POR_DEFECTO,
+      createdAt: serverTimestamp(),
     }
 
     if (['mensualidad', 'cuota distrital'].includes(movimiento?.toLowerCase())) {
@@ -94,7 +94,11 @@ export const guardarPersona = async (persona, isSaving) => {
     await firebaseService.crearPersona(persona)
 
     if (persona.estatus === 'Socios') {
-      await crearCuentaAuthSocioSiNoExiste(persona.nombre, persona.correo, persona.club || 'Isla de Margarita')
+      await crearCuentaAuthSocioSiNoExiste(
+        persona.nombre,
+        persona.correo,
+        persona.club || CLUB_POR_DEFECTO,
+      )
     }
 
     return { ok: true }
@@ -106,7 +110,7 @@ export const guardarPersona = async (persona, isSaving) => {
   }
 }
 
-export const guardarPassEstandar = async (pass, isSaving, nombreClub = 'Isla de Margarita') => {
+export const guardarPassEstandar = async (pass, isSaving, nombreClub = CLUB_POR_DEFECTO) => {
   if (isSaving.value) return
   isSaving.value = true
 
@@ -130,14 +134,32 @@ export const guardarPassEstandar = async (pass, isSaving, nombreClub = 'Isla de 
   }
 }
 
-export const actualizarEstadoClub = async (nombreClub = 'Isla de Margarita') => {
+export const actualizarEstadoClub = async (nombreClub = CLUB_POR_DEFECTO) => {
   try {
     const [sociosSnap, aspirantesSnap, tesoreriaSnap, clubSnap, eventosSnap] = await Promise.all([
-      getDocs(query(collection(db, 'persona'), where('estatus', '==', 'Socios'), where('club', '==', nombreClub))),
-      getDocs(query(collection(db, 'persona'), where('estatus', '==', 'Aspirantes'), where('club', '==', nombreClub))),
+      getDocs(
+        query(
+          collection(db, 'persona'),
+          where('estatus', '==', 'Socios'),
+          where('club', '==', nombreClub),
+        ),
+      ),
+      getDocs(
+        query(
+          collection(db, 'persona'),
+          where('estatus', '==', 'Aspirantes'),
+          where('club', '==', nombreClub),
+        ),
+      ),
       getDocs(query(collection(db, 'tesoreria'), where('club', '==', nombreClub))),
       getDocs(collection(db, 'club')),
-      getDocs(query(collection(db, 'eventos'), where('estatus', '==', 'activo'), where('club', '==', nombreClub))),
+      getDocs(
+        query(
+          collection(db, 'eventos'),
+          where('estatus', '==', 'activo'),
+          where('club', '==', nombreClub),
+        ),
+      ),
     ])
 
     const st = sociosSnap.size
@@ -170,7 +192,6 @@ export const actualizarEstadoClub = async (nombreClub = 'Isla de Margarita') => 
         at,
         saldo: Number(saldo.toFixed(2)),
       })
-      console.log('Estado del club actualizado exitosamente')
     }
     return { ok: true }
   } catch (error) {
@@ -194,7 +215,11 @@ export const actualizarPersona = async (id, datosPersona, isSaving) => {
     await updateDoc(docRef, datosPersona)
 
     if (datosPersona.estatus === 'Socios') {
-      await crearCuentaAuthSocioSiNoExiste(datosPersona.nombre, datosPersona.correo, datosPersona.club || 'Isla de Margarita')
+      await crearCuentaAuthSocioSiNoExiste(
+        datosPersona.nombre,
+        datosPersona.correo,
+        datosPersona.club || CLUB_POR_DEFECTO,
+      )
     }
 
     return { ok: true }
@@ -206,7 +231,7 @@ export const actualizarPersona = async (id, datosPersona, isSaving) => {
   }
 }
 
-export const extraerPassEstandarClub = async (nombreClub = 'Isla de Margarita') => {
+export const extraerPassEstandarClub = async (nombreClub = CLUB_POR_DEFECTO) => {
   try {
     const clubSnap = await getDocs(collection(db, 'club'))
     const docEncontrado = clubSnap.docs.find(
@@ -219,41 +244,17 @@ export const extraerPassEstandarClub = async (nombreClub = 'Isla de Margarita') 
   }
 }
 
-export async function crearCuentaAuthSocioSiNoExiste(nombre, correo, club = 'Isla de Margarita') {
+export async function crearCuentaAuthSocioSiNoExiste(nombre, correo, club = CLUB_POR_DEFECTO) {
   if (!correo) return
 
   try {
-    const passEstandar = await extraerPassEstandarClub(club)
-    if (!passEstandar) {
-      console.warn('No hay contraseña estándar configurada para el club.')
-      return
-    }
-
-    const secondaryApp = initializeApp(firebaseApp.options, 'SecondaryRegistration')
-    const secondaryAuth = getAuth(secondaryApp)
-
-    try {
-      const userCredential = await createUserWithEmailAndPassword(secondaryAuth, correo, passEstandar)
-      await updateProfile(userCredential.user, { displayName: nombre })
-      await signOut(secondaryAuth)
-
-      // Guardar el registro en la colección única 'usuarios'
-      await setDoc(doc(db, 'usuarios', correo.toLowerCase().trim()), {
-        nombre: nombre,
-        correo: correo.toLowerCase().trim(),
-        rol: 'socio',
-        club: club,
-        createdAt: new Date(),
-      })
-    } catch (authError) {
-      if (authError.code !== 'auth/email-already-in-use') {
-        console.error('Error al crear credenciales de Auth:', authError)
-      }
-    } finally {
-      await deleteApp(secondaryApp)
-    }
+    const functions = getFunctions()
+    const createSocioAccount = httpsCallable(functions, 'createSocioAccount')
+    await createSocioAccount({ nombre, correo, club })
   } catch (error) {
-    console.error('Error general al crear cuenta secundaria:', error)
+    if (error?.code !== 'functions/already-exists') {
+      console.error('Error al crear cuenta de socio:', error)
+    }
   }
 }
 
@@ -264,7 +265,7 @@ export const guardarAlianza = async (alianza, isSaving) => {
   try {
     const datosParaSubir = {
       ...alianza,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
     }
     await addDoc(collection(db, 'alianzas'), datosParaSubir)
     return { ok: true }
@@ -304,7 +305,7 @@ export const actualizarAlianza = async (id, datosAlianza, isSaving) => {
 // de las dos escrituras.
 // ---------------------------------------------------------------------------
 
-export const crearEvento = async (evento, isSaving, c = 'Isla de Margarita') => {
+export const crearEvento = async (evento, isSaving, c = CLUB_POR_DEFECTO) => {
   if (isSaving.value) return
   isSaving.value = true
 
@@ -313,7 +314,7 @@ export const crearEvento = async (evento, isSaving, c = 'Isla de Margarita') => 
       ...evento,
       totalGastado: 0,
       estatus: 'activo',
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
       club: c,
     })
     return { ok: true }
@@ -376,7 +377,7 @@ export const registrarGastoEvento = async (eventoId, gasto, isSaving) => {
         descripcion: gasto.descripcion,
         monto,
         fecha: gasto.fecha || new Date().toISOString().split('T')[0],
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
       })
 
       transaction.update(eventoRef, {
@@ -438,7 +439,7 @@ export const finalizarEvento = async (evento, isSaving) => {
     const eventoRef = doc(db, 'eventos', evento.id)
     batch.update(eventoRef, {
       estatus: 'finalizado',
-      finalizadoAt: new Date(),
+      finalizadoAt: serverTimestamp(),
     })
 
     if (totalGastado > 0) {
@@ -451,7 +452,7 @@ export const finalizarEvento = async (evento, isSaving) => {
         metodoPago: 'N/A',
         descripcion: `Evento: ${evento.nombre}`,
         estatus: 'n/a',
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
       })
     }
 

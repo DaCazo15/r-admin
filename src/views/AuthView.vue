@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSesionStore } from '../stores/useSesionStore'
 import { db } from '@/config/firebase'
-import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore'
 
 // Subcomponentes modulares de presentación
 import AuthHeader from '@/components/auth/AuthHeader.vue'
@@ -99,13 +99,20 @@ const handleSubmit = async () => {
         const normalizedClub = clubName.value.trim()
         const userEmail = form.value.email.toLowerCase().trim()
 
+        await setDoc(doc(db, 'usuarios', userEmail), {
+          nombre: form.value.nombre.trim(),
+          correo: userEmail,
+          rol: 'presidente',
+          club: normalizedClub,
+          createdAt: serverTimestamp(),
+        })
+
         await addDoc(collection(db, 'club'), {
           club: normalizedClub,
           mensualidad: 0,
           passEstandar: '',
         })
 
-        // Guardar la persona en la lista de miembros
         await addDoc(collection(db, 'persona'), {
           nombre: form.value.nombre.trim(),
           correo: userEmail,
@@ -113,19 +120,10 @@ const handleSubmit = async () => {
           club: normalizedClub,
           estatus: 'Socios',
           fecha: new Date().toISOString().split('T')[0],
-          createdAt: new Date(),
+          createdAt: serverTimestamp(),
           edad: '',
           telefono: '',
           ubicacion: '',
-        })
-
-        // Guardar la cuenta en la colección de usuarios
-        await setDoc(doc(db, 'usuarios', userEmail), {
-          nombre: form.value.nombre.trim(),
-          correo: userEmail,
-          rol: 'presidente',
-          club: normalizedClub,
-          createdAt: new Date(),
         })
 
         // Actualizar sesión

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useCollection } from 'vuefire'
 import { collection, query, where } from 'firebase/firestore'
 import { db } from '@/config/firebase'
+import { CLUB_POR_DEFECTO } from '@/config/constants'
 import { useTesoreriaStore } from './useTesoreriaStore'
 import { useSesionStore } from './useSesionStore'
 import {
@@ -20,7 +21,7 @@ export const useEventosStore = defineStore('eventos', () => {
   const sesionStore = useSesionStore()
 
   const eventosRaw = useCollection(() => {
-    const userClub = sesionStore.club || 'Isla de Margarita'
+    const userClub = sesionStore.club || CLUB_POR_DEFECTO
     return query(collection(db, 'eventos'), where('club', '==', userClub))
   })
 
@@ -106,7 +107,7 @@ export const useEventosStore = defineStore('eventos', () => {
       }
     }
 
-    const userClub = sesionStore.club || 'Isla de Margarita'
+    const userClub = sesionStore.club || CLUB_POR_DEFECTO
     await crearEvento(
       {
         nombre: datosForm.nombre,
@@ -163,7 +164,6 @@ export const useEventosStore = defineStore('eventos', () => {
     ) {
       try {
         await eliminarEventoCompleto(id)
-        console.log('Evento y sus gastos eliminados con éxito de Firestore')
       } catch (error) {
         console.error('Error al eliminar evento:', error)
       }
