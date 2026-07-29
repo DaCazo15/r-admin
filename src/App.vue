@@ -12,6 +12,7 @@ const { usuario, cargando } = storeToRefs(sesionStore)
 </script>
 
 <template>
+  <SpeedInsights />
   <div v-if="cargando" class="flex justify-center items-center h-screen text-gray-500 font-medium">
     Cargando...
   </div>
