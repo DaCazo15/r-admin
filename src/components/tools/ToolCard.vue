@@ -1,12 +1,45 @@
 <script setup>
+import { computed } from 'vue'
 import { sanitizeUrl, sanitizeWebUrl } from '@/helpers/security'
+import { db } from '@/config/firebase'
+import { collection, query, where } from 'firebase/firestore'
+import { useCollection } from 'vuefire'
 
-defineProps({
+const props = defineProps({
   tool: {
     type: Object,
     required: true,
   },
 })
+
+const personaResultados = useCollection(() => {
+  if (!props.tool.desarrolladorPrincipal) return null
+  return query(collection(db, 'persona'), where('nombre', '==', props.tool.desarrolladorPrincipal))
+})
+
+const clubDesarrollador = computed(() => {
+  if (personaResultados.value && personaResultados.value.length > 0) {
+    return personaResultados.value[0].club
+  }
+  return 'Sin Club'
+})
+
+const nombreClub = computed(() => {
+  if (clubDesarrollador.value && clubDesarrollador.value.toLowerCase().includes('rotaract')) {
+    return clubDesarrollador.value.split(' ').slice(1).join(' ')
+  } else {
+    return clubDesarrollador.value
+  }
+})
+if (nombreClub.value.length > 25) {
+  nombreClub.value = nombreClub.value.split(' ')
+  for (const part of nombreClub.value) {
+    if (part.length > 3) {
+      iniciales.value.push(part[0])
+    }
+  }
+  nombreClub.value = iniciales.value.join('')
+}
 </script>
 
 <template>
@@ -16,16 +49,13 @@ defineProps({
     <!-- Cuerpo de la tarjeta -->
     <div class="space-y-2.5">
       <div class="flex items-start justify-between gap-2">
-        <h3
-          class="text-base font-bold text-gray-900 truncate pr-4 capitalize"
-          :title="tool.nombre"
-        >
+        <h3 class="text-base font-bold text-gray-900 truncate pr-4 capitalize" :title="tool.nombre">
           {{ tool.nombre }}
         </h3>
         <span
           class="text-[10px] font-semibold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-100 uppercase tracking-wider"
         >
-          {{ tool.club }}
+          {{ clubDesarrollador }}
         </span>
       </div>
 
@@ -95,7 +125,10 @@ defineProps({
           :src="sanitizeWebUrl(tool.urlWeb)"
           class="absolute top-0 left-0 w-105 h-57.5 border-0 select-none pointer-events-none scale-75 origin-top-left"
         ></iframe>
-        <div v-else class="w-full h-full flex items-center justify-center text-[10px] text-gray-500 font-semibold font-mono">
+        <div
+          v-else
+          class="w-full h-full flex items-center justify-center text-[10px] text-gray-500 font-semibold font-mono"
+        >
           Vista previa no disponible
         </div>
       </div>

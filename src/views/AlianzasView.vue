@@ -22,7 +22,7 @@ const buscador = ref('')
 const terminoAplicado = ref('')
 
 const sesionStore = useSesionStore()
-const { rol } = storeToRefs(sesionStore)
+const { rol, club } = storeToRefs(sesionStore)
 
 const puedeModificarAlianzas = computed(() => {
   return !['socio', 'macero'].includes(rol.value)
@@ -63,7 +63,7 @@ const eliminar = async (id) => {
 
   <main>
     <!-- Logo -->
-    <Logo />
+    <Logo :club="club" />
 
     <!-- Encabezado -->
     <AlianzasHeader :total-alianzas="totalAlianzas" />

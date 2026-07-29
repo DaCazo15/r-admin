@@ -2,7 +2,15 @@
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useCollection } from 'vuefire'
-import { collection, addDoc, deleteDoc, doc, query, where, serverTimestamp } from 'firebase/firestore'
+import {
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+  serverTimestamp,
+} from 'firebase/firestore'
 import { db } from '@/config/firebase'
 import { CLUB_POR_DEFECTO } from '@/config/constants'
 import { useSociosStore } from '@/stores/useSociosStore'
@@ -15,13 +23,14 @@ import CalendarHeader from '@/components/calendar/CalendarHeader.vue'
 import CalendarSidebar from '@/components/calendar/CalendarSidebar.vue'
 import CalendarGrid from '@/components/calendar/CalendarGrid.vue'
 import CalendarModal from '@/components/calendar/CalendarModal.vue'
+import Logo from '../components/ux/Logo.vue'
 
 const sociosStore = useSociosStore()
 const aspirantesStore = useAspirantesStore()
 const eventosStore = useEventosStore()
 
 const sesionStore = useSesionStore()
-const { rol } = storeToRefs(sesionStore)
+const { rol, club } = storeToRefs(sesionStore)
 
 const recordatoriosRaw = useCollection(() => {
   const userClub = sesionStore.club || CLUB_POR_DEFECTO
@@ -300,6 +309,8 @@ const abrirCrearDirecto = () => {
 
 <template>
   <main class="w-[92%] sm:w-11/12 md:w-[94%] mx-auto mt-4">
+    <!-- Logo -->
+    <Logo :club="club" />
     <!-- Header de navegación de mes -->
     <CalendarHeader
       :mes-actual-label="mesActualLabel"

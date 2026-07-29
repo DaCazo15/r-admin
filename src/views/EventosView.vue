@@ -16,18 +16,14 @@ import EventoCard from '@/components/eventos/EventoCard.vue'
 
 const { iniciarEdicion, cancelarEdicion } = useEdicion()
 const eventosStore = useEventosStore()
-const {
-  eventosActivos,
-  eventosFinalizados,
-  presupuestoReservado,
-  balanceDisponible,
-} = storeToRefs(eventosStore)
+const { eventosActivos, eventosFinalizados, presupuestoReservado, balanceDisponible } =
+  storeToRefs(eventosStore)
 
 const isOpenEvento = ref(false)
 const isOpenGasto = ref(false)
 
 const sesionStore = useSesionStore()
-const { rol } = storeToRefs(sesionStore)
+const { rol, club } = storeToRefs(sesionStore)
 
 const puedeModificarEventos = computed(() => {
   return !['socio', 'macero'].includes(rol.value)
@@ -95,7 +91,7 @@ const eliminarEvento = async (id) => {
 
   <main>
     <!-- Logo -->
-    <Logo />
+    <Logo :club="club" />
 
     <!-- Resumen de balance -->
     <EventosBalance

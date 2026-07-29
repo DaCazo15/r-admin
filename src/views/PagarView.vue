@@ -24,7 +24,7 @@ const socios = useCollection(() => {
   return query(
     collection(db, 'persona'),
     where('estatus', 'in', ['Socios', 'Aspirantes']),
-    where('club', '==', userClub)
+    where('club', '==', userClub),
   )
 })
 
@@ -111,6 +111,7 @@ const enviarReporte = async () => {
 
 <template>
   <main class="w-[92%] sm:w-11/12 md:w-[94%] mx-auto mt-6">
+    <!-- Encabezado -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-xs space-y-8">
       <div class="text-center space-y-2">
         <h2 class="text-2xl md:text-3xl font-extrabold text-gray-800">Centro de Pagos</h2>

@@ -5,7 +5,7 @@ import { RouterLink } from 'vue-router'
 <template>
   <footer class="text-[10px] sm:text-xs text-gray-400 font-medium text-center mt-6">
     Rotaract 4370 &middot; R-Admin &middot; Todos los derechos reservados
-    <div class="flex sm:gap-3 gap-1 w-full justify-center items-center sm:mt-3 mt-1.5 mb-4">
+    <div class="flex sm:gap-3 gap-1 w-full justify-center items-center sm:mt-3 mt-1 mb-4">
       <router-link
         :to="{ name: 'conditions' }"
         class="text-gray-400 cursor-pointer text-[10px] sm:text-xs py-1 px-2 hover:text-primary-600 active:text-primary-600 font-medium"

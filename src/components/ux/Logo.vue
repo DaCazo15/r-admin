@@ -13,7 +13,7 @@ const nombreClub = ref('')
 if (props.club && props.club.toLowerCase().includes('rotaract')) {
   nombreClub.value = props.club.split(' ').slice(1).join(' ')
 } else {
-  nombreClub.value = props.club
+  nombreClub.value = props.club || ''
 }
 if (nombreClub.value.length > 25) {
   nombreClub.value = nombreClub.value.split(' ')
