@@ -15,6 +15,7 @@ const emit = defineEmits(['edit', 'toggleConfig', 'openLinktree', 'volverPerfil'
 </script>
 
 <template>
+  
   <div>
     <!-- Banner Cabecera con degradado Rotaract -->
     <div
@@ -69,14 +70,7 @@ const emit = defineEmits(['edit', 'toggleConfig', 'openLinktree', 'volverPerfil'
             <i class="bi bi-pencil-square"></i>
             Editar Perfil
           </button>
-          <button
-            v-if="!modoEdicion && !linktree"
-            @click="emit('toggleConfig')"
-            class="cursor-pointer px-4 py-2 border border-gray-200 hover:bg-gray-50 text-gray-600 font-medium rounded-xl transition-all duration-200 active:scale-95 text-sm flex items-center gap-1.5"
-          >
-            <i class="bi" :class="[config ? 'bi-person-badge-fill' : 'bi-gear-fill']"></i>
-            {{ config ? 'Ver Información' : 'Ajustes' }}
-          </button>
+          
           <button
             v-if="linktree"
             @click="emit('volverPerfil')"

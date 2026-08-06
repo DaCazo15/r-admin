@@ -1,4 +1,5 @@
 <script setup>
+import Aviso from '../ux/Aviso.vue'
 import { ref } from 'vue'
 
 const props = defineProps({
@@ -9,23 +10,25 @@ const props = defineProps({
   config: Boolean,
   usuarioEmail: String
 })
-
 const emit = defineEmits(['save', 'cancel', 'cerrarSesion'])
 
 const tabEdicion = ref('personal')
+
 </script>
 
 <template>
   <div class="space-y-6">
-    <h3
-      class="text-lg font-bold text-gray-900 border-b pb-2 border-gray-100 flex items-center gap-2"
-    >
-      <i
-        class="bi"
-        :class="[config ? 'bi-gear-wide-connected' : 'bi-pencil-square', 'text-primary-600']"
-      ></i>
-      {{ config ? 'Configuración de Perfil' : 'Editar Datos Personales' }}
-    </h3>
+    <div class="md:flex flex-col justify-between border-b pb-2 border-gray-100">
+      <h3
+        class="text-lg font-bold text-gray-900 flex items-center gap-2"
+      >
+        <i
+          class="bi"
+          :class="[config ? 'bi-gear-wide-connected' : 'bi-pencil-square', 'text-primary-600']"
+        ></i>
+        {{ config ? 'Configuración de Perfil' : 'Editar Datos Personales' }}
+      </h3>
+    </div>
 
     <!-- Pestañas de Edición -->
     <div class="flex border-b border-gray-100 mb-6">
@@ -63,12 +66,24 @@ const tabEdicion = ref('personal')
         ]"
         class="cursor-pointer py-2.5 px-4 border-b-2 text-sm transition-all"
       >
-        Empleo & Laboral
+        Empleo
+      </button>
+      <button
+        type="button"
+        @click="tabEdicion = 'pass'"
+        :class="[
+          tabEdicion === 'pass'
+            ? 'border-primary-600 text-primary-600 font-bold'
+            : 'border-transparent text-gray-400 hover:text-gray-600',
+        ]"
+        class="cursor-pointer py-2.5 px-4 border-b-2 text-sm transition-all"
+      >
+        Cambiar Contraseña
       </button>
     </div>
 
     <!-- Contenedor del Formulario -->
-    <form @submit.prevent="emit('save')" class="space-y-6">
+    <form @submit.prevent="emit('save', tabEdicion)" class="space-y-6">
       <!-- TAB 1: INFORMACIÓN PERSONAL -->
       <div v-if="tabEdicion === 'personal'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-1.5">
@@ -189,7 +204,7 @@ const tabEdicion = ref('personal')
         </div>
       </div>
 
-      <!-- TAB 3: INFORMACIÓN LABORAL -->
+      <!-- TAB 3: INFORMACIÓN -->
       <div v-if="tabEdicion === 'laboral'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-1.5">
           <label class="text-xs font-bold text-gray-600">Empresa / Empleo</label>
@@ -226,6 +241,44 @@ const tabEdicion = ref('personal')
             type="text"
             v-model="form.instagramEmpresa"
             placeholder="Instagram"
+            class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          />
+        </div>
+      </div>
+
+      <!-- TAB 4: PASSWORD -->
+      <Aviso v-if="tabEdicion === 'pass'" class="hidden md:block"/>
+      <div v-if="tabEdicion === 'pass'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Aviso v-if="tabEdicion === 'pass'" class="md:hidden block"/>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-gray-600">Contraseña Actual</label>
+          <input
+            type="password"
+            v-model="form.contraseñaActual"
+            placeholder="Contraseña Actual"
+            autocomplete="current-password"
+            class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-gray-600">Nueva Contraseña</label>
+          <input
+            type="password"
+            v-model="form.nuevaContraseña"
+            placeholder="Nueva Contraseña"
+            autocomplete="new-password"
+            class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-gray-600">Confirmar Nueva Contraseña</label>
+          <input
+            type="password"
+            v-model="form.confirmarNuevaContraseña"
+            placeholder="Confirmar Nueva Contraseña"
+            autocomplete="new-password"
             class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
         </div>

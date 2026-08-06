@@ -4,6 +4,7 @@ import { query, where, collection, getDocs, doc, updateDoc } from 'firebase/fire
 import { db } from '@/config/firebase'
 import { useSesionStore } from '@/stores/useSesionStore'
 import { storeToRefs } from 'pinia'
+import { cambiarPassword } from '@/services/cuentaService.js'
 
 // Componentes modulares de presentación
 import PerfilBanner from '@/components/perfil/PerfilBanner.vue'
@@ -42,6 +43,10 @@ const form = ref({
   cargo: '',
   fechaInicio: '',
   instagramEmpresa: '',
+  // Cambio de contraseña
+  contraseñaActual: '',
+  nuevaContraseña: '',
+  confirmarNuevaContraseña: '',
 })
 
 const getUsuario = async () => {
@@ -196,12 +201,63 @@ const cancelarEdicion = () => {
     form.value.fechaInicio = datosPersona.value.fechaInicio || ''
     form.value.instagramEmpresa = datosPersona.value.instagramEmpresa || ''
   }
+  // Los campos de contraseña nunca se precargan; siempre se limpian al cancelar
+  form.value.contraseñaActual = ''
+  form.value.nuevaContraseña = ''
+  form.value.confirmarNuevaContraseña = ''
   errorMsg.value = ''
   exitoMsg.value = ''
 }
 
-const guardarPerfil = async () => {
-  if (isSaving.value || !docId.value) return
+// --- Cambio de contraseña (tab "pass" de PerfilFormTab) ---
+const guardarCambioPassword = async () => {
+  errorMsg.value = ''
+  exitoMsg.value = ''
+
+  if (
+    !form.value.contraseñaActual ||
+    !form.value.nuevaContraseña ||
+    !form.value.confirmarNuevaContraseña
+  ) {
+    errorMsg.value = 'Completá los tres campos para cambiar tu contraseña.'
+    return
+  }
+
+  if (form.value.nuevaContraseña !== form.value.confirmarNuevaContraseña) {
+    errorMsg.value = 'La nueva contraseña y su confirmación no coinciden.'
+    return
+  }
+
+  isSaving.value = true
+  const resultado = await cambiarPassword(form.value.contraseñaActual, form.value.nuevaContraseña)
+  isSaving.value = false
+
+  if (resultado.ok) {
+    form.value.contraseñaActual = ''
+    form.value.nuevaContraseña = ''
+    form.value.confirmarNuevaContraseña = ''
+    exitoMsg.value = 'Contraseña actualizada con éxito.'
+    setTimeout(() => {
+      modoEdicion.value = false
+      config.value = false
+      exitoMsg.value = ''
+    }, 1500)
+  } else {
+    errorMsg.value = resultado.mensaje || 'No se pudo cambiar la contraseña.'
+  }
+}
+
+const guardarPerfil = async (tab) => {
+  if (isSaving.value) return
+
+  // El formulario de "Cambiar Contraseña" comparte el mismo botón Guardar,
+  // pero su lógica y validaciones son independientes de los datos de perfil.
+  if (tab === 'pass') {
+    await guardarCambioPassword()
+    return
+  }
+
+  if (!docId.value) return
   isSaving.value = true
   errorMsg.value = ''
   exitoMsg.value = ''

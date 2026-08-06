@@ -1,5 +1,10 @@
 import { auth, db } from '@/config/firebase'
-import { deleteUser } from 'firebase/auth'
+import {
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
+} from 'firebase/auth'
 import { doc, deleteDoc, query, collection, where, getDocs } from 'firebase/firestore'
 import logoUrl from '@/assets/img/logotipo-1.svg'
 
@@ -229,5 +234,70 @@ export async function eliminarCuenta() {
       }
     }
     return { ok: false, mensaje: error.message || 'No se pudo eliminar la cuenta.' }
+  }
+}
+
+/**
+ * Cambia la contraseña del usuario autenticado (Firebase Auth).
+ *
+ * Firebase exige una sesión "reciente" para operaciones sensibles, por eso
+ * primero se reautentica al usuario con su contraseña actual (esto también
+ * sirve como verificación de que efectivamente conoce su contraseña actual
+ * antes de dejarlo poner una nueva) y recién después se llama a
+ * updatePassword. Igual que en eliminarCuenta, si la sesión es muy vieja
+ * Firebase puede pedir un login reciente de todas formas.
+ */
+export async function cambiarPassword(passwordActual, passwordNueva) {
+  try {
+    const user = auth.currentUser
+
+    if (!user || !user.email) {
+      return { ok: false, mensaje: 'No hay una sesión activa.' }
+    }
+
+    if (!passwordActual || !passwordNueva) {
+      return { ok: false, mensaje: 'Completá ambos campos de contraseña.' }
+    }
+
+    if (passwordNueva.length < 6) {
+      return { ok: false, mensaje: 'La nueva contraseña debe tener al menos 6 caracteres.' }
+    }
+
+    if (passwordNueva === passwordActual) {
+      return { ok: false, mensaje: 'La nueva contraseña debe ser distinta a la actual.' }
+    }
+
+    // 1. Reautenticar con la contraseña actual
+    const credencial = EmailAuthProvider.credential(user.email, passwordActual)
+    await reauthenticateWithCredential(user, credencial)
+
+    // 2. Actualizar a la nueva contraseña
+    await updatePassword(user, passwordNueva)
+
+    return { ok: true }
+  } catch (error) {
+    console.error('Error al cambiar la contraseña:', error)
+
+    if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+      return { ok: false, mensaje: 'La contraseña actual es incorrecta.' }
+    }
+    if (error.code === 'auth/too-many-requests') {
+      return {
+        ok: false,
+        mensaje: 'Demasiados intentos fallidos. Esperá unos minutos e intentá de nuevo.',
+      }
+    }
+    if (error.code === 'auth/requires-recent-login') {
+      return {
+        ok: false,
+        mensaje:
+          'Por seguridad, tenés que volver a iniciar sesión antes de cambiar tu contraseña. Cerrá sesión, iniciá de nuevo e intentá otra vez.',
+      }
+    }
+    if (error.code === 'auth/weak-password') {
+      return { ok: false, mensaje: 'La nueva contraseña es demasiado débil.' }
+    }
+
+    return { ok: false, mensaje: error.message || 'No se pudo cambiar la contraseña.' }
   }
 }
