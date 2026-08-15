@@ -24,9 +24,9 @@ const toggleDesplegable = () => {
 <template>
   <div class="flex flex-col fixed w-full z-40">
     <div
-      class="py-2 px-4 flex justify-between items-center bg-white border-b border-gray-200 w-full"
+      class="py-2 px-4 flex justify-between items-center bg-white/70 backdrop-blur-md border-b border-gray-200/50 w-full"
     >
-      <img src="../assets/img/logotipo-1.svg" alt="Inicio" class="h-8 w-20 py-0 logo-blanco" />
+      <img src="../assets/img/logotipo-1.svg" alt="Inicio" class="h-8 w-20 py-0" />
       <button
         class="cursor-pointer px-2 py-1 rounded border-2 border-primary-600 text-white hover:text-primary-800 hover:bg-primary-600/85 bg-primary-600 ease-in-out duration-300 transition-all"
         @click="cerrarSesion"
@@ -52,7 +52,7 @@ const toggleDesplegable = () => {
       <button
         @click="toggleDesplegable"
         aria-label="Abrir menú"
-        class="cursor-pointer h-12 w-10 flex items-center justify-center mt-3 bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white rounded-r-xl shadow-lg border-y border-r border-white/20 relative z-50 transition-all duration-300 ease-in-out active:scale-95 group"
+        class="tutorial-menu cursor-pointer h-12 w-10 flex items-center justify-center mt-3 bg-linear-to-r from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white rounded-r-xl shadow-lg border-y border-r border-white/20 relative z-50 transition-all duration-300 ease-in-out active:scale-95 group"
         :class="[desplegable ? 'translate-x-72 shadow-primary-900/30' : 'translate-x-0']"
       >
         <i

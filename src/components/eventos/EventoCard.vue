@@ -1,17 +1,20 @@
 <script setup>
 import { computed } from 'vue'
 import { useEventosStore } from '@/stores/useEventosStore'
+import { useExportPdf } from '@/composable/useExportPdf'
 import EventoGastos from '../EventoGastos.vue'
 
 const props = defineProps({
   evento: Object,
   puedeModificarEventos: Boolean,
-  expandido: Boolean
+  expandido: Boolean,
+  terminoBusqueda: { type: String, default: '' }
 })
 
 const emit = defineEmits(['toggleExpand', 'addGasto', 'editEvento', 'finalizar', 'deleteEvento', 'eliminarGasto'])
 
 const eventosStore = useEventosStore()
+const { exportarEventoPdf } = useExportPdf()
 
 const gastado = computed(() => eventosStore.gastosDeEvento(props.evento))
 const restante = computed(() => eventosStore.restanteDeEvento(props.evento))
@@ -26,10 +29,18 @@ const formatoFecha = (fecha) => {
   const [anio, mes, dia] = fecha.split('-')
   return `${dia}/${mes}/${anio}`
 }
+
+const highlightText = (text) => {
+  if (!text) return ''
+  if (!props.terminoBusqueda) return text
+  
+  const searchRegex = new RegExp(`(${props.terminoBusqueda})`, 'gi')
+  return text.replace(searchRegex, '<mark class="bg-yellow-200 text-gray-900 rounded px-0.5">$1</mark>')
+}
 </script>
 
 <template>
-  <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     <div class="p-5 flex flex-col gap-3">
       <div class="flex items-start justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
@@ -51,7 +62,7 @@ const formatoFecha = (fecha) => {
             ></i>
           </div>
           <div class="min-w-0">
-            <h3 class="font-bold text-gray-900 truncate">{{ evento.nombre }}</h3>
+            <h3 class="font-bold text-gray-900 truncate" v-html="highlightText(evento.nombre)"></h3>
             <p class="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
               <i class="bi bi-calendar3"></i>
               {{ formatoFecha(evento.fecha) }}
@@ -60,6 +71,13 @@ const formatoFecha = (fecha) => {
         </div>
 
         <div v-if="puedeModificarEventos" class="flex items-center gap-1 shrink-0">
+          <button
+            @click="exportarEventoPdf(evento)"
+            class="cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
+            title="Descargar Reporte PDF"
+          >
+            <i class="bi bi-file-earmark-pdf"></i>
+          </button>
           <template v-if="evento.estatus !== 'finalizado'">
             <button
               @click="emit('addGasto')"
@@ -93,7 +111,7 @@ const formatoFecha = (fecha) => {
         </div>
       </div>
 
-      <p class="text-sm text-gray-600 leading-relaxed">{{ evento.descripcion }}</p>
+      <p class="text-sm text-gray-600 leading-relaxed" v-html="highlightText(evento.descripcion)"></p>
 
       <!-- Barra de progreso del presupuesto -->
       <div>
@@ -130,7 +148,7 @@ const formatoFecha = (fecha) => {
       </button>
     </div>
 
-    <!-- Detalle de gastos (solo se consulta la subcolección mientras está expandido) -->
+    <!-- Detalle de gastos -->
     <div v-if="expandido" class="border-t border-gray-100 bg-gray-50/60">
       <EventoGastos
         :evento="evento"

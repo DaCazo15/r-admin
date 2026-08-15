@@ -1,22 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { getCurrentUser } from 'vuefire'
-import HomeView from '@/views/HomeView.vue'
-import AuthView from '@/views/AuthView.vue'
-import SettingsView from '@/views/SettingsView.vue'
-import ErrorView from '@/views/ErrorView.vue'
-import AlianzaView from '@/views/AlianzasView.vue'
-import EventosView from '@/views/EventosView.vue'
-import TerminosCondiciones from '@/views/soporte/TerminosView.vue'
-import Politicas from '@/views/soporte/PrivacidadView.vue'
-import CentroAyuda from '@/views/soporte/AyudaView.vue'
-import Informacion from '@/views/soporte/InformacionView.vue'
-import CuentaDatos from '@/views/soporte/CuentaDatosView.vue'
-import CalendarView from '@/views/CalendarView.vue'
-import PagarView from '@/views/PagarView.vue'
-import PerfilUser from '@/views/PerfilView.vue'
-import VisibilidadPerfil from '@/views/perfil-settings/VisibilidadPerfilView.vue'
-import Networking from '@/views/perfil-settings/NetworkingView.vue'
-import ToolsView from '@/views/ToolsView.vue'
+const HomeView = () => import('@/views/HomeView.vue')
+const AuthView = () => import('@/views/AuthView.vue')
+const SettingsView = () => import('@/views/SettingsView.vue')
+const ErrorView = () => import('@/views/ErrorView.vue')
+const AlianzaView = () => import('@/views/AlianzasView.vue')
+const EventosView = () => import('@/views/EventosView.vue')
+const TerminosCondiciones = () => import('@/views/soporte/TerminosView.vue')
+const Politicas = () => import('@/views/soporte/PrivacidadView.vue')
+const CentroAyuda = () => import('@/views/soporte/AyudaView.vue')
+const Informacion = () => import('@/views/soporte/InformacionView.vue')
+const CuentaDatos = () => import('@/views/soporte/CuentaDatosView.vue')
+const CalendarView = () => import('@/views/CalendarView.vue')
+const PagarView = () => import('@/views/PagarView.vue')
+const PerfilUser = () => import('@/views/PerfilView.vue')
+const VisibilidadPerfil = () => import('@/views/perfil-settings/VisibilidadPerfilView.vue')
+const Networking = () => import('@/views/perfil-settings/NetworkingView.vue')
+const ToolsView = () => import('@/views/ToolsView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

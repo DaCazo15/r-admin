@@ -62,7 +62,7 @@ const coloresMetodo = [
 
 <template>
   <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-5 space-y-5">
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
       <div
         class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1 hover:shadow-md transition-shadow"
       >
@@ -157,6 +157,8 @@ const coloresMetodo = [
         <span class="text-xs text-gray-400">Saldo disponible real</span>
       </div>
 
+    </div>
+    <div class="grid grid-cols-2 gap-3">
       <div
         class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1 hover:shadow-md transition-shadow"
       >
@@ -169,7 +171,7 @@ const coloresMetodo = [
         <span class="text-xl font-bold text-primary-600">{{ totalSocios }}</span>
         <span class="text-xs text-gray-400">miembros activos</span>
       </div>
-
+  
       <div
         class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1 hover:shadow-md transition-shadow"
       >

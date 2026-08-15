@@ -151,25 +151,60 @@ export const useEventosStore = defineStore('eventos', () => {
 
   const finalizarEvento = async (evento, isSaving) => {
     const sobrante = restanteDeEvento(evento)
-    const confirmacion = confirm(
-      `¿Finalizar "${evento.nombre}"?\n\nSe liberarán $${sobrante.toFixed(2)} de vuelta al balance disponible y se registrará $${gastosDeEvento(evento).toFixed(2)} como egreso en Tesorería.`,
-    )
+    
+    const { useConfirm } = await import('@/composables/useConfirm')
+    const { confirm } = useConfirm()
+
+    const confirmacion = await confirm({
+      title: `¿Finalizar "${evento.nombre}"?`,
+      message: `Se liberarán $${sobrante.toFixed(2)} de vuelta al balance disponible y se registrará $${gastosDeEvento(evento).toFixed(2)} como egreso en Tesorería.`,
+      confirmText: 'Sí, finalizar',
+      cancelText: 'Cancelar',
+      confirmStyle: 'primary'
+    })
+
     if (!confirmacion) return
     const res = await finalizarEventoService(evento, isSaving)
     if (res && !res.ok) {
-      alert(`Error: ${res.mensaje}`)
+      const { useToast } = await import('@/composables/useToast')
+      const { error } = useToast()
+      error(`Error al finalizar evento: ${res.mensaje}`)
+    } else {
+      const { useToast } = await import('@/composables/useToast')
+      const { exito } = useToast()
+      exito(`El evento "${evento.nombre}" finalizó con éxito.`)
     }
   }
 
-  const eliminarEvento = async (id) => {
-    if (
-      confirm('¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.')
-    ) {
-      try {
-        await eliminarEventoCompleto(id)
-      } catch (error) {
-        console.error('Error al eliminar evento:', error)
+  const eliminarEvento = async (id, isSavingAccion) => {
+    const evento = eventosRaw.value.find(e => e.id === id)
+    if (!evento) return
+    
+    const { useConfirm } = await import('@/composables/useConfirm')
+    const { confirm } = useConfirm()
+
+    const confirmacion = await confirm({
+      title: 'Eliminar Evento',
+      message: `¿Estás seguro de eliminar el evento "${evento.nombre}"?\nEsta acción no se puede deshacer.`,
+      confirmText: 'Sí, eliminar',
+      cancelText: 'Cancelar',
+      confirmStyle: 'danger'
+    })
+
+    if (!confirmacion) return
+    try {
+      const res = await eliminarEventoCompleto(id, isSavingAccion)
+      if (res && !res.ok) {
+        const { useToast } = await import('@/composables/useToast')
+        const { error } = useToast()
+        error(`Error al eliminar evento: ${res.mensaje}`)
+      } else {
+        const { useToast } = await import('@/composables/useToast')
+        const { exito } = useToast()
+        exito(`Evento eliminado con éxito.`)
       }
+    } catch (error) {
+      console.error('Error al eliminar evento:', error)
     }
   }
 

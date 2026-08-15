@@ -9,7 +9,7 @@ const emit = defineEmits(['cambioEstatus'])
 
 <template>
   <div
-    class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2"
+    class="tutorial-tabs w-[92%] sm:w-11/12 md:w-3/4 mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2"
     :class="{ 'mt-15 sm:mt-20': estatus === 'Tesoreria' }"
   >
     <button

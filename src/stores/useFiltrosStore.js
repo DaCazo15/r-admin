@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
 export const useFiltrosStore = defineStore('filtros', () => {
-  const filtros = ref({
+  const defaultFiltros = {
     todos: true,
     ingreso: true,
     egreso: true,
@@ -12,7 +12,27 @@ export const useFiltrosStore = defineStore('filtros', () => {
     revisado: true,
     min: null,
     max: null,
-  })
+  }
+
+  const loadFiltros = () => {
+    try {
+      const stored = sessionStorage.getItem('filtrosTesoreria')
+      if (stored) return JSON.parse(stored)
+    } catch (e) {
+      console.error('Error parsing stored filters', e)
+    }
+    return { ...defaultFiltros }
+  }
+
+  const filtros = ref(loadFiltros())
+
+  watch(
+    filtros,
+    (nuevoFiltros) => {
+      sessionStorage.setItem('filtrosTesoreria', JSON.stringify(nuevoFiltros))
+    },
+    { deep: true }
+  )
 
   watch(
     () => filtros.value.todos,

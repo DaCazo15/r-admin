@@ -7,8 +7,9 @@ import Filtros from '../components/ux/Filtros.vue'
 import OpcionesTesoreria from '@/components/OpcionesTesoreria.vue'
 import MetricasComponent from '@/components/MetricasComponent.vue'
 import JuntaComponent from '@/components/JuntaComponent.vue'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useEncabezado } from '../composable/useEncabezado.js'
+import { useTutorial } from '@/composable/useTutorial.js'
 
 import ModalTesoreria from '../components/form/ModalTesoreria.vue'
 import { useEdicion } from '../composable/useEdicion.js'
@@ -117,6 +118,12 @@ const actualizarClub = async () => {
     isUpdating.value = false
   }
 }
+
+const { startTutorial } = useTutorial()
+
+onMounted(() => {
+  startTutorial()
+})
 </script>
 
 <template>
@@ -134,6 +141,8 @@ const actualizarClub = async () => {
       :puede-acceder-tesoreria="puedeAccederTesoreria"
       @cambioEstatus="cambioEstatus"
     />
+
+
 
     <!-- Opciones de Tesoreria -->
     <OpcionesTesoreria

@@ -8,6 +8,7 @@ import { useTesoreriaStore } from '@/stores/useTesoreriaStore'
 import { useSesionStore } from '@/stores/useSesionStore'
 import { db } from '@/config/firebase'
 import { query, where, collection, getDocs } from 'firebase/firestore'
+import EmptyState from '../ui/EmptyState.vue'
 
 const props = defineProps({
   encabezados: { type: Array, required: true },
@@ -94,6 +95,32 @@ const registrosFiltrados = computed(() => {
   })
 })
 
+const formatYearMonth = (yyyymm) => {
+  if (!yyyymm || yyyymm === 'Desconocido') return 'Sin Fecha'
+  const [y, m] = yyyymm.split('-')
+  const date = new Date(y, parseInt(m) - 1, 1)
+  return new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(date)
+}
+
+const registrosAgrupados = computed(() => {
+  if (props.estatus !== 'Tesoreria') {
+    return [{ label: '', items: registrosFiltrados.value }]
+  }
+
+  const grupos = {}
+  registrosFiltrados.value.forEach(item => {
+    const yearMonth = item.fechaPago ? item.fechaPago.substring(0, 7) : 'Desconocido'
+    if (!grupos[yearMonth]) grupos[yearMonth] = []
+    grupos[yearMonth].push(item)
+  })
+
+  const sortedKeys = Object.keys(grupos).sort().reverse()
+  return sortedKeys.map(key => ({
+    label: formatYearMonth(key),
+    items: grupos[key].sort((a,b) => new Date(b.fechaPago || 0) - new Date(a.fechaPago || 0))
+  }))
+})
+
 const eliminarRegistro = async (id) => {
   if (props.estatus === 'Socios') {
     await sociosStore.eliminarSocio(id)
@@ -115,7 +142,16 @@ const editarPersona = async (id) => {
 </script>
 
 <template>
+  <div v-if="registros.length === 0 || registrosFiltrados.length === 0" class="mt-8 w-full">
+    <EmptyState
+      :icon="props.estatus === 'Tesoreria' ? 'bi-cash-coin' : 'bi-people'"
+      :title="terminoBusqueda ? 'No se encontraron resultados' : `No hay registros en ${props.estatus}`"
+      :description="terminoBusqueda ? 'Intenta ajustando los términos de búsqueda.' : 'Parece que no hay datos ingresados en esta sección todavía.'"
+    />
+  </div>
+
   <div
+    v-else
     class="mt-3 w-[92%] sm:w-11/12 md:w-3/4 mx-auto bg-white shadow-md rounded-lg overflow-x-auto"
   >
     <table class="w-full min-w-160 border-collapse">
@@ -133,20 +169,19 @@ const editarPersona = async (id) => {
       </thead>
 
       <tbody class="divide-y divide-gray-200">
-        <!-- Mostrar si no hay registros -->
-        <tr v-if="registros.length === 0">
-          <td :colspan="encabezados.length" class="px-4 py-8 text-center text-gray-400 font-medium">
-            No hay registros para mostrar en {{ props.estatus }}
-          </td>
-        </tr>
+        <template v-for="(grupo, index) in registrosAgrupados" :key="index">
+          <tr v-if="grupo.label" class="bg-gray-50/50">
+            <td :colspan="headersFiltrados.length" class="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-100/50 border-y border-gray-200">
+              <i class="bi bi-calendar-event mr-1.5"></i>
+              {{ grupo.label }}
+            </td>
+          </tr>
 
-        <!-- Renderizar dinámicamente si hay registros -->
-        <tr
-          v-else
-          v-for="item in registrosFiltrados"
-          :key="item.id"
-          class="hover:bg-gray-50 transition-colors"
-        >
+          <tr
+            v-for="item in grupo.items"
+            :key="item.id"
+            class="hover:bg-primary-600/5 transition-colors"
+          >
           <!-- Si la vista es Socios o Aspirantes -->
           <template v-if="props.estatus === 'Socios' || props.estatus === 'Aspirantes'">
             <td class="px-4 py-3 font-medium text-gray-900">{{ item.nombre }}</td>
@@ -270,6 +305,7 @@ const editarPersona = async (id) => {
             </td>
           </template>
         </tr>
+        </template>
       </tbody>
     </table>
   </div>

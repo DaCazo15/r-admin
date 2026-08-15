@@ -13,6 +13,7 @@ import EventosBalance from '@/components/eventos/EventosBalance.vue'
 import EventosTabs from '@/components/eventos/EventosTabs.vue'
 import EventosSearch from '@/components/eventos/EventosSearch.vue'
 import EventoCard from '@/components/eventos/EventoCard.vue'
+import EmptyState from '@/components/ui/EmptyState.vue'
 
 const { iniciarEdicion, cancelarEdicion } = useEdicion()
 const eventosStore = useEventosStore()
@@ -116,36 +117,16 @@ const eliminarEvento = async (id) => {
     />
 
     <!-- Listado -->
-    <div class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-5">
+    <div class="w-full mt-5">
       <!-- Estado vacío -->
-      <div
+      <EmptyState
         v-if="eventosFiltrados.length === 0"
-        class="bg-white rounded-2xl border border-gray-200 shadow-xs p-10 flex flex-col items-center text-center"
-      >
-        <div
-          class="w-14 h-14 rounded-full bg-primary-50 flex items-center justify-center mb-3 border border-primary-100"
-        >
-          <i class="bi bi-calendar2-check text-2xl text-primary-600"></i>
-        </div>
-        <p class="text-sm font-semibold text-gray-700">
-          {{
-            terminoAplicado
-              ? 'No se encontraron eventos'
-              : pestania === 'activos'
-                ? 'Aún no hay eventos activos'
-                : 'Aún no hay eventos finalizados'
-          }}
-        </p>
-        <p class="text-xs text-gray-500 mt-1 max-w-xs">
-          {{
-            terminoAplicado
-              ? 'Intenta con otro término de búsqueda.'
-              : pestania === 'activos'
-                ? 'Presiona "Nuevo Evento" para reservar un presupuesto.'
-                : 'Los eventos finalizados aparecerán aquí.'
-          }}
-        </p>
-      </div>
+        icon="bi-calendar2-check"
+        :title="terminoAplicado ? 'No se encontraron eventos' : pestania === 'activos' ? 'Aún no hay eventos activos' : 'Aún no hay eventos finalizados'"
+        :description="terminoAplicado ? 'Intenta con otro término de búsqueda.' : pestania === 'activos' ? 'Presiona &quot;Nuevo Evento&quot; para reservar un presupuesto.' : 'Los eventos finalizados aparecerán aquí.'"
+        :action-text="(!terminoAplicado && pestania === 'activos' && puedeModificarEventos) ? 'Crear Evento' : ''"
+        @action="modalEvento(null)"
+      />
 
       <!-- Cards -->
       <div v-else class="flex flex-col gap-4 pb-6">

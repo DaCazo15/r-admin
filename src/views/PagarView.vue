@@ -110,7 +110,7 @@ const enviarReporte = async () => {
 </script>
 
 <template>
-  <main class="w-[92%] sm:w-11/12 md:w-[94%] mx-auto mt-6">
+  <main class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-6">
     <!-- Encabezado -->
     <div class="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-xs space-y-8">
       <div class="text-center space-y-2">

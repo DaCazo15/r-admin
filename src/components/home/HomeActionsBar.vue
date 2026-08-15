@@ -22,7 +22,7 @@ const emit = defineEmits([
 
 <template>
   <div
-    class="w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-3 flex flex-col sm:flex-row justify-center items-center gap-2"
+    class="tutorial-search w-[92%] sm:w-11/12 md:w-3/4 mx-auto mt-3 flex flex-col sm:flex-row justify-center items-center gap-2"
   >
     <!-- Agregar Persona -->
     <button

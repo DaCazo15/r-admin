@@ -2,6 +2,9 @@
 import { ref, computed } from 'vue'
 import { gastoForm } from '@/helpers/list.js'
 import { useEventosStore } from '@/stores/useEventosStore'
+import BaseModal from '../ui/BaseModal.vue'
+import BaseButton from '../ui/BaseButton.vue'
+import BaseInput from '../ui/BaseInput.vue'
 
 const emit = defineEmits(['close'])
 const isSaving = ref(false)
@@ -42,100 +45,76 @@ const guardar = async () => {
 </script>
 
 <template>
-  <div
-    class="fixed inset-0 z-50 flex items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-sm p-4"
-    @click.self="modal"
+  <BaseModal
+    :show="true"
+    title="Registrar Gasto"
+    @close="modal"
   >
-    <div
-      class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all"
-    >
-      <!-- Cabecera -->
-      <div
-        class="bg-primary-600 px-6 py-4 flex justify-between items-center border-b border-gray-100"
-      >
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-            <i class="bi bi-receipt text-xl text-white"></i>
-          </div>
-          <div class="min-w-0">
-            <h3 class="text-base font-bold text-gray-50 truncate">Registrar Gasto</h3>
-            <p class="text-xs text-white/80 truncate">{{ evento.nombre }}</p>
-          </div>
-        </div>
-        <button @click="modal" class="cursor-pointer text-gray-50 text-xl font-bold shrink-0">
-          &times;
-        </button>
+    <div class="mb-4 flex items-center justify-between text-sm bg-gray-50 border border-gray-100 rounded-lg p-3">
+      <div class="text-gray-500">
+        Evento: <span class="font-semibold text-gray-800">{{ evento.nombre }}</span>
       </div>
-
-      <!-- Resumen del presupuesto -->
-      <div
-        class="px-6 py-3 bg-primary-50 border-b border-primary-100 flex justify-between text-xs font-medium text-primary-700"
-      >
-        <span>Gastado: ${{ gastado.toFixed(2) }}</span>
-        <span>Restante: ${{ restante.toFixed(2) }}</span>
-      </div>
-
-      <!-- Formulario -->
-      <form @submit.prevent="guardar" class="p-6 space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Descripción del Gasto</label>
-          <input
-            type="text"
-            v-model="gastoForm.descripcion"
-            required
-            placeholder="Ej. Alquiler de sonido"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
-          />
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Monto ($)</label>
-            <input
-              type="number"
-              step="0.01"
-              min="0.01"
-              :max="restante"
-              v-model="gastoForm.monto"
-              required
-              placeholder="0.00"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-            <input
-              type="date"
-              v-model="gastoForm.fecha"
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-600"
-            />
-          </div>
-        </div>
-
-        <p v-if="error" class="text-xs font-medium text-red-600 flex items-center gap-1.5">
-          <i class="bi bi-exclamation-circle"></i>
-          {{ error }}
-        </p>
-
-        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-          <button
-            type="button"
-            @click="modal"
-            :disabled="isSaving"
-            class="cursor-pointer px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            :disabled="isSaving"
-            class="cursor-pointer px-4 py-2 bg-primary-600 text-white font-bold rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {{ isSaving ? 'Guardando...' : 'Registrar Gasto' }}
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
+
+    <!-- Resumen del presupuesto -->
+    <div
+      class="mb-4 px-4 py-3 bg-primary-600/10 border border-primary-600/20 rounded-xl flex justify-between text-sm font-medium text-primary-800"
+    >
+      <span>Gastado: ${{ gastado.toFixed(2) }}</span>
+      <span>Restante: ${{ restante.toFixed(2) }}</span>
+    </div>
+
+    <!-- Formulario -->
+    <form @submit.prevent="guardar" id="gastoForm" class="space-y-4">
+      <BaseInput
+        id="descripcion"
+        label="Descripción del Gasto"
+        v-model="gastoForm.descripcion"
+        required
+      />
+
+      <div class="grid grid-cols-2 gap-4">
+        <BaseInput
+          id="monto"
+          type="number"
+          label="Monto ($)"
+          step="0.01"
+          min="0.01"
+          :max="restante"
+          v-model="gastoForm.monto"
+          required
+        />
+        <BaseInput
+          id="fecha"
+          type="date"
+          label="Fecha"
+          v-model="gastoForm.fecha"
+          required
+        />
+      </div>
+
+      <p v-if="error" class="text-sm font-medium text-rose-600 flex items-center gap-1.5 mt-2">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        {{ error }}
+      </p>
+    </form>
+
+    <template #footer>
+      <BaseButton
+        variant="ghost"
+        @click="modal"
+        :disabled="isSaving"
+      >
+        Cancelar
+      </BaseButton>
+      <BaseButton
+        type="submit"
+        form="gastoForm"
+        variant="primary"
+        :loading="isSaving"
+      >
+        Registrar Gasto
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>
