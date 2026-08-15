@@ -28,24 +28,6 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
   const transacciones = computed(() => {
     let list = [...tesoreriaRawList.value]
 
-    const activosConGastos = (eventosRaw.value || []).filter(
-      (e) => e.estatus === 'activo' && Number(e.totalGastado || 0) > 0
-    )
-
-    activosConGastos.forEach((e) => {
-      list.push({
-        id: `evento-gasto-${e.id}`,
-        tipoMovimiento: 'egreso',
-        monto: Number(e.totalGastado || 0),
-        referencia: 'En tránsito',
-        fechaPago: e.fecha || (e.createdAt?.toDate ? e.createdAt.toDate() : new Date(e.createdAt || 0)).toISOString().split('T')[0],
-        metodoPago: 'N/A',
-        descripcion: `Gasto Evento: ${e.nombre} (Activo)`,
-        estatus: 'evento_activo',
-        createdAt: e.createdAt,
-      })
-    })
-
     if (filtros.value) {
       list = list.filter((item) => {
         if (item.tipoMovimiento === 'ingreso' && !filtros.value.ingreso) return false
@@ -93,24 +75,7 @@ export const useTesoreriaStore = defineStore('tesoreria', () => {
     tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'ingreso'),
   )
   const egresos = computed(() => {
-    const list = tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'egreso')
-    const activosConGastos = (eventosRaw.value || []).filter(
-      (e) => e.estatus === 'activo' && Number(e.totalGastado || 0) > 0
-    )
-    activosConGastos.forEach((e) => {
-      list.push({
-        id: `evento-gasto-${e.id}`,
-        tipoMovimiento: 'egreso',
-        monto: Number(e.totalGastado || 0),
-        referencia: 'En tránsito',
-        fechaPago: e.fecha || (e.createdAt?.toDate ? e.createdAt.toDate() : new Date(e.createdAt || 0)).toISOString().split('T')[0],
-        metodoPago: 'N/A',
-        descripcion: `Gasto Evento: ${e.nombre} (Activo)`,
-        estatus: 'evento_activo',
-        createdAt: e.createdAt,
-      })
-    })
-    return list
+    return tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'egreso')
   })
   const mensualidades = computed(() =>
     tesoreriaRawList.value.filter((t) => t.tipoMovimiento === 'mensualidad'),

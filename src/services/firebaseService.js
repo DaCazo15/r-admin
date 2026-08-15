@@ -453,6 +453,7 @@ export const finalizarEvento = async (evento, isSaving) => {
         descripcion: `Evento: ${evento.nombre}`,
         estatus: 'n/a',
         createdAt: serverTimestamp(),
+        club: evento.club || CLUB_POR_DEFECTO,
       })
     }
 

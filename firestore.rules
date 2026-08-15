@@ -78,7 +78,7 @@ service cloud.firestore {
     match /tesoreria/{transaccionId} {
       allow read: if esAutenticado() && perteneceAlClub(resource.data.club);
       allow create: if esAutenticado()
-                    && esTesorero()
+                    && (esTesorero() || (rolUsuario() in ['presidente', 'vicepresidente', 'secretario'] && request.resource.data.tipoMovimiento == 'egreso'))
                     && perteneceAlClub(request.resource.data.club)
                     && request.resource.data.monto is number
                     && request.resource.data.monto > 0;

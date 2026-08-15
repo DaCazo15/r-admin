@@ -155,7 +155,10 @@ export const useEventosStore = defineStore('eventos', () => {
       `¿Finalizar "${evento.nombre}"?\n\nSe liberarán $${sobrante.toFixed(2)} de vuelta al balance disponible y se registrará $${gastosDeEvento(evento).toFixed(2)} como egreso en Tesorería.`,
     )
     if (!confirmacion) return
-    await finalizarEventoService(evento, isSaving)
+    const res = await finalizarEventoService(evento, isSaving)
+    if (res && !res.ok) {
+      alert(`Error: ${res.mensaje}`)
+    }
   }
 
   const eliminarEvento = async (id) => {
